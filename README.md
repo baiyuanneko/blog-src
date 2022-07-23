@@ -7,6 +7,6 @@
 * [https://nekomoe.xyz](https://nekomoe.xyz)
 * [https://nekovanilla.pages.dev](https://nekovanilla.pages.dev)
 
-博客目前不支持 RSS 订阅，你可以通过 Watch 这个仓库以在博客更新时获得通知。
+你可以通过 [这个 RSS 订阅源](https://nekomoe.xyz/atom.xml) 订阅我的博客。
 
 此博客上的所有文章均属于公有领域，这意味着你可以不受限制地使用和加工它们。
