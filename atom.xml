@@ -3,114 +3,122 @@
     <subtitle>人与人虽然相距遥远，但又彼此相依</subtitle>
     <link href="https://nekomoe.xyz/atom.xml" rel="self"/>
     <link href="https://nekomoe.xyz"/>
-    <updated>2022-07-02T08:07:00.000Z</updated>
+    <updated>2022-08-03T18:57:00.000Z</updated>
     <id>https://nekomoe.xyz</id>
     <author>
         <name>白羊李志远のBlog</name>
     </author>
     <generator uri="https://bbg.nekomoe.xyz">Baiyang-lzy's Blog Generator</generator>
     <entry>
-        <title>在 Windows 上摸鱼（安装和使用 Fish Shell）</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=hDa5T3wDjTRj.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=hDa5T3wDjTRj.md</id>
-        <content type="html">
-            在 Windows Terminal、VS Code 中配置 Fish Shell
-        </content>
-        <summary type="html">在 Windows Terminal、VS Code 中配置 Fish Shell</summary>
-        </entry><entry>
-        <title>在初夏的第一阵微风过后</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=NSyJ4KZWmC5s.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=NSyJ4KZWmC5s.md</id>
-        <content type="html">
-            今天是 6 月 30 号，夏天就要到了
-        </content>
-        <summary type="html">今天是 6 月 30 号，夏天就要到了</summary>
-        </entry><entry>
-        <title>在 Thinkbook 16 G4+ 上安装 Ubuntu 22.04 LTS 的过程记录</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=Hb2Y6syPnZfA.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=Hb2Y6syPnZfA.md</id>
-        <content type="html">
-            编译安装 RTL8852BE 无线网卡驱动，安装 OEM 内核以增强对 Xe 显卡支持，修改内核启动参数来解决闪屏问题
-        </content>
-        <summary type="html">编译安装 RTL8852BE 无线网卡驱动，安装 OEM 内核以增强对 Xe 显卡支持，修改内核启动参数来解决闪屏问题</summary>
-        </entry><entry>
-        <title>安装和配置 WSL1</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=heKzxSJZcdeR.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=heKzxSJZcdeR.md</id>
-        <content type="html">
-            WSL1 的安装、图形界面的安装、中文输入法和中文支持的安装
-        </content>
-        <summary type="html">WSL1 的安装、图形界面的安装、中文输入法和中文支持的安装</summary>
-        </entry><entry>
-        <title>换了新的域名，以及其它的一些事</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=W8yNkPetJyib.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=W8yNkPetJyib.md</id>
-        <content type="html">
-            如题，一些流水账
-        </content>
-        <summary type="html">如题，一些流水账</summary>
-        </entry><entry>
-        <title>函数式发行版的安装和使用</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=2ZWC47D3rnRe.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=2ZWC47D3rnRe.md</id>
-        <content type="html">
-            关于 NixOS 的一个简单的教程和使用体验
-        </content>
-        <summary type="html">关于 NixOS 的一个简单的教程和使用体验</summary>
-        </entry><entry>
-        <title>初春的一些话——长久的谎言</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=QX52HKPXfNBp.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=QX52HKPXfNBp.md</id>
-        <content type="html">
-            写在初春的一些话，或者说，初春饰利的一些话
-        </content>
-        <summary type="html">写在初春的一些话，或者说，初春饰利的一些话</summary>
-        </entry><entry>
-        <title>《Needy Girl Overdose》、蒸汽波美学、怀旧与小众文化</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=4dKFj8X5Nwd3.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=4dKFj8X5Nwd3.md</id>
-        <content type="html">
-            最近热度很高的游戏《Needy Girl Overdose》为什么吸引人？为什么它的画面风格如此有特色而极具冲击力？为什么它能带给观众情感的共鸣？
-        </content>
-        <summary type="html">最近热度很高的游戏《Needy Girl Overdose》为什么吸引人？为什么它的画面风格如此有特色而极具冲击力？为什么它能带给观众情感的共鸣？</summary>
-        </entry><entry>
-        <title>GNOME 41 个性化指南与 NVIDIA 专有驱动使用 Wayland 的方法记录</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=JMADXYNaCjJd.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=JMADXYNaCjJd.md</id>
-        <content type="html">
-            此教程的环境是 Manjaro GNOME，在 Arch Linux 及其其它衍生版中应该同样可用。
-        </content>
-        <summary type="html">此教程的环境是 Manjaro GNOME，在 Arch Linux 及其其它衍生版中应该同样可用。</summary>
-        </entry><entry>
-        <title>一个伪命题：桌面 Linux 用户是苦难主义者</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=RzJPxykTSpGH.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=RzJPxykTSpGH.md</id>
-        <content type="html">
-            最近我看到很多人在网络上晒出了自己的年终总结，但是我回顾2021年，却发现自己今年什么也没干，所以自然写不了年终总结了。所以写一写今年发生的一些事情，和我想讨论的一些事情吧。
-        </content>
-        <summary type="html">最近我看到很多人在网络上晒出了自己的年终总结，但是我回顾2021年，却发现自己今年什么也没干，所以自然写不了年终总结了。所以写一写今年发生的一些事情，和我想讨论的一些事情吧。</summary>
-        </entry><entry>
-        <title>绕过 Windows 11 的设备限制</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=Dsw72n7SXtQt.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=Dsw72n7SXtQt.md</id>
-        <content type="html">
-            对于不满足最低要求的设备，本指南概述了在 Windows 10 / 11 下全新安装 / 安装 / 更新 到 Windows 11 或者 Windows 11 预览版本的方法。
-        </content>
-        <summary type="html">对于不满足最低要求的设备，本指南概述了在 Windows 10 / 11 下全新安装 / 安装 / 更新 到 Windows 11 或者 Windows 11 预览版本的方法。</summary>
-        </entry><entry>
-        <title>微软和苹果的傲慢与偏见</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=CKZdC6RAFF7d.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=CKZdC6RAFF7d.md</id>
-        <content type="html">
-            最近，Windows 11 故意做出了许多破坏用户体验的“改进”，比如取消了任务栏右键打开任务管理器、将 TPM 2.0 作为最低系统要求等。
-        </content>
-        <summary type="html">最近，Windows 11 故意做出了许多破坏用户体验的“改进”，比如取消了任务栏右键打开任务管理器、将 TPM 2.0 作为最低系统要求等。</summary>
-        </entry><entry>
-        <title>有些细节比想象中更加重要</title>
-        <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=EMNZPHaMxWFE.md"/>
-        <id>https://nekomoe.xyz/index.html?type=article&amp;filename=EMNZPHaMxWFE.md</id>
-        <content type="html">
-            bilibili 悄悄取消了 720P 60帧 的画质选项。其实 bilibili 舍弃的那部分用户体验并不会导致非常致命的问题。但是有的时候这些细节比想象中更加重要。
-        </content>
-        <summary type="html">bilibili 悄悄取消了 720P 60帧 的画质选项。其实 bilibili 舍弃的那部分用户体验并不会导致非常致命的问题。但是有的时候这些细节比想象中更加重要。</summary>
-        </entry></feed>
+      <title>七月的一些事，以及七夕节祝福</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=5QHi2BixsR3P.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=5QHi2BixsR3P.md</id>
+      <content type="html">
+          今天是 8 月 3 日，七夕就要到了
+      </content>
+      <summary type="html">今天是 8 月 3 日，七夕就要到了</summary>
+      </entry><entry>
+      <title>在 Windows 上摸鱼（安装和使用 Fish Shell）</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=hDa5T3wDjTRj.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=hDa5T3wDjTRj.md</id>
+      <content type="html">
+          在 Windows Terminal、VS Code 中配置 Fish Shell
+      </content>
+      <summary type="html">在 Windows Terminal、VS Code 中配置 Fish Shell</summary>
+      </entry><entry>
+      <title>在初夏的第一阵微风过后</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=NSyJ4KZWmC5s.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=NSyJ4KZWmC5s.md</id>
+      <content type="html">
+          今天是 6 月 30 号，夏天就要到了
+      </content>
+      <summary type="html">今天是 6 月 30 号，夏天就要到了</summary>
+      </entry><entry>
+      <title>在 Thinkbook 16 G4+ 上安装 Ubuntu 22.04 LTS 的过程记录</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=Hb2Y6syPnZfA.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=Hb2Y6syPnZfA.md</id>
+      <content type="html">
+          编译安装 RTL8852BE 无线网卡驱动，安装 OEM 内核以增强对 Xe 显卡支持，修改内核启动参数来解决闪屏问题
+      </content>
+      <summary type="html">编译安装 RTL8852BE 无线网卡驱动，安装 OEM 内核以增强对 Xe 显卡支持，修改内核启动参数来解决闪屏问题</summary>
+      </entry><entry>
+      <title>安装和配置 WSL1</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=heKzxSJZcdeR.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=heKzxSJZcdeR.md</id>
+      <content type="html">
+          WSL1 的安装、图形界面的安装、中文输入法和中文支持的安装
+      </content>
+      <summary type="html">WSL1 的安装、图形界面的安装、中文输入法和中文支持的安装</summary>
+      </entry><entry>
+      <title>换了新的域名，以及其它的一些事</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=W8yNkPetJyib.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=W8yNkPetJyib.md</id>
+      <content type="html">
+          如题，一些流水账
+      </content>
+      <summary type="html">如题，一些流水账</summary>
+      </entry><entry>
+      <title>函数式发行版的安装和使用</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=2ZWC47D3rnRe.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=2ZWC47D3rnRe.md</id>
+      <content type="html">
+          关于 NixOS 的一个简单的教程和使用体验
+      </content>
+      <summary type="html">关于 NixOS 的一个简单的教程和使用体验</summary>
+      </entry><entry>
+      <title>初春的一些话——长久的谎言</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=QX52HKPXfNBp.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=QX52HKPXfNBp.md</id>
+      <content type="html">
+          写在初春的一些话，或者说，初春饰利的一些话
+      </content>
+      <summary type="html">写在初春的一些话，或者说，初春饰利的一些话</summary>
+      </entry><entry>
+      <title>《Needy Girl Overdose》、蒸汽波美学、怀旧与小众文化</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=4dKFj8X5Nwd3.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=4dKFj8X5Nwd3.md</id>
+      <content type="html">
+          最近热度很高的游戏《Needy Girl Overdose》为什么吸引人？为什么它的画面风格如此有特色而极具冲击力？为什么它能带给观众情感的共鸣？
+      </content>
+      <summary type="html">最近热度很高的游戏《Needy Girl Overdose》为什么吸引人？为什么它的画面风格如此有特色而极具冲击力？为什么它能带给观众情感的共鸣？</summary>
+      </entry><entry>
+      <title>GNOME 41 个性化指南与 NVIDIA 专有驱动使用 Wayland 的方法记录</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=JMADXYNaCjJd.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=JMADXYNaCjJd.md</id>
+      <content type="html">
+          此教程的环境是 Manjaro GNOME，在 Arch Linux 及其其它衍生版中应该同样可用。
+      </content>
+      <summary type="html">此教程的环境是 Manjaro GNOME，在 Arch Linux 及其其它衍生版中应该同样可用。</summary>
+      </entry><entry>
+      <title>一个伪命题：桌面 Linux 用户是苦难主义者</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=RzJPxykTSpGH.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=RzJPxykTSpGH.md</id>
+      <content type="html">
+          最近我看到很多人在网络上晒出了自己的年终总结，但是我回顾2021年，却发现自己今年什么也没干，所以自然写不了年终总结了。所以写一写今年发生的一些事情，和我想讨论的一些事情吧。
+      </content>
+      <summary type="html">最近我看到很多人在网络上晒出了自己的年终总结，但是我回顾2021年，却发现自己今年什么也没干，所以自然写不了年终总结了。所以写一写今年发生的一些事情，和我想讨论的一些事情吧。</summary>
+      </entry><entry>
+      <title>绕过 Windows 11 的设备限制</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=Dsw72n7SXtQt.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=Dsw72n7SXtQt.md</id>
+      <content type="html">
+          对于不满足最低要求的设备，本指南概述了在 Windows 10 / 11 下全新安装 / 安装 / 更新 到 Windows 11 或者 Windows 11 预览版本的方法。
+      </content>
+      <summary type="html">对于不满足最低要求的设备，本指南概述了在 Windows 10 / 11 下全新安装 / 安装 / 更新 到 Windows 11 或者 Windows 11 预览版本的方法。</summary>
+      </entry><entry>
+      <title>微软和苹果的傲慢与偏见</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=CKZdC6RAFF7d.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=CKZdC6RAFF7d.md</id>
+      <content type="html">
+          最近，Windows 11 故意做出了许多破坏用户体验的“改进”，比如取消了任务栏右键打开任务管理器、将 TPM 2.0 作为最低系统要求等。
+      </content>
+      <summary type="html">最近，Windows 11 故意做出了许多破坏用户体验的“改进”，比如取消了任务栏右键打开任务管理器、将 TPM 2.0 作为最低系统要求等。</summary>
+      </entry><entry>
+      <title>有些细节比想象中更加重要</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=EMNZPHaMxWFE.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=EMNZPHaMxWFE.md</id>
+      <content type="html">
+          bilibili 悄悄取消了 720P 60帧 的画质选项。其实 bilibili 舍弃的那部分用户体验并不会导致非常致命的问题。但是有的时候这些细节比想象中更加重要。
+      </content>
+      <summary type="html">bilibili 悄悄取消了 720P 60帧 的画质选项。其实 bilibili 舍弃的那部分用户体验并不会导致非常致命的问题。但是有的时候这些细节比想象中更加重要。</summary>
+      </entry></feed>
