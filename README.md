@@ -1,6 +1,6 @@
 # blog-src
 
-[白羊李志远のBlog](https://nekomoe.xyz) 的博客源文件。
+[柏园猫のBlog](https://nekomoe.xyz) 的博客源文件。
 
 此仓库的内容通过 [Cloudflare Pages](https://pages.cloudflare.com/) 部署到下面两个域名中：
 
