@@ -15,7 +15,7 @@
 
   </style>
   <style id="body_opacity">
-    body:before{
+    body:before {
       top: 0;
       left: 0;
       right: 0;
@@ -43,7 +43,7 @@
       border-radius: 12px;
     }
 
-    .articlebottomnav{
+    .articlebottomnav {
       background-color: white;
       box-shadow: 0 1px 1px -2px rgb(0 0 0 / 20%),
         0 2px 2px 0 rgb(0 0 0 / 36%), 0 1px 5px 0 rgb(0 0 0 / 32%);
@@ -87,9 +87,9 @@
 
     }
 
-    @media (max-width: 520px){
-      #article-bottom-bar{
-        display:none;
+    @media (max-width: 520px) {
+      #article-bottom-bar {
+        display: none;
       }
     }
 
@@ -482,7 +482,7 @@
       }
     }
   </style>
-  
+
   <style>
     blockquote {
       color: #666666;
@@ -512,7 +512,7 @@
       padding-right: 12px;
       color: #0550ae;
       display: inline-block;
-      word-break: break-all!important;
+      word-break: break-all !important;
       white-space: pre-wrap;
     }
 
@@ -530,23 +530,25 @@
       bottom: 60px;
     }
 
-    #night_mode_btn * i, #back_to_top_btn * i{
+    #night_mode_btn * i,
+    #back_to_top_btn * i {
       width: 0.7em;
     }
-
   </style>
   <style id="whether_nightmode">
 
   </style>
-    <style id="highlight_css">
+  <style id="highlight_css">
 
-    </style>
+  </style>
   <style id="custom_css"></style>
   <div id="loading" style="font-family: sans-serif">
     <br /><br /><br />
-    <center><h2>Loading...</h2></center>
+    <center>
+      <h2>Loading...</h2>
+    </center>
   </div>
-  
+
   <div id="top"></div>
   <div id="root" style="display:none;"></div>
   <div id="back_to_top_btn">
@@ -565,32 +567,32 @@
   <script src="https://unpkg.com/crypto-js@4.1.1/crypto-js.js"></script>
   <script>
 
-marked.setOptions({
-  highlight: function(code) {
-    return hljs.highlightAuto(code).value;
-  }
-});
+    marked.setOptions({
+      highlight: function (code) {
+        return hljs.highlightAuto(code).value;
+      }
+    });
 
-window.onpopstate = function(){
-  if(window.location.href.indexOf("#top") === -1){
-    window.location.reload();
-  }
-}
+    window.onpopstate = function () {
+      if (window.location.href.indexOf("#top") === -1) {
+        window.location.reload();
+      }
+    }
 
-function content_decrypt(content, password, verify = null) {
-	if (verify !== null)
-		if (CryptoJS.SHA256(password).toString() != verify)
-			return [false];
-	var key = CryptoJS.enc.Utf8.parse(password).toString();
-	var argument = {
-		iv: CryptoJS.enc.Utf8.parse('1145141919810').toString(),
-		mode: CryptoJS.mode.CBC,
-		padding: CryptoJS.pad.Pkcs7
-	}
-	var result = CryptoJS.AES.decrypt(content, key, argument).toString(CryptoJS.enc.Utf8);
-	if (result == "") return [false];
-	else return [true, result];
-}
+    function content_decrypt(content, password, verify = null) {
+      if (verify !== null)
+        if (CryptoJS.SHA256(password).toString() != verify)
+          return [false];
+      var key = CryptoJS.enc.Utf8.parse(password).toString();
+      var argument = {
+        iv: CryptoJS.enc.Utf8.parse('1145141919810').toString(),
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      }
+      var result = CryptoJS.AES.decrypt(content, key, argument).toString(CryptoJS.enc.Utf8);
+      if (result == "") return [false];
+      else return [true, result];
+    }
 
     currentArticleListPageOrder = 1; //这个变量表示目前在显示文章列表中的第几页，是从1开始数的
 
@@ -683,16 +685,16 @@ function content_decrypt(content, password, verify = null) {
       }
     }
 
-    function detect_whether_ui_load_finished(){
-      if(highlight_css_import_finished === true && bootstrap_css_import_finished === true && content_load_finished === true){
-        document.getElementById("root").setAttribute("style","");
-        document.getElementById("loading").setAttribute("style","display:none");
+    function detect_whether_ui_load_finished() {
+      if (highlight_css_import_finished === true && bootstrap_css_import_finished === true && content_load_finished === true) {
+        document.getElementById("root").setAttribute("style", "");
+        document.getElementById("loading").setAttribute("style", "display:none");
       }
     }
 
-    function copy_full_article_to_clipboard(){    
+    function copy_full_article_to_clipboard() {
       navigator.clipboard.writeText(document.querySelector("#article-content-html").innerText);
-      document.getElementById("copy_to_clipboard_button").innerHTML=`<i class="fa fa-check"></i> 已复制！`;
+      document.getElementById("copy_to_clipboard_button").innerHTML = `<i class="fa fa-check"></i> 已复制！`;
     }
 
     bootstrap_css_import_finished = false;
@@ -702,59 +704,73 @@ function content_decrypt(content, password, verify = null) {
     const langdata = {
       "ARCHIVE_AND_TAGS": {
         "简体中文": "归档和标签",
-        "English": "Archive and tags"
+        "English": "Archive and tags",
+        "日本語": "アーカイブとタグ"
       },
       "ARTICLE_LIST": {
         "简体中文": "文章列表",
-        "English": "Article List"
+        "English": "Article List",
+        "日本語": "記事一覧"
       },
       "ARTICLE_CREATEDAT": {
         "简体中文": "此文章编写于",
-        "English": "This article is written at "
+        "English": "This article is written at ",
+        "日本語": "作成日"
       },
       "LASTMODIFIEDAT": {
         "简体中文": "最近修改于",
-        "English": "Last modified at "
+        "English": "Last modified at ",
+        "日本語": "修正日"
       },
       "TAGS": {
         "简体中文": "标签",
-        "English": "Tags: "
+        "English": "Tags: ",
+        "日本語": "タグ"
       },
       "COMMENT_UNAVAILABLE_DUE_TO_PREVIEW": {
         "简体中文": "由于你目前正在预览环境之中，评论功能暂时被禁用了。当你的站点被从互联网访问时，评论系统会正常地显示在这里。",
-        "English": "Comment function banned because you are now in the preview environment. When the site is visited from the Internet, the comment system will be available here."
+        "English": "Comment function banned because you are now in the preview environment. When the site is visited from the Internet, the comment system will be available here.",
+        "日本語": "現在プレビュー環境のため、コメント機能が禁止されています。インターネットからサイトにアクセスすると、ここにコメントシステムが表示されます。"
       },
       "FRIEND_BOOK": {
         "简体中文": "友人帐",
-        "English": "Friend book"
+        "English": "Friend book",
+        "日本語": "友人帳"
       },
       "COPYRIGHT_HINT": {
         "简体中文": "版权声明",
-        "English": "About the copyright of the article"
+        "English": "About the copyright of the article",
+        "日本語": "記事の著作権について"
       },
       "PREVIOUS_POST": {
         "简体中文": "上一篇文章",
-        "English": "Previous post"
+        "English": "Previous post",
+        "日本語": "前の記事へ"
       },
       "NEXT_POST": {
         "简体中文": "下一篇文章",
-        "English": "Next post"
+        "English": "Next post",
+        "日本語": "次の記事へ"
       },
       "NOTHING": {
         "简体中文": "没有了",
-        "English": "nothing"
+        "English": "nothing",
+        "日本語": "記事が存在しない"
       },
       "COPYRIGHT_RESERVED": {
         "简体中文": "除特别声明外，本博客上的内容由博主保留所有权利，进行转载前需先获得博主同意。",
-        "English": "Unless otherwise stated, the content on this blog is reserved by the blogger, and the blogger's consent must be obtained before reprinting."
+        "English": "Unless otherwise stated, the content on this blog is reserved by the blogger, and the blogger's consent must be obtained before reprinting.",
+        "日本語": "特別な記載がない限り、このブログ内の記事はブロガーの所有物であり、転載にはブロガーの同意が必要です。"
       },
       "COPYRIGHT_CC_BY_NC_SA_FOUR_DOT_ZERO": {
         "简体中文": "除特别声明外，本博客上的内容采用 <a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh' target='_blank'>CC BY-NC-SA 4.0 许可协议</a> 授权。转载请注明出处！",
-        "English": "Unless otherwise stated, the content on this blog is licensed under the CC BY-NC-SA 4.0 license. Please indicate the source when reprinting!"
+        "English": "Unless otherwise stated, the content on this blog is licensed under the <a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en' target='_blank'>CC BY-NC-SA 4.0 license</a>. Please indicate the source when reprinting!",
+        "日本語": "特別な記載がない限り、このブログ内の記事は<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja' target='_blank'>CC BY-NC-SA 4.0ライセンス</a>を使用しています。転載の際は出典を明記してください！"
       },
       "COPYRIGHT_UNLICENSED": {
         "简体中文": "除特别声明外，本博客上的内容属于公有领域，这意味着你可以不受限制地使用和加工它们。",
-        "English": "Unless otherwise stated, the content on this blog is in the public domain, which means you can use and process it without restriction."
+        "English": "Unless otherwise stated, the content on this blog is in the public domain, which means you can use and process it without restriction.",
+        "日本語": "特別な記載がない限り、このブログ内の記事はパブリックドメインであり、制限なく使用・加工できます。"
       }
     }
 
@@ -893,7 +909,7 @@ function content_decrypt(content, password, verify = null) {
     function changeArticleListPageOrderTo(page_order) {
       currentArticleListPageOrder = page_order;
       enter_indexPage();
-      scrollTo(0,0);
+      scrollTo(0, 0);
     }
 
     function render_article_list() {
@@ -984,7 +1000,7 @@ function content_decrypt(content, password, verify = null) {
       }
     }
 
-    function render_friend_book_list(){
+    function render_friend_book_list() {
 
       let numberInFriendListOne = Math.ceil(blog["友人帐"].length / 2);
       for (let i = 0; i < numberInFriendListOne; i++) {
@@ -1049,28 +1065,28 @@ function content_decrypt(content, password, verify = null) {
           Date.parse(new Date())
         )
         .then(function (response) {
-          document.querySelector("#article-content").innerHTML +=`
+          document.querySelector("#article-content").innerHTML += `
             <div id="article-content-html">${marked.parse(response.data)}</div>`;
-          
-            if(blog["提供文章文件下载"] || blog["提供复制全文到剪贴板的选项"]){
-            document.getElementById("article-content").innerHTML+=`
+
+          if (blog["提供文章文件下载"] || blog["提供复制全文到剪贴板的选项"]) {
+            document.getElementById("article-content").innerHTML += `
             <br />
             <div style="float:right;font-size:18px" id="article-bottom-bar">
             
               </div><br />
             `
           }
-            
 
 
-            if(blog["提供文章文件下载"]){
-            document.getElementById("article-bottom-bar").innerHTML+=`
+
+          if (blog["提供文章文件下载"]) {
+            document.getElementById("article-bottom-bar").innerHTML += `
               <a class="btn btn-primary" href="./data/articles/${blog["文章列表"][article_id]["文件名"]}" download="${blog["文章列表"][article_id]["文章标题"]}.md"><i class="fa fa-download"></i> 将该文章下载到你的计算机上</a>
             `;
           }
 
-          if(blog["提供复制全文到剪贴板的选项"]){
-            document.getElementById("article-bottom-bar").innerHTML+=`
+          if (blog["提供复制全文到剪贴板的选项"]) {
+            document.getElementById("article-bottom-bar").innerHTML += `
               <a class="btn btn-primary" id="copy_to_clipboard_button" onclick="copy_full_article_to_clipboard();"><i class="fa fa-clipboard"></i> 复制全文到剪贴板</a>
             `;
           }
@@ -1087,17 +1103,17 @@ function content_decrypt(content, password, verify = null) {
             `;
           }
 
-          if(blog["文章页面显示上一篇下一篇文章导航按钮"]){
+          if (blog["文章页面显示上一篇下一篇文章导航按钮"]) {
 
 
-            if(article_id === 0 && blog["文章列表"][article_id+1] != undefined && blog["文章列表"][article_id+1]["是否隐藏"] !== true){
+            if (article_id === 0 && blog["文章列表"][article_id + 1] != undefined && blog["文章列表"][article_id + 1]["是否隐藏"] !== true) {
               document.getElementById("container").innerHTML += `
               <div class="row">
     <div class="col">
       <div class="card articlebottomnav" style="float:left;width:100%">
   <div class="card-body">
     <h6 class="card-subtitle mb-2 text-muted"><i class="fa fa-arrow-left"></i> ${langdata.PREVIOUS_POST[lang_name]}</h6>
-    <h5 class="card-title"><a href="./index.html?type=article&filename=${blog["文章列表"][article_id+1]["文件名"]}" onclick="enter_article(${article_id+1});return false;">${blog["文章列表"][article_id+1]["文章标题"]}</a></h5>
+    <h5 class="card-title"><a href="./index.html?type=article&filename=${blog["文章列表"][article_id + 1]["文件名"]}" onclick="enter_article(${article_id + 1});return false;">${blog["文章列表"][article_id + 1]["文章标题"]}</a></h5>
   </div>
 </div>
     </div>
@@ -1114,7 +1130,7 @@ function content_decrypt(content, password, verify = null) {
             `
             }
 
-            if(article_id === 0 && blog["文章列表"][article_id+1] == undefined){
+            if (article_id === 0 && blog["文章列表"][article_id + 1] == undefined) {
               document.getElementById("container").innerHTML += `
             <div class="row">
     <div class="col">
@@ -1138,7 +1154,7 @@ function content_decrypt(content, password, verify = null) {
             `
             }
 
-            if(article_id !== 0 && blog["文章列表"][article_id+1] == undefined && blog["文章列表"][article_id-1]["是否隐藏"] !== true){
+            if (article_id !== 0 && blog["文章列表"][article_id + 1] == undefined && blog["文章列表"][article_id - 1]["是否隐藏"] !== true) {
               document.getElementById("container").innerHTML += `
               <div class="row">
     <div class="col">
@@ -1153,7 +1169,7 @@ function content_decrypt(content, password, verify = null) {
       <div class="card articlebottomnav" style="float:right;text-align:right;width:100%">
   <div class="card-body">
     <h6 class="card-subtitle mb-2 text-muted">${langdata.NEXT_POST[lang_name]} <i class="fa fa-arrow-right"></i></h6>
-    <h5 class="card-title"><a href="./index.html?type=article&filename=${blog["文章列表"][article_id-1]["文件名"]}" onclick="enter_article(${article_id-1});return false;">${blog["文章列表"][article_id-1]["文章标题"]}</a></h5>
+    <h5 class="card-title"><a href="./index.html?type=article&filename=${blog["文章列表"][article_id - 1]["文件名"]}" onclick="enter_article(${article_id - 1});return false;">${blog["文章列表"][article_id - 1]["文章标题"]}</a></h5>
   </div>
 </div>
     </div>
@@ -1162,14 +1178,14 @@ function content_decrypt(content, password, verify = null) {
             `
             }
 
-            if(article_id !== 0 && blog["文章列表"][article_id+1] != undefined && blog["文章列表"][article_id+1]["是否隐藏"] !== true && blog["文章列表"][article_id-1]["是否隐藏"] !== true){
+            if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blog["文章列表"][article_id + 1]["是否隐藏"] !== true && blog["文章列表"][article_id - 1]["是否隐藏"] !== true) {
               document.getElementById("container").innerHTML += `
               <div class="row">
     <div class="col">
       <div class="card articlebottomnav" style="float:left;width:100%">
   <div class="card-body">
     <h6 class="card-subtitle mb-2 text-muted"><i class="fa fa-arrow-left"></i> ${langdata.PREVIOUS_POST[lang_name]}</h6>
-    <h5 class="card-title"><a href="./index.html?type=article&filename=${blog["文章列表"][article_id+1]["文件名"]}" onclick="enter_article(${article_id+1});return false;">${blog["文章列表"][article_id+1]["文章标题"]}</a></h5>
+    <h5 class="card-title"><a href="./index.html?type=article&filename=${blog["文章列表"][article_id + 1]["文件名"]}" onclick="enter_article(${article_id + 1});return false;">${blog["文章列表"][article_id + 1]["文章标题"]}</a></h5>
   </div>
 </div>
     </div>
@@ -1177,7 +1193,7 @@ function content_decrypt(content, password, verify = null) {
       <div class="card articlebottomnav" style="float:right;text-align:right;width:100%">
   <div class="card-body">
     <h6 class="card-subtitle mb-2 text-muted">${langdata.NEXT_POST[lang_name]} <i class="fa fa-arrow-right"></i></h6>
-    <h5 class="card-title"><a href="./index.html?type=article&filename=${blog["文章列表"][article_id-1]["文件名"]}" onclick="enter_article(${article_id-1});return false;">${blog["文章列表"][article_id-1]["文章标题"]}</a></h5>
+    <h5 class="card-title"><a href="./index.html?type=article&filename=${blog["文章列表"][article_id - 1]["文件名"]}" onclick="enter_article(${article_id - 1});return false;">${blog["文章列表"][article_id - 1]["文章标题"]}</a></h5>
   </div>
 </div>
     </div>
@@ -1185,10 +1201,10 @@ function content_decrypt(content, password, verify = null) {
      
             `
             }
-            
+
           }
 
-          
+
 
 
           if (
@@ -1271,15 +1287,15 @@ function content_decrypt(content, password, verify = null) {
   </div>
             `;
 
-          if(blog["友人帐来自json文件"] === true){
-              axios.get(blog["若友人帐来自json文件，则地址为"]).then(
-                function (response) {
-                  blog["友人帐"] = response.data["友人帐"];
-                  render_friend_book_list();
-                })
-          }else{
+      if (blog["友人帐来自json文件"] === true) {
+        axios.get(blog["若友人帐来自json文件，则地址为"]).then(
+          function (response) {
+            blog["友人帐"] = response.data["友人帐"];
             render_friend_book_list();
-          }
+          })
+      } else {
+        render_friend_book_list();
+      }
 
       if (
         blog["全局评论设置"]["启用valine评论"] &&
@@ -1368,14 +1384,14 @@ function content_decrypt(content, password, verify = null) {
                 }，<i class="fa fa-clock-o"></i> ${langdata["LASTMODIFIEDAT"][lang_name]}${tagtree[Object.keys(tagtree)[i]][k]["修改日期"]
                 }）</p>`;
 
-                currentTagTreeArticleNumber++;
+              currentTagTreeArticleNumber++;
 
-              
+
             }
             totalTagTreeArticleLength = totalTagTreeArticleLength + 1;
           }
-          if(currentTagTreeArticleNumber === 0){
-            document.getElementById(`tag-content-of-tag-${Object.keys(tagtree)[i]}`).setAttribute("style","display:none");
+          if (currentTagTreeArticleNumber === 0) {
+            document.getElementById(`tag-content-of-tag-${Object.keys(tagtree)[i]}`).setAttribute("style", "display:none");
           }
         }
       }
@@ -1387,8 +1403,8 @@ function content_decrypt(content, password, verify = null) {
           `;
 
         for (let i = 0; i < blog["文章列表"].length; i++) {
-          if(blog["文章列表"][i]["是否隐藏"] === false){        
-          document.querySelector("#tag-content").innerHTML += `
+          if (blog["文章列表"][i]["是否隐藏"] === false) {
+            document.querySelector("#tag-content").innerHTML += `
             <p><i class="fa fa-file-text-o"></i> <a href="./index.html?type=article&filename=${blog["文章列表"][i]["文件名"]}">${blog["文章列表"][i]["文章标题"]}</a>
               
               （
@@ -1402,7 +1418,7 @@ function content_decrypt(content, password, verify = null) {
               </p>
 
           `;
-        }
+          }
         }
       } else {
         if (totalTagTreeArticleLength < blog["文章列表"].length) {
@@ -1411,9 +1427,9 @@ function content_decrypt(content, password, verify = null) {
             `;
 
           for (let i = 0; i < blog["文章列表"].length; i++) {
-            if(blog["文章列表"][i]["是否隐藏"] === false){
+            if (blog["文章列表"][i]["是否隐藏"] === false) {
               if (blog["文章列表"][i]["标签"].length === 0 || blog["文章列表"][i]["标签"] === false || blog["文章列表"][i]["标签"] === "" || blog["文章列表"][i]["标签"] === undefined || blog["文章列表"][i]["标签"] === null) {
-              document.querySelector("#tag-content").innerHTML += `
+                document.querySelector("#tag-content").innerHTML += `
             <p><i class="fa fa-file-text-o"></i> <a href="./index.html?type=article&filename=${blog["文章列表"][i]["文件名"]}">${blog["文章列表"][i]["文章标题"]}</a>
               
               （
@@ -1427,9 +1443,9 @@ function content_decrypt(content, password, verify = null) {
               </p>
 
           `;
+              }
             }
-            }
-            
+
           }
         }
       }
@@ -1528,7 +1544,7 @@ function content_decrypt(content, password, verify = null) {
     }
 
     function enter_page(page_id) {
-      history.pushState({type: "page", filename: blog["页面列表"][page_id]["文件名"]},"",`./index.html?type=page&filename=${blog["页面列表"][page_id]["文件名"]}`);
+      history.pushState({ type: "page", filename: blog["页面列表"][page_id]["文件名"] }, "", `./index.html?type=page&filename=${blog["页面列表"][page_id]["文件名"]}`);
       if (blog["页面列表"][page_id]["是否在新标签页打开"]) {
         if (blog["页面列表"][page_id]["这是一个完整的html"]) {
           // 在新标签页打开，是完整的html
@@ -1589,7 +1605,7 @@ function content_decrypt(content, password, verify = null) {
     }
 
     function enter_tag(tagname) {
-      history.pushState({type: "internal", function: "tag", argument: decodeURIComponent(tagname)},"",`./index.html?type=internal&function=tag&argument=${tagname}`);
+      history.pushState({ type: "internal", function: "tag", argument: decodeURIComponent(tagname) }, "", `./index.html?type=internal&function=tag&argument=${tagname}`);
       document.getElementsByTagName("title")[0].innerHTML = `标签为 ${decodeURIComponent(tagname)} 下的文章 - ${blog["博客标题"]} `;
       resetPage();
       render_nav(false);
@@ -1604,7 +1620,7 @@ function content_decrypt(content, password, verify = null) {
     }
 
     function enter_friend_book() {
-      history.pushState({type: "internal", function: "friendbook"},"",`./index.html?type=internal&function=friendbook`);
+      history.pushState({ type: "internal", function: "friendbook" }, "", `./index.html?type=internal&function=friendbook`);
       document.getElementsByTagName("title")[0].innerHTML = `友人帐 - ${blog["博客标题"]} `;
       resetPage();
       render_nav(false);
@@ -1618,7 +1634,7 @@ function content_decrypt(content, password, verify = null) {
     }
 
     function enter_archive_and_tags() {
-      history.pushState({type: "internal", function: "archive_and_tags"},"",`./index.html?type=internal&function=archive_and_tags`);
+      history.pushState({ type: "internal", function: "archive_and_tags" }, "", `./index.html?type=internal&function=archive_and_tags`);
       document.getElementsByTagName("title")[0].innerHTML = `归档与标签 - ${blog["博客标题"]} `;
       resetPage();
       render_nav(false);
@@ -1633,7 +1649,7 @@ function content_decrypt(content, password, verify = null) {
     }
 
     function enter_indexPage() {
-      history.pushState({type: "internal", function: "article_list"},"",`./index.html?type=internal&function=article_list`);
+      history.pushState({ type: "internal", function: "article_list" }, "", `./index.html?type=internal&function=article_list`);
       document.getElementsByTagName("title")[0].innerHTML = blog["博客标题"];
       resetPage();
       render_nav(true);
@@ -1650,7 +1666,7 @@ function content_decrypt(content, password, verify = null) {
     }
 
     function enter_article(article_id) {
-      history.pushState({type: "article", filename: blog["文章列表"][article_id]["文件名"]},"",`./index.html?type=article&filename=${blog["文章列表"][article_id]["文件名"]}`);
+      history.pushState({ type: "article", filename: blog["文章列表"][article_id]["文件名"] }, "", `./index.html?type=article&filename=${blog["文章列表"][article_id]["文件名"]}`);
       document.getElementsByTagName("title")[0].innerHTML = `${blog["文章列表"][article_id]["文章标题"]} - ${blog["博客标题"]} `;
       resetPage();
       render_nav(false);
@@ -1672,23 +1688,23 @@ function content_decrypt(content, password, verify = null) {
 
     function importBootstrapCSSFile(uri) {
       axios
-      .get(uri)
-      .then(function (response) {
-        document.getElementById("bootstrap_css").innerHTML+=response.data;
-        bootstrap_css_import_finished = true;
-        detect_whether_ui_load_finished();
-      })
+        .get(uri)
+        .then(function (response) {
+          document.getElementById("bootstrap_css").innerHTML += response.data;
+          bootstrap_css_import_finished = true;
+          detect_whether_ui_load_finished();
+        })
     }
 
 
     function importHighlightCSSFile(uri) {
       axios
-      .get(uri)
-      .then(function (response) {
-        document.getElementById("highlight_css").innerHTML+=response.data;
-        highlight_css_import_finished = true;
-        detect_whether_ui_load_finished();
-      })
+        .get(uri)
+        .then(function (response) {
+          document.getElementById("highlight_css").innerHTML += response.data;
+          highlight_css_import_finished = true;
+          detect_whether_ui_load_finished();
+        })
     }
 
     axios
@@ -1720,7 +1736,7 @@ function content_decrypt(content, password, verify = null) {
         importHighlightCSSFile(cdn_path + "/highlight.js@9.12.0/styles/tomorrow.css");
 
 
-        
+
         articleListPageLength = Math.ceil(blog["文章列表"].length / blog["文章列表中每页的文章数为"]); // 从1开始数
 
         if (blog["全局评论设置"]["valine设置"]["是否使用bbg公共评论服务"]) {
@@ -1779,9 +1795,9 @@ function content_decrypt(content, password, verify = null) {
               enter_article(i);
             }
           }
-          if(success_locate_article_id !== true){
-            document.getElementById("root").setAttribute("style","");
-            document.getElementById("loading").setAttribute("style","display:none;");
+          if (success_locate_article_id !== true) {
+            document.getElementById("root").setAttribute("style", "");
+            document.getElementById("loading").setAttribute("style", "display:none;");
             document.getElementById("root").innerHTML = `
             <div style="text-align:center">
               <br />
@@ -1800,9 +1816,9 @@ function content_decrypt(content, password, verify = null) {
               enter_page(i);
             }
           }
-          if(success_locate_page_id !== true){
-            document.getElementById("root").setAttribute("style","");
-            document.getElementById("loading").setAttribute("style","display:none;");
+          if (success_locate_page_id !== true) {
+            document.getElementById("root").setAttribute("style", "");
+            document.getElementById("loading").setAttribute("style", "display:none;");
             document.getElementById("root").innerHTML = `
             <div style="text-align:center">
               <br />
@@ -1836,7 +1852,7 @@ function content_decrypt(content, password, verify = null) {
         if (getUrlArgs("type") === false) {
           enter_indexPage();
         }
-        
+
       });
 
 
