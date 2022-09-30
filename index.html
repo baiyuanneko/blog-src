@@ -686,7 +686,7 @@
     }
 
     function detect_whether_ui_load_finished() {
-      if (highlight_css_import_finished === true && bootstrap_css_import_finished === true && content_load_finished === true) {
+      if (bootstrap_css_import_finished === true && content_load_finished === true) {
         document.getElementById("root").setAttribute("style", "");
         document.getElementById("loading").setAttribute("style", "display:none");
       }
@@ -1001,16 +1001,13 @@
     }
 
     function render_friend_book_list() {
-
-      let numberInFriendListOne = Math.ceil(blog["友人帐"].length / 2);
-      for (let i = 0; i < numberInFriendListOne; i++) {
-        render_friend_book_friend("friend_book_list1", blog["友人帐"][i]["名称"], blog["友人帐"][i]["链接"], blog["友人帐"][i]["图标"], blog["友人帐"][i]["简介"])
+      for (let i = 0; i < blog["友人帐"].length; i++) {
+        if((i%2)===0){
+          render_friend_book_friend("friend_book_list1", blog["友人帐"][i]["名称"], blog["友人帐"][i]["链接"], blog["友人帐"][i]["图标"], blog["友人帐"][i]["简介"])
+        }else{
+          render_friend_book_friend("friend_book_list2", blog["友人帐"][i]["名称"], blog["友人帐"][i]["链接"], blog["友人帐"][i]["图标"], blog["友人帐"][i]["简介"])
+        }
       }
-
-      for (let i = numberInFriendListOne; i < blog["友人帐"].length; i++) {
-        render_friend_book_friend("friend_book_list2", blog["友人帐"][i]["名称"], blog["友人帐"][i]["链接"], blog["友人帐"][i]["图标"], blog["友人帐"][i]["简介"])
-      }
-
     }
 
     function render_article_content(article_id) {
@@ -1702,8 +1699,6 @@
         .get(uri)
         .then(function (response) {
           document.getElementById("highlight_css").innerHTML += response.data;
-          highlight_css_import_finished = true;
-          detect_whether_ui_load_finished();
         })
     }
 
