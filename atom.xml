@@ -3,13 +3,21 @@
     <subtitle>人与人虽然相距遥远，但又彼此相依</subtitle>
     <link href="https://nekomoe.xyz/atom.xml" rel="self"/>
     <link href="https://nekomoe.xyz"/>
-    <updated>2022-10-00T21:06:00.000Z</updated>
+    <updated>2022-10-06T20:05:00.000Z</updated>
     <id>https://nekomoe.xyz</id>
     <author>
         <name>柏园猫のBlog</name>
     </author>
     <generator uri="https://bbg.nekomoe.xyz">Baiyuanneko's Blog Generator</generator>
     <entry>
+      <title>参加 Hackergame 2022 的一些感想和部分题解</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=hackergame-2022.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=hackergame-2022.md</id>
+      <content type="html">
+          参加了中国科学技术大学第九届信息安全大赛（即 Hackergame 2022），最终总分 4600，排名 64，排名有点遗憾地没有达到前 50，不过本来我的 CTF 经验也很少，而且，比赛的过程还是很开心的，也学到了很多很有意思的知识。
+      </content>
+      <summary type="html">参加了中国科学技术大学第九届信息安全大赛（即 Hackergame 2022），最终总分 4600，排名 64，排名有点遗憾地没有达到前 50，不过本来我的 CTF 经验也很少，而且，比赛的过程还是很开心的，也学到了很多很有意思的知识。</summary>
+      </entry><entry>
       <title>Python 和 Node.js 实现 Minecraft 聊天记录导出和检索程序</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=minecraft-chat.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=minecraft-chat.md</id>
