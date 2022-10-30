@@ -1888,9 +1888,6 @@ if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blo
     <div class="col" id="friend_book_list2">
       
     </div>
-    <div class="col" id="empty_friend_book_list">
-      
-    </div>
 
   </div>
   </div>
@@ -2396,7 +2393,7 @@ if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blo
 
         if(blog["使版心宽度更窄（提高左右页边距）"]){
           document.getElementById("theme_settings").innerHTML += `
-          @media(min-width: 900px){
+          @media(min-width: 1000px){
           .container{
             padding-left: 12%;
             padding-right: 12%;
