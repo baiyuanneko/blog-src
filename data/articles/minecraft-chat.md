@@ -211,12 +211,12 @@ source/1.14.4/2022-01-02-1.log
 
 ### 筛选器
 
-<img src="https://s2.loli.net/2022/10/02/MAhI2ajzxrKoQvN.png" style="width:50%" />
+![image](https://s2.loli.net/2022/10/02/MAhI2ajzxrKoQvN.png)
 
 ### 统计不同发送者占比
 
-<img src="https://s2.loli.net/2022/10/02/9rJmbAPQXihtk6N.png" style="width:50%" />
+![image](https://s2.loli.net/2022/10/02/9rJmbAPQXihtk6N.png)
 
 ### 按条件检索消息
 
-<img src="https://s2.loli.net/2022/10/02/gzNax9beBVWonfq.png" style="width: 50%" />
+![image](https://s2.loli.net/2022/10/02/gzNax9beBVWonfq.png)

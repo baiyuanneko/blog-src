@@ -1,5 +1,5 @@
 
-<a href="https://sm.ms/image/AqRbeBnWVETN7d5" target="_blank"><img src="https://s2.loli.net/2022/07/12/AqRbeBnWVETN7d5.png" style="width:50%"></a>
+![image](https://s2.loli.net/2022/07/12/AqRbeBnWVETN7d5.png)
 
 众所周知，Linux 桌面的 HiDPI 存在着种种问题。为了守护我的视力健康，我又回到了 Windows。
 
@@ -75,8 +75,8 @@ mkpasswd > /etc/passwd
 
 效果图（Windows Terminal）：
 
-<a href="https://sm.ms/image/AqRbeBnWVETN7d5" target="_blank"><img src="https://s2.loli.net/2022/07/12/AqRbeBnWVETN7d5.png" style="width:50%"></a>
+![image](https://s2.loli.net/2022/07/12/AqRbeBnWVETN7d5.png)
 
 效果图（VS Code）：
 
-<a href="https://sm.ms/image/zhx21BCtGSfkrwW" target="_blank"><img src="https://s2.loli.net/2022/07/12/zhx21BCtGSfkrwW.png" style="width:50%"></a>
+![image](https://s2.loli.net/2022/07/12/zhx21BCtGSfkrwW.png)

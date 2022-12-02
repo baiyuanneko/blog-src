@@ -64,7 +64,7 @@ export DISPLAY=localhost:0
 
 现在可以尝试在 Ubuntu 下打开图形程序了，如```gedit```。Linux 下的图形程序也会以窗口形式打开，并和 Windows 程序具有类似的体验。
 
-<img src="https://s2.loli.net/2022/05/06/J6IzQ17XbtNpkne.png" style="width:50%" />
+![image](https://s2.loli.net/2022/05/06/J6IzQ17XbtNpkne.png)
 
 ## 为 Ubuntu 添加中文支持
 
@@ -99,7 +99,7 @@ export GTK_IM_MODULE=fcitx
 
 重启 WSL 后中文支持和输入法生效。
 
-<img src="https://s2.loli.net/2022/05/06/8UbvGpljIKY9BPc.png" style="width:50%" />
+![image](https://s2.loli.net/2022/05/06/8UbvGpljIKY9BPc.png)
 
 ## 开发环境配置
 

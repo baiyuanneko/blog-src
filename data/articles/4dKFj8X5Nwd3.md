@@ -2,7 +2,7 @@
 
 那么，这种风格是什么呢？其实这种风格早在2012年就已兴起，它被称为[“蒸汽波”](https://zh.wikipedia.org/wiki/%E8%92%B8%E6%B0%94%E6%B3%A2)。
 
-<img title="" src="https://s2.loli.net/2022/02/06/RCGZ3Qivb25Mjms.jpg" alt="">
+![image](https://s2.loli.net/2022/02/06/RCGZ3Qivb25Mjms.jpg)
 
 ## 
 
