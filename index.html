@@ -7,7 +7,7 @@
   <link rel="shortcut icon" href="./favicon.ico" />
   <title></title>
   <link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css">
-
+  <link rel="stylesheet" href="https://unpkg.com/katex@0.16.3/dist/katex.min.css">
 </head>
 
 <body>
@@ -41,6 +41,10 @@
         0 2px 2px 0 rgb(0 0 0 / 36%), 0 1px 5px 0 rgb(0 0 0 / 32%);
       opacity: 0.8;
       border-radius: 12px;
+    }
+
+    .article-content{
+      word-break: break-all;
     }
 
     .articlebottomnav {
@@ -93,7 +97,15 @@
       }
     }
 
+    .article_tag{
+      border-radius: 40px;
+      color:white;
+      border: none;
+    }
 
+    .article_tag::before{
+      content: "#";
+    }
 
     .article-item-sub,
     .article-content-sub {
@@ -124,117 +136,6 @@
       text-decoration: none;
     }
 
-    @keyframes fade-in {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    @-webkit-keyframes fade-in {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes fade-off {
-      from {
-        opacity: 1;
-      }
-
-      to {
-        opacity: 0;
-      }
-    }
-
-    @-webkit-keyframes fade-off {
-      from {
-        opacity: 1;
-      }
-
-      to {
-        opacity: 0;
-      }
-    }
-
-    @keyframes fade-in-top {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @-webkit-keyframes fade-in-top {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fade-in-bottom {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @-webkit-keyframes fade-in-bottom {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fade-in-left {
-      from {
-        opacity: 0;
-        transform: translateX(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    @-webkit-keyframes fade-in-left {
-      from {
-        opacity: 0;
-        transform: translateX(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
 
     @keyframes fade-in-right {
       from {
@@ -260,226 +161,13 @@
       }
     }
 
-    /* - 淡入缩放 */
-    @keyframes fade-small-large {
-      from {
-        opacity: 0;
-        transform: scale(0.5, 0.5);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1, 1);
-      }
-    }
-
-    @-webkit-keyframes fade-small-large {
-      from {
-        opacity: 0;
-        transform: scale(0.5, 0.5);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1, 1);
-      }
-    }
-
-    @keyframes fade-large-small {
-      from {
-        opacity: 1;
-        transform: scale(1, 1);
-      }
-
-      to {
-        opacity: 0;
-        transform: scale(0.5, 0.5);
-      }
-    }
-
-    @-webkit-keyframes fade-large-small {
-      from {
-        opacity: 1;
-        transform: scale(1, 1);
-      }
-
-      to {
-        opacity: 0;
-        transform: scale(0.5, 0.5);
-      }
-    }
-
-    @keyframes fade-larger-small {
-      from {
-        opacity: 0;
-        transform: scale(1.5, 1.5);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1, 1);
-      }
-    }
-
-    @-webkit-keyframes fade-larger-small {
-      from {
-        opacity: 0;
-        transform: scale(1.5, 1.5);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1, 1);
-      }
-    }
-
-    @keyframes fade-small-larger {
-      from {
-        opacity: 1;
-        transform: scale(1, 1);
-      }
-
-      to {
-        opacity: 0;
-        transform: scale(1.5, 1.5);
-      }
-    }
-
-    @-webkit-keyframes fade-small-larger {
-      from {
-        opacity: 1;
-        transform: scale(1, 1);
-      }
-
-      to {
-        opacity: 0;
-        transform: scale(1.5, 1.5);
-      }
-    }
-
-    @keyframes scale-small-large {
-      from {
-        transform: scale(0, 0);
-      }
-
-      to {
-        transform: scale(1, 1);
-      }
-    }
-
-    @-webkit-keyframes scale-small-large {
-      from {
-        transform: scale(0, 0);
-      }
-
-      to {
-        transform: scale(1, 1);
-      }
-    }
-
-    @keyframes scale-large-small {
-      from {
-        transform: scale(1, 1);
-      }
-
-      to {
-        transform: scale(0, 0);
-      }
-    }
-
-    @-webkit-keyframes scale-large-small {
-      from {
-        transform: scale(1, 1);
-      }
-
-      to {
-        transform: scale(0, 0);
-      }
-    }
-
-    /* - 平移 */
-    @keyframes up-and-down {
-      from {
-        transform: translateY(-20px);
-      }
-
-      to {
-        transform: translateY(20px);
-      }
-    }
-
-    @-webkit-keyframes up-and-down {
-      from {
-        transform: translateY(-20px);
-      }
-
-      to {
-        transform: translateY(20px);
-      }
-    }
-
-    @keyframes left-and-right {
-      from {
-        transform: translateX(-20px);
-      }
-
-      to {
-        transform: translateX(20px);
-      }
-    }
-
-    @-webkit-keyframes left-and-right {
-      from {
-        transform: translateX(-20px);
-      }
-
-      to {
-        transform: translateX(20px);
-      }
-    }
-
-    /* - 旋转 */
-    @keyframes rotate {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @-webkit-keyframes rotate {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* - 弹跳 */
-    @keyframes jump {
-      0% {
-        transform: translateY(0) scale(1.15, 0.8);
-      }
-
-      20% {
-        transform: translateY(-35px) scaleY(1.1);
-      }
-
-      50% {
-        transform: translateY(-50px) scale(1);
-      }
-
-      80% {
-        transform: translateY(-35px) scale(1);
-      }
-
-      to {
-        transform: translateY(0) scale(1.15, 0.8);
-      }
+    table, thead, tr, th, td{
+      border: 1px solid #ddd;
+      padding-left: 15px;
+      padding-right: 30px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      text-align: left;
     }
   </style>
 
@@ -562,7 +250,7 @@
 
   </div>
 
-  <div class="modal fade" tabindex="-1" id="search_dialog">
+  <div class="modal" tabindex="-1" id="search_dialog">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -597,6 +285,8 @@
   <script src="https://unpkg.com/valine@1.5.1/dist/Valine.min.js"></script>
   <script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
   <script src="https://unpkg.com/crypto-js@4.1.1/crypto-js.js"></script>
+  <script src="https://unpkg.com/katex@0.16.3/dist/katex.min.js"></script>
+  <script src="https://unpkg.com/katex@0.16.3/dist/contrib/auto-render.min.js"></script>
   <script>
 
     marked.setOptions({
@@ -608,8 +298,37 @@
     const image_viewer_dialog = new bootstrap.Modal(document.getElementById('image_viewer_dialog'));
 
     markdown_renderer = new marked.Renderer();
+    
+    markdown_renderer.heading=(text, level, raw, slugger)=>{
+      return `<h${level} style="border-bottom: solid 1px rgba(137,137,137,0.3);padding-bottom: 4px"><a href="javascript:void(0)">##</a> ${text}</h${level}>`;
+    }
+
+    markdown_renderer.link=(href,title,text)=>{
+      return `<a href="${href}" title="${title}" style="text-decoration: underline"><i class="fa fa-external-link"></i> ${text}</a>`
+    }
+
+    marked.setOptions({
+      renderer: markdown_renderer
+    })
 
     baseurl = "";
+
+    String.prototype.hashCode = function() {
+      let hash = 0, i, chr;
+      if (this.length === 0) return hash;
+      for (i = 0; i < this.length; i++) {
+        chr = this.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0;
+      }
+      return hash;
+    }
+
+    function getTagColor(tagname){
+      let color_list = ["#000099","#330099","#660099","#990099","#cc0099","#ff0099","#0000cc","#3300cc","#6600cc","#9900cc"];
+      let color_id = parseInt(tagname.hashCode().toString().replace("-","").slice(0,1));
+      return color_list[color_id];
+    }
 
     window.onpopstate = function () {
       if (window.location.href.indexOf("#top") === -1) {
@@ -963,6 +682,7 @@
   </div>
       
       `;
+      document.getElementById("search_keyword").focus();
       document.getElementById("search_keyword").addEventListener('input', start_search);
     }
     function render_nav(isIndexPage) {
@@ -970,8 +690,8 @@
       let nav_base = `<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light" id="navbar">
   <div class="container-fluid">
     <a class="navbar-brand" id="navbar_title" href="./index.html" onclick="enter_indexPage();return false;">${blog["博客标题"]}</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+    <button class="navbar-toggler" style="border:none;color:white;margin-left:2px" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="fa fa-bars"></i>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navbar_items">
@@ -981,9 +701,13 @@
         <li class="nav-item" id="navbar_archive_and_tags">
           <a class="nav-link" href="./index.html?type=internal&function=archive_and_tags" onclick="enter_archive_and_tags();return false;">${langdata["ARCHIVE_AND_TAGS"][lang_name]}</a>
         </li>
+
       </ul>
       <div class="d-flex" role="search">
           <button class="btn btn-outline-${blog["搜索按钮边框颜色设置为暗色"] ? "dark" : "light"}" onclick="start_search_dialog()"><i class="fa fa-search"></i> ${langdata["SEARCH_SOMETHING"][lang_name]}</button>
+      </div>
+      <div class="d-flex">
+         <div style="display:block;padding:2px"></div>
       </div>
     </div>
   </div>
@@ -1175,7 +899,7 @@
 
             for (let k = 0; k < blog["文章列表"][i]["标签"].length; k++) {
               document.querySelector("#article-item-sub-" + i).innerHTML += `
-                                <a class="btn btn-light btn-sm" href="./index.html?type=internal&function=tag&argument=${blog["文章列表"][i]["标签"][k]}" onclick="enter_tag('${blog["文章列表"][i]["标签"][k]}');return false;">${blog["文章列表"][i]["标签"][k]}</a>
+                                <a class="btn btn-dark btn-sm article_tag" style="background-color: ${getTagColor(blog["文章列表"][i]["标签"][k])}" href="./index.html?type=internal&function=tag&argument=${blog["文章列表"][i]["标签"][k]}" onclick="enter_tag('${blog["文章列表"][i]["标签"][k]}');return false;">${blog["文章列表"][i]["标签"][k]}</a>
                                 `;
             }
           }
@@ -1278,7 +1002,7 @@
         ) {
           //todo:fix router 2
           document.querySelector("#article-content-sub").innerHTML += `
-            <a class="btn btn-light btn-sm" href="./index.html?type=internal&function=tag&argument=${blog["文章列表"][article_id]["标签"][k]}" onclick="enter_tag('${blog["文章列表"][article_id]["标签"][k]}');return false;">${blog["文章列表"][article_id]["标签"][k]}</a>
+            <a class="btn btn-dark btn-sm article_tag" style="background-color:${getTagColor(blog["文章列表"][article_id]["标签"][k])}" href="./index.html?type=internal&function=tag&argument=${blog["文章列表"][article_id]["标签"][k]}" onclick="enter_tag('${blog["文章列表"][article_id]["标签"][k]}');return false;">${blog["文章列表"][article_id]["标签"][k]}</a>
             `;
         }
       }
@@ -1594,6 +1318,14 @@
           document.querySelector("#article-content").innerHTML += `
             <div id="article-content-html">${marked.parse(response.data)}</div>`;
 
+          renderMathInElement(document.getElementById("article-content-html"),{
+            delimiters: [
+              {left: '$$$', right: '$$$', display: true},
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+            ],
+            throwOnError : false
+          });
           if (blog["提供文章文件下载"] || blog["提供复制全文到剪贴板的选项"]) {
             document.getElementById("article-content").innerHTML += `
             <br />
@@ -2012,8 +1744,8 @@ if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blo
         // 渲染标签名字
         document.querySelector(
           "#tag-content"
-        ).innerHTML += `<h2 id="tag-content-of-tag-${Object.keys(tagtree)[i]}"><i class="fa fa-tags"></i> ${Object.keys(tagtree)[i]
-        }</h2>`;
+        ).innerHTML += `<h2 id="tag-content-of-tag-${Object.keys(tagtree)[i]}"><i class="fa fa-tags"></i> <span style="color:${getTagColor(Object.keys(tagtree)[i])}">#${Object.keys(tagtree)[i]
+        }</span></h2>`;
         for (let k = 0; k < tagtree[Object.keys(tagtree)[i]].length; k++) {
           // 遍历某个标签中的所有文章
           currentTagTreeArticleNumber = 0;
@@ -2149,7 +1881,7 @@ if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blo
       document.getElementById("container").innerHTML += `<div class="tag-content" id="tag-content"></div>`;
       document.querySelector(
         "#tag-content"
-      ).innerHTML += `<h2><i class="fa fa-tags"></i> 标签为 ${tagname} 下的文章</h2>`;
+      ).innerHTML += `<h2><i class="fa fa-tags"></i> 标签为  <span style="color:${getTagColor(tagname)}">#${tagname}</span> 下的文章</h2>`;
       let tagtree = getTagTree();
       for (let i = 0; i < tagtree[tagname].length; i++) {
         for (let j = 0; j < blog["文章列表"].length; j++) {
