@@ -3,13 +3,21 @@
     <subtitle>人与人虽然相距遥远，但又彼此相依</subtitle>
     <link href="https://nekomoe.xyz/atom.xml" rel="self"/>
     <link href="https://nekomoe.xyz"/>
-    <updated>2022-10-06T20:05:00.000Z</updated>
+    <updated>2023-01-02T12:20:00.000Z</updated>
     <id>https://nekomoe.xyz</id>
     <author>
         <name>柏园猫のBlog</name>
     </author>
     <generator uri="https://bbg.nekomoe.xyz">Baiyuanneko's Blog Generator</generator>
     <entry>
+      <title>关于我的 2022</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=my-2022.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=my-2022.md</id>
+      <content type="html">
+          关于我的 2022
+      </content>
+      <summary type="html">关于我的 2022</summary>
+      </entry><entry>
       <title>参加 Hackergame 2022 的一些感想和部分题解</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=hackergame-2022.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=hackergame-2022.md</id>
