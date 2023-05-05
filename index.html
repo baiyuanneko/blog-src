@@ -43,6 +43,54 @@
       border-radius: 12px;
     }
 
+    ref {
+      display: none;
+    }
+
+    info-hint, warning-hint, success-hint, danger-hint {
+      display: block;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      padding-left: 15px;
+      background-color: rgb(235, 234, 234);
+    }
+
+    .hint-heading {
+      font-size: 110%;
+    }
+
+    info-hint .hint-heading {
+      color:#0550ae;
+    }
+
+    warning-hint .hint-heading {
+      color:#ae8105;
+    }
+
+    success-hint .hint-heading {
+      color:#1b6e08;
+    }
+
+    danger-hint .hint-heading {
+      color:#ae2105;
+    }
+
+    info-hint {
+      border-left: #0550ae solid 2px;
+    }
+
+    warning-hint {
+      border-left: #ae8105 solid 2px;
+    }
+
+    success-hint {
+      border-left: #1b6e08 solid 2px;
+    }
+
+    danger-hint {
+      border-left: #ae2105 solid 2px;
+    }
+
     .article-content{
       word-break: break-all;
     }
@@ -304,7 +352,7 @@
     }
 
     markdown_renderer.link=(href,title,text)=>{
-      return `<a href="${href}" title="${title}" style="text-decoration: underline"><i class="fa fa-external-link"></i> ${text}</a>`
+      return `<a href="${href}" ${title===null||title===undefined||title===""?"":`title="${title}"`} style="text-decoration: underline">${text} <i class="fa fa-external-link"></i></a>`
     }
 
     marked.setOptions({
@@ -331,7 +379,7 @@
     }
 
     window.onpopstate = function () {
-      if (window.location.href.indexOf("#top") === -1) {
+      if (window.location.href.indexOf("#top") === -1 && window.location.href.indexOf("#reference") === -1) {
         window.location.reload();
       }
     }
@@ -372,7 +420,7 @@
     success_locate_page_id = false;
 
     if (localStorage.getItem("is_nightmode") === null || localStorage.getItem("is_nightmode") === undefined) {
-      localStorage.setItem("is_nightmode", "off");
+      localStorage.setItem("is_nightmode", window.matchMedia('(prefers-color-scheme: dark)').matches ? "on" : "off");
     }
 
     if (localStorage.getItem("is_nightmode") === "on") {
@@ -403,7 +451,7 @@
             color:white
           }
 
-          ul,ol,li,h1,h2 ,h3,h4,h5,h6,.vcontent *, #veditor{
+          ul,ol,li,h1,h2,h3,h4,h5,h6,th,td,.vcontent *, #veditor{
             color:white
           }
 
@@ -564,12 +612,83 @@
         "English": "Results",
         "日本語": "検索結果"
       },
+      "REFERENCE": {
+        "简体中文": "参考",
+        "English": "References",
+        "日本語": "References"
+      },
+      "INFO": {
+        "简体中文": "提示",
+        "English": "Hint",
+        "日本語": "Hint"
+      },
+      "WARNING": {
+        "简体中文": "注意",
+        "English": "Warning",
+        "日本語": "Warning"
+      },
+      "SUCCESS": {
+        "简体中文": "成功",
+        "English": "Success",
+        "日本語": "Success"
+      },
+      "DANGER": {
+        "简体中文": "危险",
+        "English": "Danger",
+        "日本語": "Danger"
+      },
       "COULD_NOT_FIND_RESULT": {
         "简体中文": "未找到结果",
         "English": "Could not find a result",
         "日本語": "検索結果はありません"
       }
     }
+
+    function render_ref_tags(){
+      let ref_tags = [];
+      let current_number = 1;
+      for(let i = 0; i < document.getElementsByTagName("ref").length; i++){
+        let ref = document.getElementsByTagName("ref")[i];
+        ref_tags.push({
+          "ref_name": ref.innerText,
+          "ref_id": current_number,
+          "ref_has_target": ref.getAttribute("url")!==undefined&&ref.getAttribute("url")!==null&&ref.getAttribute("url")!==""
+        });
+        document.getElementsByTagName("ref")[i].innerHTML = `<sup style="font-size: 14px;"><a href="#reference_list_id_${current_number}">[${current_number}]</a></sup>`;
+        document.getElementsByTagName("ref")[i].setAttribute("style","display:inline");
+        document.getElementsByTagName("ref")[i].setAttribute("id",`reference_id_${current_number}`);
+        if(ref_tags[ref_tags.length-1].ref_has_target === true){
+          ref_tags[ref_tags.length-1].ref_target = ref.getAttribute("url");
+        }
+        current_number += 1;
+      }
+
+      if(ref_tags.length !== 0){
+        ref_html = `<div id="content_reference_list"><h3>${langdata.REFERENCE[lang_name]}</h3><hr />`;
+        for(const ref of ref_tags){
+          ref_html += `<div id="reference_list_id_${ref.ref_id}"><b>${ref.ref_id}.<a href="#reference_id_${ref.ref_id}">^</a></b>&nbsp;  ${ref.ref_has_target === false?ref.ref_name:`<a href="${ref.ref_target}" target="_blank">${ref.ref_name}</a>`} </div>`;
+        }
+        ref_html += `</div>`;
+        document.getElementById("article-content-html").innerHTML += ref_html;
+      }
+    }
+
+    function render_hint_tags(){
+        for(let i = 0; i < document.getElementsByTagName("info-hint").length; i++){
+          document.getElementsByTagName("info-hint")[i].innerHTML = `<span class="hint-heading"><i class="fa fa-info-circle"></i> ${langdata["INFO"][lang_name]} </span><br />` + document.getElementsByTagName("info-hint")[i].innerHTML;
+        }
+        for(let i = 0; i < document.getElementsByTagName("warning-hint").length; i++){
+          document.getElementsByTagName("warning-hint")[i].innerHTML = `<span class="hint-heading"><i class="fa fa-exclamation-circle"></i> ${langdata["WARNING"][lang_name]} </span><br />` + document.getElementsByTagName("warning-hint")[i].innerHTML;
+        }
+        for(let i = 0; i < document.getElementsByTagName("danger-hint").length; i++){
+          document.getElementsByTagName("danger-hint")[i].innerHTML = `<span class="hint-heading"><i class="fa fa-exclamation-triangle"></i> ${langdata["DANGER"][lang_name]} </span><br />` + document.getElementsByTagName("danger-hint")[i].innerHTML;
+        }
+        for(let i = 0; i < document.getElementsByTagName("success-hint").length; i++){
+          document.getElementsByTagName("success-hint")[i].innerHTML = `<span class="hint-heading"><i class="fa fa-check-circle-o"></i> ${langdata["SUCCESS"][lang_name]} </span><br />` + document.getElementsByTagName("success-hint")[i].innerHTML;
+        }
+      }
+
+
 
     function preview_env_public_comment_fix() {
       if (window.location.href.indexOf("localhost") !== -1 || window.location.href.indexOf("127.0.0.1") !== -1) {
@@ -704,7 +823,7 @@
 
       </ul>
       <div class="d-flex" role="search">
-          <button class="btn btn-outline-${blog["搜索按钮边框颜色设置为暗色"] ? "dark" : "light"}" onclick="start_search_dialog()"><i class="fa fa-search"></i> ${langdata["SEARCH_SOMETHING"][lang_name]}</button>
+	  <button class="btn btn-outline-${blog["搜索按钮边框颜色设置为暗色"] ? "dark" : "light"}" onclick="start_search_dialog()" style="color: ${blog["全局主题设置"]["标题栏文字颜色"]}"><i class="fa fa-search"></i> ${langdata["SEARCH_SOMETHING"][lang_name]}</button>
       </div>
       <div class="d-flex">
          <div style="display:block;padding:2px"></div>
@@ -819,7 +938,16 @@
       scrollTo(0, 0);
     }
 
+    function init_article_metadata() {
+      let lst = blog["文章列表"], arc;
+      for (let i=0; i < lst.length; i++) {
+	arc = lst[i];
+	arc["是否是短文章"] = false;
+      }
+    }
+
     function render_article_list() {
+      init_article_metadata();
       for (let i = 0; i < blog["文章列表"].length; i++) {
         if (blog["文章列表"][i]["是否置顶"] && currentArticleListPageOrder === 1 && blog["文章列表"][i]["是否是短文章"] === false) {
           document.querySelector("#container").innerHTML += `
@@ -916,7 +1044,7 @@
           }
           
 
-          if(blog["文章列表"][i]["是否是短文章"] && blog["文章列表"][i]["启用评论"] && blog["全局评论设置"]["启用valine评论"]){
+          if(blog["文章列表"][i]["是否是短文章"] && blog["文章列表"][i]["启用评论"] && blog["全局评论设置"]["启用valine评论"] || blog["文章列表"][i]["是否是短文章"] && blog["文章列表"][i]["启用评论"] && blog["全局评论设置"]["启用disqus评论"]){
             document.querySelector("#article-item-" + i).innerHTML += `
                     <br /><a class="btn btn-sm btn-outline-primary" href="./index.html?type=short_article&id=${blog["文章列表"][i]["标识符"]}" onclick="enter_article(${i});return false;"> <i class="fa fa-comments-o"></i> 在此文章下查看和添加评论</a>
                             `;
@@ -1277,11 +1405,13 @@
 
           if (
             blog["全局评论设置"]["启用valine评论"] &&
-            blog["文章列表"][article_id]["启用评论"]
+            blog["文章列表"][article_id]["启用评论"] ||
+                  blog["全局评论设置"]["启用disqus评论"] &&
+                  blog["文章列表"][article_id]["启用评论"]
           ) {
             document.querySelector(
               "#container"
-            ).innerHTML += `<div class="bbg-comment-area"><h3><i class="fa fa-comments-o"></i> 在此文章 《${blog["文章列表"][article_id]["文章标题"]}》 下评论：</h3><br /><div id="vcomments"></div></div>`;
+            ).innerHTML += `<div class="bbg-comment-area"><h3><i class="fa fa-comments-o"></i> 在此文章 《${blog["文章列表"][article_id]["文章标题"]}》 下评论：</h3><br /><div id="vcomments"></div><div id="disqus_thread"></div></div>`;
           }
 
           render_bottom_information();
@@ -1306,6 +1436,19 @@
 
             preview_env_public_comment_fix();
           }
+
+        if(blog["全局评论设置"]["启用disqus评论"] &&
+                blog["文章列表"][article_id]["启用评论"]){
+          let disqus_config = function () {
+            this.page.identifier = "short_article="+blog["文章列表"][article_id]["标识符"];
+          };
+          (function() {
+            let d = document, s = d.createElement('script');
+            s.src = `https://${blog["全局评论设置"]["disqus设置"]["shortname"]}.disqus.com/embed.js`;
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+          })();
+        }
       }else{
         axios
         .get(
@@ -1317,6 +1460,9 @@
         .then(function (response) {
           document.querySelector("#article-content").innerHTML += `
             <div id="article-content-html">${marked.parse(response.data)}</div>`;
+
+            render_ref_tags();
+            render_hint_tags();
 
           renderMathInElement(document.getElementById("article-content-html"),{
             delimiters: [
@@ -1588,11 +1734,13 @@ if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blo
 
           if (
             blog["全局评论设置"]["启用valine评论"] &&
-            blog["文章列表"][article_id]["启用评论"]
+            blog["文章列表"][article_id]["启用评论"] ||
+                  blog["全局评论设置"]["启用disqus评论"] &&
+                  blog["文章列表"][article_id]["启用评论"]
           ) {
             document.querySelector(
               "#container"
-            ).innerHTML += `<div class="bbg-comment-area"><h3><i class="fa fa-comments-o"></i> 在此文章 《${blog["文章列表"][article_id]["文章标题"]}》 下评论：</h3><br /><div id="vcomments"></div></div>`;
+            ).innerHTML += `<div class="bbg-comment-area"><h3><i class="fa fa-comments-o"></i> 在此文章 《${blog["文章列表"][article_id]["文章标题"]}》 下评论：</h3><br /><div id="vcomments"></div><div id="disqus_thread"></div></div>`;
           }
 
           render_bottom_information();
@@ -1617,6 +1765,19 @@ if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blo
 
             preview_env_public_comment_fix();
 
+          }
+
+          if(blog["全局评论设置"]["启用disqus评论"] &&
+                  blog["文章列表"][article_id]["启用评论"]){
+            let disqus_config = function () {
+              this.page.identifier = "article="+blog["文章列表"][article_id]["文件名"];
+            };
+            (function() {
+              let d = document, s = d.createElement('script');
+              s.src = `https://${blog["全局评论设置"]["disqus设置"]["shortname"]}.disqus.com/embed.js`;
+              s.setAttribute('data-timestamp', +new Date());
+              (d.head || d.body).appendChild(s);
+            })();
           }
 
 
@@ -1676,11 +1837,13 @@ if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blo
 
       if (
         blog["全局评论设置"]["启用valine评论"] &&
-        blog["友人帐页面允许评论"]
+        blog["友人帐页面允许评论"] ||
+              blog["全局评论设置"]["启用disqus评论"] &&
+              blog["友人帐页面允许评论"]
       ) {
         document.querySelector(
           "#container"
-        ).innerHTML += `<div class="bbg-comment-area"><h3><i class="fa fa-comments-o"></i> 在友人帐中评论：</h3><br /><div id="vcomments"></div></div>`;
+        ).innerHTML += `<div class="bbg-comment-area"><h3><i class="fa fa-comments-o"></i> 在友人帐中评论：</h3><br /><div id="vcomments"></div><div id="disqus_thread"></div></div>`;
       }
       render_bottom_information();
       execute_custom_js();
@@ -1698,6 +1861,19 @@ if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blo
         });
 
         preview_env_public_comment_fix();
+      }
+
+      if(blog["全局评论设置"]["启用disqus评论"] &&
+              blog["友人帐页面允许评论"]){
+        let disqus_config = function () {
+          this.page.identifier = "friend_book";
+        };
+        (function() {
+          let d = document, s = d.createElement('script');
+          s.src = `https://${blog["全局评论设置"]["disqus设置"]["shortname"]}.disqus.com/embed.js`;
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
       }
     }
 
@@ -1948,11 +2124,13 @@ if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blo
 
           if (
             blog["全局评论设置"]["启用valine评论"] &&
-            blog["页面列表"][page_id]["启用评论"]
+            blog["页面列表"][page_id]["启用评论"] ||
+                  blog["全局评论设置"]["启用disqus评论"] &&
+                  blog["页面列表"][page_id]["启用评论"]
           ) {
             document.querySelector(
               "#container"
-            ).innerHTML += `<div class="bbg-comment-area"><h3><i class="fa fa-comments-o"></i> 在此页面 《${blog["页面列表"][page_id]["页面标题"]}》 下评论：</h3><br /><div id="vcomments"></div></div>`;
+            ).innerHTML += `<div class="bbg-comment-area"><h3><i class="fa fa-comments-o"></i> 在此页面 《${blog["页面列表"][page_id]["页面标题"]}》 下评论：</h3><br /><div id="vcomments"></div><div id="disqus_thread"></div></div>`;
           }
           render_bottom_information();
           execute_custom_js();
@@ -1975,6 +2153,19 @@ if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blo
             });
 
             preview_env_public_comment_fix();
+          }
+
+          if(blog["全局评论设置"]["启用disqus评论"] &&
+                  blog["页面列表"][page_id]["启用评论"]){
+            let disqus_config = function () {
+              this.page.identifier = "page="+blog["页面列表"][page_id]["文件名"];
+            };
+            (function() {
+              let d = document, s = d.createElement('script');
+              s.src = `https://${blog["全局评论设置"]["disqus设置"]["shortname"]}.disqus.com/embed.js`;
+              s.setAttribute('data-timestamp', +new Date());
+              (d.head || d.body).appendChild(s);
+            })();
           }
         });
     }
@@ -2037,6 +2228,15 @@ if (article_id !== 0 && blog["文章列表"][article_id + 1] != undefined && blo
     function execute_custom_js() {
       if (blog["启用自定义JS"] === true) {
         eval(blog["自定义JS"]);
+      }
+      if(blog["是否启用插件功能"] === true){
+        for (const pluginObj of blog["插件列表"]) {
+          if(pluginObj["是否启用此插件"] === true){
+            console.log(`[插件加载开始] 开始加载插件${pluginObj["插件名称"]}, 插件版本${pluginObj["插件版本"]}, 插件作者${pluginObj["插件作者名"]} <${pluginObj["插件作者url"]}>`)
+            eval(pluginObj["插件内容"]);
+            console.log(`[插件加载结束] 已加载插件${pluginObj["插件名称"]}`);
+          }
+        }
       }
     }
 
