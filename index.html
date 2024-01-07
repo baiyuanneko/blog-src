@@ -8,6 +8,7 @@
   <title></title>
   <link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://unpkg.com/katex@0.16.3/dist/katex.min.css">
+  <link rel='stylesheet' href="https://unpkg.com/@waline/client@2.15.8/dist/waline.css">
   <link href="https://google-fonts.mirrors.sjtug.sjtu.edu.cn/css?family=Noto+Sans+SC" rel="stylesheet">
 </head>
 
@@ -471,8 +472,9 @@
   <script src="https://unpkg.com/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://unpkg.com/axios@0.21.1/dist/axios.min.js"></script>
   <script src="https://unpkg.com/valine@1.5.1/dist/Valine.min.js"></script>
+  <script src="https://unpkg.com/@waline/client@2.15.8/dist/waline.js"></script>
   <script src="https://unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
-  <script src="https://unpkg.com/crypto-js@4.1.1/crypto-js.js"></script>
+  <script src="https://unpkg.com/sjcl@1.0.8/sjcl.js"></script>
   <script src="https://unpkg.com/katex@0.16.3/dist/katex.min.js"></script>
   <script src="https://unpkg.com/katex@0.16.3/dist/contrib/auto-render.min.js"></script>
   <script>
@@ -529,19 +531,8 @@
       image_viewer_dialog.toggle();
     }
 
-    function content_decrypt(content, password, verify = null) {
-      if (verify !== null)
-        if (CryptoJS.SHA256(password).toString() != verify)
-          return [false];
-      var key = CryptoJS.enc.Utf8.parse(password).toString();
-      var argument = {
-        iv: CryptoJS.enc.Utf8.parse('1145141919810').toString(),
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
-      }
-      var result = CryptoJS.AES.decrypt(content, key, argument).toString(CryptoJS.enc.Utf8);
-      if (result == "") return [false];
-      else return [true, result];
+    function content_decrypt(content, password) {
+      return sjcl.decrypt(password, content);
     }
 
     currentArticleListPageOrder = 1; //这个变量表示目前在显示文章列表中的第几页，是从1开始数的
@@ -1006,7 +997,27 @@
         )
         .then(function (response) {
           document.getElementById("loading_article_or_page_content").remove();
-          document.querySelector("#article-content").insertAdjacentHTML("beforeend", `<div id="article-content-html">${marked.parse(response.data)}</div>`);
+          if(blog["文章列表"][article_id]["是否加密"]){
+            document.querySelector("#article-content").insertAdjacentHTML("beforeend", `<div id="article-content-html"><div id="passwordRequiredArea">此文章被密码加密。请输入密码以查看文章内容。<div class="mb-3">
+    <label class="form-label"><i class="fa fa-password"></i> 请输入密码</label>
+    <input class="form-control" placeholder="请输入密码" value="" id="article_password_modal_value">
+    <button class="btn btn-outline-primary" id="viewContentAfterInputPasswordBtn">查看内容</button>
+  </div></div></div>`);
+
+            document.getElementById("viewContentAfterInputPasswordBtn").onclick = ()=>{
+              try {
+                const decryptedContent = content_decrypt(JSON.stringify(response.data), document.getElementById("article_password_modal_value").value);
+                document.getElementById("passwordRequiredArea").innerHTML = marked.parse(decryptedContent);
+                
+              } catch (error) {
+                alert("密码错误。");
+              }
+            }
+
+          } else {
+            document.querySelector("#article-content").insertAdjacentHTML("beforeend", `<div id="article-content-html">${marked.parse(response.data)}</div>`);
+          }
+
 
           render_ref_tags();
           render_hint_tags();
@@ -1069,9 +1080,9 @@
 
 
           if (
-            blog["全局评论设置"]["启用valine评论"] &&
-            blog["文章列表"][article_id]["启用评论"] ||
-            blog["全局评论设置"]["启用disqus评论"] &&
+            (blog["全局评论设置"]["启用valine评论"] ||
+            blog["全局评论设置"]["启用disqus评论"] ||
+            blog["全局评论设置"]["启用waline评论"]) &&
             blog["文章列表"][article_id]["启用评论"]
           ) {
             document.querySelector(
@@ -1116,6 +1127,19 @@
             })();
           }
 
+          if (
+            blog["全局评论设置"]["启用waline评论"] &&
+            blog["文章列表"][article_id]["启用评论"]
+          ) {
+            Waline.init({
+              el: "#vcomments",
+              serverURL: blog["全局评论设置"]["waline设置"]["serverurl"],
+              path:
+                "article=" +
+                blog["文章列表"][article_id]["文件名"],
+            });
+          }
+
 
         })
     }
@@ -1144,9 +1168,9 @@
       }
 
       if (
-        blog["全局评论设置"]["启用valine评论"] &&
-        blog["友人帐页面允许评论"] ||
-        blog["全局评论设置"]["启用disqus评论"] &&
+        (blog["全局评论设置"]["启用valine评论"] ||
+        blog["全局评论设置"]["启用disqus评论"] ||
+        blog["全局评论设置"]["启用waline评论"]) &&
         blog["友人帐页面允许评论"]
       ) {
         document.querySelector(
@@ -1182,6 +1206,17 @@
           s.setAttribute('data-timestamp', +new Date());
           (d.head || d.body).appendChild(s);
         })();
+      }
+
+      if (
+        blog["全局评论设置"]["启用waline评论"] &&
+        blog["友人帐页面允许评论"]
+      ) {
+        Waline.init({
+          el: "#vcomments",
+          serverURL: blog["全局评论设置"]["waline设置"]["serverurl"],
+          path: "internal=friendbook"
+        });
       }
     }
 
@@ -1339,9 +1374,9 @@
           // 评论
 
           if (
-            blog["全局评论设置"]["启用valine评论"] &&
-            blog["页面列表"][page_id]["启用评论"] ||
-            blog["全局评论设置"]["启用disqus评论"] &&
+            (blog["全局评论设置"]["启用valine评论"] ||
+            blog["全局评论设置"]["启用disqus评论"] ||
+            blog["全局评论设置"]["启用waline评论"]) &&
             blog["页面列表"][page_id]["启用评论"]
           ) {
             document.querySelector(
@@ -1382,6 +1417,19 @@
               s.setAttribute('data-timestamp', +new Date());
               (d.head || d.body).appendChild(s);
             })();
+          }
+
+          if (
+            blog["全局评论设置"]["启用waline评论"] &&
+            blog["页面列表"][page_id]["启用评论"]
+          ) {
+            Waline.init({
+              el: "#vcomments",
+              serverURL: blog["全局评论设置"]["waline设置"]["serverurl"],
+              path:
+                "page=" +
+                blog["页面列表"][page_id]["文件名"],
+            });
           }
         });
     }
