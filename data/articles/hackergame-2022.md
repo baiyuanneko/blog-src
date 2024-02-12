@@ -148,4 +148,4 @@ with open("./checkpoint/model.pt", "wb") as handler:
 
 # 另请参见
 
-* [Hackergame 2022 WriteUp](https://blog.atri.tk/2022/hackergame-2022-writeup/) by [欠陥電気](https://atri.tk/)
+* [Hackergame 2022 WriteUp](https://blog.apeiria.net/2022/hackergame-2022-writeup/) by [欠陥電気](https://apeiria.net/)
