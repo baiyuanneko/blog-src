@@ -93,7 +93,7 @@ pip install --pre openvino
 
 这个应该是一个 Bug，怎么解决呢，每次遇到了就直接删除 WebUI 根目录下的 cache 目录即可。
 
-这个 Bug 的触发条件是修改了提示词之后，导致 Prompt token 数范围发生改变。所以修改提示词的时候尽量不要使 Prompt token 数发生改变，否则就必须删除 cache 目录让它重新编译模型，耗费很多时间。
+这个 Bug 的触发条件是修改了提示词之后，导致 Prompt token 数范围发生改变。所以修改提示词的时候尽量不要使 Prompt token 数范围发生改变，否则就必须删除 cache 目录让它重新编译模型，耗费很多时间。
 
 ## 结语
 
