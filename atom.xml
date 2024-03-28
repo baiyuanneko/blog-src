@@ -3,13 +3,21 @@
     <subtitle>「初めて守りたくて　寄り添いこの空のもとで」 </subtitle>
     <link href="https://nekomoe.xyz/atom.xml" rel="self"/>
     <link href="https://nekomoe.xyz"/>
-    <updated>2024-01-04T13:20:00.000Z</updated>
+    <updated>2024-03-04T16:24:00.000Z</updated>
     <id>https://nekomoe.xyz</id>
     <author>
         <name>柏园猫のBlog</name>
     </author>
     <generator uri="https://bbg.nekomoe.xyz">Baiyuanneko's Blog Generator</generator>
     <entry>
+      <title>在 Intel 核显上使用 Stable Diffusion WebUI</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=stable-diffusion-webui-intel-igpu.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=stable-diffusion-webui-intel-igpu.md</id>
+      <content type="html">
+          使用来自 OpenVINO 的 Stable Diffusion WebUI 可以启用核显加速，然而存在一些小问题
+      </content>
+      <summary type="html">使用来自 OpenVINO 的 Stable Diffusion WebUI 可以启用核显加速，然而存在一些小问题</summary>
+      </entry><entry>
       <title>我的 2023</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=my-2023.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=my-2023.md</id>

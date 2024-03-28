@@ -86,6 +86,20 @@
   ],
   "文章列表": [
     {
+      "文章标题": "在 Intel 核显上使用 Stable Diffusion WebUI",
+      "文件名": "stable-diffusion-webui-intel-igpu.md",
+      "标签": [
+        "技术向"
+      ],
+      "摘要": "使用来自 OpenVINO 的 Stable Diffusion WebUI 可以启用核显加速，然而存在一些小问题",
+      "创建日期": "3/27/2024",
+      "修改日期": "3/27/2024",
+      "是否置顶": false,
+      "是否隐藏": false,
+      "是否加密": false,
+      "启用评论": true
+    },
+    {
       "文章标题": "我的 2023",
       "文件名": "my-2023.md",
       "标签": [
