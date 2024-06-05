@@ -3,7 +3,7 @@
     <subtitle>「初めて守りたくて　寄り添いこの空のもとで」 </subtitle>
     <link href="https://nekomoe.xyz/atom.xml" rel="self"/>
     <link href="https://nekomoe.xyz"/>
-    <updated>2024-03-04T16:24:00.000Z</updated>
+    <updated>2024-06-05T12:37:06.724Z</updated>
     <id>https://nekomoe.xyz</id>
     <author>
         <name>柏园猫のBlog</name>
@@ -14,175 +14,1533 @@
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=stable-diffusion-webui-intel-igpu.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=stable-diffusion-webui-intel-igpu.md</id>
       <content type="html">
-          使用来自 OpenVINO 的 Stable Diffusion WebUI 可以启用核显加速，然而存在一些小问题
+          <h2>前言：好时代，来临力？</h2>
+<p>Stable Diffusion 刚出来的时候我就想玩，不过我笔记本电脑上并没有 Nvidia 显卡，或者更准确的说，没有任何独立显卡，所以只能使用纯 CPU 跑图，生成一张图常常需要好几分钟，非常慢。</p>
+<p>忘记去年什么时候就已经听说了 <a href="https://en.wikipedia.org/wiki/OpenVINO">OpenVINO</a> 提供一个支持核显加速的 Stable Diffusion 发行版，但是由于各种原因，一直没能运行成功，这几天终于成功运行起来了。<strong>核显能够跑ai的好时代，终于来临力！</strong></p>
+<p>当然，使用 Intel 核显运行 Stable Diffusion WebUI 存在巨大的局限性（见后文），并且即使在核显加速启动的情况下，它的速度也并不十分快（相比纯 CPU 运算快，但不如 NVIDIA 显卡），只是本文希望，对于那些因为各种原因没有 NVIDIA 显卡的环境下（比如我自己），也能体验到 AI 作图的快乐。</p>
+<h2>Re: 从零开始的 WebUI 安装过程</h2>
+<p>我的环境是 Windows 11 + Intel Iris Xe Graphics。官方同样支持 Linux 和 macOS，同时显卡方面，理论上不太老的 Intel 核显应该都能满足要求。</p>
+<h3>环境安装</h3>
+<p>首先是安装 Python 3.9 环境，这里我推荐先安装 Anaconda，然后在 Anaconda 中创建 Python 3.9 虚拟环境。本文不是 Python 或 Anaconda 的安装教程，所以这部分暂且略过。以下命令用于使用 conda 创建并激活 Python 3.9 虚拟环境，并假定你已安装 Anaconda.</p>
+<p>如果你执行以下命令的时候没有什么效果（虚拟环境没有被激活），那么可能是因为你在使用 PowerShell，需要换成 cmd.exe 再重试执行以下命令。</p>
+<pre><code>conda create -n sdwebui_env python=3.9
+conda activate sdwebui_env
+</code></pre>
+<h3>修改 PyPI 镜像源（解决 No matching distribution found for tb-nightly 问题）</h3>
+<p>默认源在国内使用会很慢，应该更换一个国内的镜像源。</p>
+<p>这里特别提醒：此处<strong>不要</strong>使用清华源。否则后期安装依赖时会遇到 <a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/13363">stable-diffusion-webui Issue#13363</a> 这个问题（ERROR: No matching distribution found for tb-nightly）。</p>
+<p>一个可行的解决方案是换用阿里云镜像源，修改命令如下。</p>
+<pre><code>pip config set global.index-url https://mirrors.aliyun.com/pypi/simple
+</code></pre>
+<h3>安装 WebUI 和 OpenVINO Toolkit</h3>
+<pre><code>git clone https://github.com/openvinotoolkit/stable-diffusion-webui.git
+cd stable-diffusion-webui
+pip install --pre openvino
+</code></pre>
+<ul>
+<li><strong>WebUI，启动！</strong></li>
+</ul>
+<pre><code>.\webui-user.bat
+</code></pre>
+<h2>开启核显加速</h2>
+<p>打开 WebUI，乍一看似乎和正常的 WebUI 没有什么两样？我对普通的 WebUI 没有兴趣！</p>
+<p>其实现在核显加速还没有被启用，如果要在生图的时候启用核显加速，还需要在 WebUI 的 Scripts 那里选择 <strong>Accelerate with OpenVINO</strong>，然后在 Select a device 这里选择 GPU，并在这里的 Sampling Method 里重新选一个，因为这里的 Sampling Method 会覆盖你在 Main UI 所选择的采样方法。</p>
+<p>然后你可以在 Prompt 中写一些简单的提示词，比如<code>1girl, catgirl, white hair, blue eyes</code>，然后点击生成看看任务管理器中核显是不是在正常工作。注意首次生成的时候会自动重新编译模型+进行预热，而这个重新编译模型和预热的过程中不一定会使用 GPU，并且这整个过程在我的机器上需要大约几分钟时间，但之后每次生成如果没有改变模型本身（具体见下文）的话就不需要再次编译模型了。</p>
+<h3>速度</h3>
+<p>在我的 Intel Iris Xe Graphic 环境下，以 768x512 的图像生成，DPM++ 2M Karras 作为采样器，Prompt 范围处于 [78, 155]，生成模型使用 Anything v3.0 图像模型（文件大小约 4 GB），未添加 LoRA，CFG Scale 为 4，迭代步数设定为 50 的情况下为例：</p>
+<ul>
+<li>编译模型大约需要 110s 左右（此项仅首次生成需要）</li>
+<li>预热大约需要 30s 左右（此项仅首次生成需要）</li>
+<li>生成图像大约需要 87s 左右（<code>~1.76s/it</code>）</li>
+</ul>
+<h3>什么行为会触发模型重新编译？</h3>
+<p>目前我简单试了几种情况，会导致模型重新编译的情况包括：</p>
+<ul>
+<li>修改图片生成尺寸，如：生成尺寸从 512x512 修改到 768x512</li>
+<li>更换图像生成模型或添加 LoRA</li>
+</ul>
+<p>不会导致模型重新编译的情况包括：</p>
+<ul>
+<li>修改 Prompt</li>
+<li>修改 Negative Prompt</li>
+<li>修改迭代次数</li>
+</ul>
+<h2>生成失败了？不关 WebUI 的事哦</h2>
+<p>你可能会想之前自己所用的提示词直接复制进去然后尝试生成，然后等着你的可能是两种错误信息：</p>
+<ul>
+<li>ValueError: prompt_embeds and negative_prompt_embeds must have the same shape when passed directly, but got: prompt_embeds torch.Size([1, 154, 768]) != negative_prompt_embeds torch.Size([1, 77, 768]).</li>
+</ul>
+<p>这是因为目前 OpenVINO 版的 SD WebUI 要求 <strong>Prompt 的 token 数和 Negative Prompt 的 token 数范围一致</strong>（比如都 ≤77 或都属于 [78, 155]）。一些会导致生成失败的情形比如如果 Prompt 有 95 个 token，而 Negative Prompt 没有填写，就会发生此错误。查看 Prompt token 数的方法是在输入框的右上角有一个数字，那就是 token 数。</p>
+<p>就我这边的情况来说，会比较容易出现的情况是 Prompt 比 Negative Prompt 的 token 数量更多，从而导致范围不一致。我的解决方法是在原始 Negative Prompt 的后面中不断填入 <code>,bad hands</code> 从而达到使 Negative Prompt token 数量达到和 Prompt token 数范围一致的效果。</p>
+<p>然后你可能就会遇到另一个错误了：</p>
+<ul>
+<li>TypeError: &amp;#39;SymInt&amp;#39; object is not subscriptable</li>
+</ul>
+<p>这个应该是一个 Bug，怎么解决呢，每次遇到了就直接删除 WebUI 根目录下的 cache 目录即可。</p>
+<p>这个 Bug 的触发条件是修改了提示词之后，导致 Prompt token 数范围发生改变。所以修改提示词的时候尽量不要使 Prompt token 数范围发生改变，否则就必须删除 cache 目录让它重新编译模型，耗费很多时间。</p>
+<h2>结语</h2>
+<p>现在其实有很多方法可以让核显加速 Stable Diffusion 的图像生成，除了本文中提到的来自 OpenVINO 的 Stable Diffusion WebUI 构建之外，这里再推荐一下 <a href="https://mzwing.eu.org/">mzwing</a> 前几天编译的<a href="https://github.com/MZWNET/actions/releases/tag/sd-master-48bcce4">一个支持 CLBLast 的 stablediffusion.cpp 构建</a>，虽然最近比较忙还没有空去尝试这个版本不过应该也可以很好的利用核显的性能，从而带来更快的图像生成。感谢这些开源贡献者，让核显上跑 AI 成为了一种可能。</p>
+
       </content>
       <summary type="html">使用来自 OpenVINO 的 Stable Diffusion WebUI 可以启用核显加速，然而存在一些小问题</summary>
+      <updated>2024-03-27T00:00:00.000Z</updated>
+      <published>2024-03-27T00:00:00.000Z</published>
       </entry><entry>
       <title>我的 2023</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=my-2023.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=my-2023.md</id>
       <content type="html">
-          我的 2023
+          <p>&amp;lt;info-hint&amp;gt;本文章中含有大量图片（共约 28.8 MB），请注意流量消耗。&amp;lt;/info-hint&amp;gt;</p>
+<p>坦白地说自大学以来咱就一直处在一个动力不是很足的状态下，不过还是顺利活过了 2023 年，也有很多事情让我开心 或者觉得有意义（</p>
+<p>首先是 2023 年咱终于体会到了什么是真正的大学生活，2022 年因为疫情所以几乎什么都干不了，现在看来对我来说影响最大的就是紧闭着的校门导致的不能点外卖或者出去吃，因为学校食堂真的会吃腻（对我来说）而且一些菜确实烧得不好吃。和室友出去吃饭还是很开心的，但是必须承认的一点是即便算是体会到了完全体的大学生活，也与我以前的想象差距不小。比如，大学虽然有很多自由时间和精力，但是不意味着自己就会进入自主学习或者更上进的状态，也就是说拖延症这种问题并不会因为上了大学自行解决（）自控力还在其次，性格或者成长上的进步也需要自己去努力，而不是光是靠更轻松的生活，就觉得这些问题都直接都被解决了。</p>
+<p>还有是今年参加了一些 CTF 比赛，作为一个自认为高中生活本身比较无趣（高中没有计算机社团，也没有参加过什么相关比赛）的人来说可以说是第一次的初体验了，不但拿了奖还获得了一笔对我来说数目不算小的奖金，开心（）这里也十分感谢几个队友在比赛过程中对我的帮助（我比较容易紧张）以及在分奖金时候对我的照顾；2023 年一共参加过两次 CTF 和一次 AWD 形式的比赛，还因为这几次比赛的缘故有幸得到了学校的注意，并体验了学校的护网工作。帮大忙了.webp（指参加比赛给我的前途帮大忙了，不要理解成给学校的护网工作帮大忙了，其实摸了很多鱼（</p>
+<p>要说参加 CTF 给我成长的最大帮助应该就是意识到了很多事情没有看上去那么难，只要有尝试的勇气和信心。也许就像《星灵感应》里面的火箭那样，开始尝试做了之后才会发现没有自己想象的遥不可及。以前一直以为搞 OI 的大佬或者玩 CTF 的这种人都是大佬中的大佬，现在自己也参加过比赛了也能更客观的看待这些比赛了（）除了 CTF 比赛之外没有参加其他类型的比赛，但是已经报了下一年的 Python 组蓝桥杯，不知道到时候能拿个什么水平的奖。犹豫过要不要报 C/C++ 组但是我比较摸所以不一定能在比赛之前把语言基础学到足够的水平（</p>
+<p>年初的时候学了 C#，不过客观来说自己还是用 JavaScript（TypeScript）和 Python 比较多。2023 年写过一个<a href="https://nekomoe.xyz/index.html?type=article&amp;filename=a-failure-in-web-ocr.md">比较失败的 Web 端 OCR 程序</a> 以及一个技术力比较低的新的<a href="https://i.nekomoe.xyz">个人主页</a>（用来替代我原先使用的 <a href="https://github.com/amphineko/atomicneko">amphineko/atomicneko</a>），别的好像也没什么特别的，翻了一下才知道自己还往一些开源仓库水了一些（大概是可有可无的）贡献，我记性也不好可能写过别的也忘了（）这方面做的事情确实没有 2022 年多，主要是缺乏动力以及客观上的技术力下降（？）（</p>
+<p>然后是其他的折腾方面，首先是电脑上，目前正在使用的是 Ubuntu 23.10 + GNOME 45.1。在最近我开始有意识地更多地使用开源软件，特别是 LibreOffice。我之前用的比较多的其实是 WPS Office（因为和 MS Office 的兼容性好并且支持 Linux），但是今年开始更多地使用 LibreOffice 了。促使我使用 LibreOffice 的最大原因是 WPS 对 Linux 的支持问题：WPS 不支持 Wayland，所以它的所有文本和按钮在我电脑上看起来都是糊的。另外，FreeType 最近的一次更新导致 WPS 的所有粗体文本都会显示成一大坨黑色的不规则块。总之试着换了一下 LibreOffice，这里我主要担心的是格式兼容问题。不过在我的使用场景（交作业）上，对于 Word 来说，格式与 MS Office 有些许微小的差异其实并不是什么大问题。主要的问题集中在 Excel 上。因为这学期我学了一门有关会计的课，才发现有些 Excel 函数在 LibreOffice 上的行为其实是不同的，所以对于 Excel 来说还是要用 WPS 或者一些其他解决方案。</p>
+<p>以及这里想要特别地提一下 Wine 和 Proton。现在的 Wine（Proton） 已经非常强大了，我的 Galgame 几乎都是通过 Wine 运行的，目前很少遇到运行不起来的情况。除此之外我需要用的许多游戏和程序也能通过 Wine 顺利运行，比如说 osu!、网易云音乐客户端等等。</p>
+<p>然后是手机上，八月份的时候我人生以来第一次尝试给安卓手机刷机以及 Root。我用的是三星的 Galaxy M30s，这部手机比软好的是解锁 BL 比较方便（三星手机特有的容易解锁，你是一个一个一个，三星手机啊啊啊啊啊啊）；随后尝试用三星的 ROM 刷写工具 OdinFlashTool 将 TWRP 刷写入手机中。（这里插一个小插曲：因为我当时用的是 Linux，不能运行 OdinFlashTool，所以很自然地想到了开源解决方案（有两个，JOdin 和 Heimdall），然后很轻松地......把手机刷砖了，这里还是建议用 Windows 操作，或者至少在 Windows 虚拟机中使用 USB 直通进行操作，我也不知道为什么 JOdin / Heimdall 会有这种问题 ）。另外，大概是因为用的是国行版本的缘故（因为 PixelExperience 似乎并没有特别为国行版本适配），刷 PixelExperience 的尝试并没有成功，但是最终还是找到了一个比较轻量的 ROM 包刷入了。尝试进行了 Root 并安装了 Magisk，但是因为银行 APP 等不支持 Root，而一些规避方案 （包括使用旧版 Magisk 的 MagiskHide 功能）都会导致系统没法启动，最终作罢。估计是我选择的 ROM 的问题。这里也很感谢 <a href="https://blog.apeiria.net/">@Misaka13514</a> 在我折腾 Android 的时候不厌其烦地不断回答我一些现在看来很蠢的问题（</p>
+<p>还有一个想提的就是开始使用 YubiKey 了。YubiKey 是 <a href="https://blog.apeiria.net/">@Misaka13514</a> 三月份的时候送给我的，我目前使用 YubiKey 的用途有两个，一个是将其作为网站的两步验证因素之一，另一个是用它来存储自己的 OpenPGP 私钥。具体的我在<a href="https://nekomoe.xyz/index.html?type=article&amp;filename=2023-5.md">之前的文章</a>中有写过；以及学习了 DN42 并熟悉了 WireGuard、BIRD2 等软件的使用，还获得了一个不错的 DN42 域名 <code>neko.dn42</code>，也是 <a href="https://blog.apeiria.net/">@Misaka13514</a> 解答了许多我的问题。感谢 <a href="https://blog.apeiria.net/">@Misaka13514</a> 在各个方面给我的帮助！</p>
+<p>AI 方面的话，自己尝试部署了 Stable Diffusion 并学习了基本使用，<del>虽然我用的笔记本是核显本只能用 CPU 演算不过不是不能用</del>。用 Stable Diffusion 给我做过的两个开源项目（<a href="https://github.com/bbg-contributors/bbg">这个</a>和<a href="https://github.com/baiyuanneko/bocchi">这个</a>生成了图标）。以及因为我平时看的一部分动画是生肉，或者视频语言是日语而没有字幕，想到了使用 <a href="https://github.com/openai/whisper">Whisper</a> 去生成字幕并丢给 ChatGPT 翻译，效果还不错。</p>
+<p>以及，因为 B 站上有很多 AI 翻唱的，于是自己尝试训练了一个小之星海果的 so-vits-svc 模型（仅供我自己个人研究学习使用，不会公开），效果只能说差强人意不过考虑到我的时间和精力有限，自己剪出来的训练数据质量也不是很高所以也不是特别失望。</p>
+<p><img src="./2023Summary_SoVitsSvc_01.png" alt="image"></p>
+<p>2023 年我开始接触更多游戏<del>以及开始给Steam爆金币了</del>。2023 年我开始玩的几个在线游戏包括Blue Archive（国服）、赛马娘台服、原神、雀魂麻将等等。赛马娘是因为有点占空间（占了我 10G 甚至 9G）于是没有坚持玩下去。原神我个人觉得还是挺好玩的，原因的话大概是制作精美的二次元风格自机角色 + 清新的渲染风格 + 开放世界 + RPG + 整洁不杂乱的界面 + 我觉得还不错的剧情 这些因素共同叠加产生的奇妙化学反应。不过因为 Linux 上的原神国服使用 Wine 运行经常是处于一个时好时不好的状态所以还是经常是需要使用云原神的。玩 Blue Archive 的主要原因之一是因为之前看到过才羽绿和才羽桃的插画，感觉真的<strong>好可爱好可爱</strong>耶，瞬间被治愈了。虽然也没有抽到全部我想抽的角色，不过剧情比我想象的要更好，比如主线第二章的游戏开发部部分剧情，还是有一种久违的感动感的（至少对我来说）。感谢我的一个同学带我玩 Blue Archive，没人教的话我甚至都不会清体力（）最后就是雀魂麻将了。打了一年麻将，也不能说技术提高了很多，还是很菜，不过抽到了一个有可爱语音的角色（当然别的地方也挺可爱的），好耶。</p>
+<p><img src="./2023Summary_GenshinImpact_01.png" alt="image"></p>
+<p><img src="./2023Summary_MahjongSoul_01.png" alt="image"></p>
+<p><img src="./2023Summary_MahjongSoul_02.png" alt="image"></p>
+<p><img src="./2023Summary_MahjongSoul_03.png" alt="image"></p>
+<p><img src="./2023Summary_MahjongSoul_04.png" alt="image"></p>
+<p><img src="./2023Summary_BlueArchive_01.jpg" alt="image"></p>
+<p><img src="./2023Summary_BlueArchive_02.jpg" alt="image"></p>
+<p><img src="./2023Summary_BlueArchive_03.jpg" alt="image"></p>
+<p><img src="./2023Summary_BlueArchive_04.jpg" alt="image"></p>
+<p>然后是 Steam 上，终于开始买一些游戏了，首先是补票了 NEKOPARA 的全系列，然后买了一直想玩的《主播女孩重度依赖》（不过目前只通关了14/24个结局），然后是买了一些 Galgame （《恋爱绮谭 不存在的夏天》、《恋爱绮谭 不存在的真相》以及对我来说有点贵的《常轨脱离 Creative》），以及《城市：天际线》（但是还没开始玩）这里面对我来说觉得最值回票价的反而是最贵的《常轨脱离 Creative》，几位女主都很可爱，<code>最享受的一集！.webp</code> 当然我这个 Steam 库存量也算少的，也不是说要攀比或者什么，只是随便分享一下（（</p>
+<p><img src="./2023Summary_SteamLibrary.png" alt="image"></p>
+<p>其它游戏方面，玩了《Undertale》、《Getting Over It》之类的一些独立游戏。以及在时断时续地玩着《osu!》（以及《osu!lazer》），我打这个水平不是很高但是消磨时间还是一个不错的选择（以及，很荣幸能把 <a href="https://blog.chihuo2104.dev/">@chihuo2104</a> 拉入 osu! 的坑（x</p>
+<p>&amp;lt;info-hint&amp;gt;下面两张图中上面一张是 osu!stable 的个人资料，下面一张是 osu!lazer 的个人资料。&amp;lt;/info-hint&amp;gt;</p>
+<p><img src="./2023Summary_osu_01.png" alt="image"></p>
+<p><img src="./2023Summary_osuLazer_01.png" alt="image"></p>
+<p>《Minecraft》方面，寒暑假的时候玩了群友开的服务器（</p>
+<p>第一次尝试了在 Minecraft 中搭建手办（参考了 <a href="https://www.bilibili.com/video/BV1yW411g7ji/">这个视频</a>），同时也第一次尝试用 <a href="https://www.scriptolab.com/minecraft-pixel-art-en.php">Minecraft Pixel Art Generator</a> 在 Minecraft 中绘了图，也感谢 <a href="https://blog.apeiria.net/">@Misaka13514</a> 在绘图过程中的大量帮助。</p>
+<p>感谢 <a href="https://blog.apeiria.net/">@Misaka13514</a>、<a href="https://koishi514.moe/">@scientificworld</a>、<a href="https://blog.chihuo2104.dev/">@chihuo2104</a>、<a href="https://littlesunnybear.com/">@littlebear</a>、<a href="https://mzwing.eu.org/">@mzwing</a>、<a href="https://github.com/zzjzxq33/">@zzjzxq33</a>、<a href="https://kolozea.top">@Kolozea</a>、<a href="https://space.bilibili.com/516252009/">@666999HC</a> 等群友（可能有漏的？）陪我玩 Minecraft！</p>
+<p>年底的时候通过 Microsoft Store 入了正。</p>
+<p><img src="./2023Summary_Minecraft_01.png" alt="image"></p>
+<p>在这一年里，还和 <a href="https://blog.apeiria.net/">@Misaka13514</a> 和 <a href="https://koishi514.moe/">@scientificworld</a> 使用 Syncplay 同步看了 MyGo!!!!! 以及其他许多番剧，我今年大约三分之二的番剧都是通过 Syncplay 和群友 <a href="https://blog.apeiria.net/">@Misaka13514</a> 和 <a href="https://koishi514.moe/">@scientificworld</a> 一起看的，感谢你们的陪伴！（</p>
+<p><img src="./2023Summary_Syncplay_01.png" alt="image"></p>
+<h3>音乐相关</h3>
+<p>感谢 <a href="https://blog.chihuo2104.dev/">@chihuo2104</a> 推荐给我的竹月雨 II 耳机，说是 <a href="https://mujitogawa.github.io/">@MujiTogawa</a> 推荐给他的，我用着感觉也很好用。</p>
+<p><img src="./2023Summary_Music.jpg" alt="image"></p>
+<h3>小彩蛋 1</h3>
+<p>Hackergame 2023 临近结束的时候被 <a href="https://tqlwsl.moe/">@wlt233</a> 超力（悲）（雾</p>
+<p><img src="./2023Summary_Hackergame.png" alt="image"></p>
+<h3>小彩蛋 2</h3>
+<p>只玩了大概一个多小时的 Phigros（）好难（</p>
+<p><img src="./2023Summary_Phigros.jpg" alt="image"></p>
+<h2>See also</h2>
+<p>也可以看看其它人的年终总结：</p>
+<ul>
+<li><a href="https://blog.apeiria.net/2023/my-2023/">我的 2023 - 欠陥電気の摸鱼小池</a></li>
+<li><a href="http://koishi514.moe/blog/bbg/index.html?type=article&amp;filename=s5e6TSCZKQXW.md">我的 2023 年终总结 - 无意识の桜</a></li>
+<li><a href="https://mzwing.eu.org/index.html?type=article&amp;filename=small-article-20231209.md">小碎记20231209 - 洛仙璃の幻梦</a></li>
+<li><a href="https://mjt.asia/posts/ed8b190a/">Byebye 2023(或 17岁再见) - 木屐落在水洼了</a></li>
+<li><a href="https://blog.chihuo2104.dev/posts/goodbye-2023">2023年度总结 - chihuo2104の部落格</a></li>
+<li><a href="https://tqlwsl.moe/index.php/archives/2778/">【碎碎念】某魏的 2023 年度总结</a></li>
+<li><a href="https://sekaimoe.dpkg123.site/end-of-2023/">SekaiMoe 的 2023 - SekaiMoe&amp;#39;s World</a></li>
+<li><a href="https://www.ccrice.com/neworld/761/2023%e7%9a%84%e6%80%bb%e7%bb%93/">2023的总结 - CC米饭</a></li>
+<li><a href="https://blog.mashiro.pro/1662.html">给2023画上一个句号 - 白のblog</a></li>
+<li><a href="https://blog.mk1.io/posts/bye-2023">迟来了一个月的 2023 年度总结 + 2024 新年快乐！ - Ray&amp;#39;s Blog</a></li>
+</ul>
+<h2>结语</h2>
+<p>希望自己能在新的一年里技术力越来越高，也祝正在看这篇文章的读者新年快乐！</p>
+
       </content>
       <summary type="html">我的 2023</summary>
+      <updated>2024-01-25T00:00:00.000Z</updated>
+      <published>2024-01-25T00:00:00.000Z</published>
       </entry><entry>
       <title>记录一次失败的 Web 端 OCR 尝试</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=a-failure-in-web-ocr.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=a-failure-in-web-ocr.md</id>
       <content type="html">
-          想做这个的起因是因为虽然网页端有很多在线 OCR 的，但是它们大多数都是上传到服务器端进行的。
+          <p>想特别地缅怀（雾）一下我之前进行的比较失败的 Web 端离线 OCR 尝试。</p>
+<p>想做这个的起因是因为虽然网页端有很多在线 OCR 的，但是它们大多数都是上传到服务器端进行的。即使它写了服务器端不会保存你的图像数据，不过这种事谁说得准呢（）于是就开始了我的折腾。首先这种场景大概率是要用到 WebAssembly 的，于是直接在 Google 上搜索 <code>ocr wasm</code>。第一个结果就是 tesseract-wasm，看起来非常不错，而且还提供了使用的 Example，只是它的示例上不支持中文。但是示例不支持并不代表技术上不支持，反正本质都是 Tesseract，直接把英语模型换成中文模型其实就能正常工作了。</p>
+<p>最核心的 OCR 部分既然是可以实现的，那么剩下的就是基于这个方向上继续做了。</p>
+<h2>获取剪贴板中的图像</h2>
+<p>对于 OCR 软件来说，能让用户直接对剪贴板中的图像进行 OCR 是一个极为常见的需求。但是这里有一个小问题，就是获取剪贴板中的图像的实现方式，如果直接 Google，你大概会注意到的第一个结果是 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Clipboard">Clipboard API</a>，但是如果你真的去试了一下的话就会发现，Firefox 几乎不支持它（只支持 writeText 方法，其余的包括 write、readText、read 等都不支持）。</p>
+<p>所以还是需要用比较传统的方式，监听粘贴事件然后从事件中读出剪贴板数据。但是这样的话就必须要用户按下粘贴快捷键，而不是我可以实现一个网页上的按钮，点击之后浏览器向用户征求权限，然后得到权限之后直接读取剪贴板，感觉并不是很优雅。</p>
+<pre><code>document.addEventListener(&amp;quot;paste&amp;quot;, async function (event) {
+  const items = (event.clipboardData)?.items;
+  if (items !== undefined) {
+    for (let item of items) {
+      if (item.kind === &amp;quot;file&amp;quot;) {
+        const blob = await new Response(item.getAsFile()?.stream()).blob();
+        if (blob !== undefined) {
+          const bitmap = await createImageBitmap(blob);
+          tryIdentifyImageBitmap(bitmap);
+          break;
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p>题外话，Firefox 其实不支持一些 Web API，例如 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Clipboard">Clipboard API</a>、<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/File_System_API">File System API</a> 等等，但它们其实还是挺有用的。根据<a href="https://github.com/mozilla/standards-positions/issues/154">这篇 GitHub 讨论</a>，Firefox 不支持 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/File_System_API">File System API</a>  的原因主要是因为安全方面的考虑，因为让网站能访问用户的本地磁盘确实存在危险性（相比之下，如果是网站不能直接访问，需要通过本地程序来进行的话，必然需要下载东西，而下载文件就可以受到 SmartScreen 等安全机制的审查，风险会小很多），不过不支持 Clipboard API 我没找到相关讨论，大概也是安全方面的原因吧。Firefox 所不支持的这些 API 对我个人来讲其实无所谓，因为我用不到需要这些权限的网站（比如 <a href="https://vscode.dev">https://vscode.dev</a> 我并没有使用它的需求），不过还是希望 Firefox 能支持这些 API。而且比如说 Google 翻译的翻译图像功能就我写文章的时候也是采用的 Clipboard API 来读取剪贴板中的图像的，所以这个功能在 Firefox 上也是用不了的，我用这个功能的时候还要切换到 Google Chrome 上去。最近有个关于 Firefox 的新闻说假如 <a href="https://analytics.usa.gov/data/live/browsers.json">https://analytics.usa.gov/data/live/browsers.json</a> 这里的占有率下降到 2% 以下的话 <a href="https://usa.gov/">https://usa.gov/</a> 就不会在支持 Firefox 了，这可能引发破窗效应导致许多网站放弃支持 Firefox。不过我觉得如果这个情况真的发生了，Firefox 总会做出改变，所以我个人倒没有特别担心。对于我来说更重要的是 Google Chrome 现在倒是在启用 Wayland 模式的时候中文输入法又坏了，相比之下 Firefox 对 Linux 支持一直都很好。</p>
+<h2>拖拽区域</h2>
+<p>另一个常见的需求是支持拖拽图像到程序中。同样是随便抄了一段代码，效果也还可以。</p>
+<pre><code>
+if (uiMainArea !== null) {
+  uiMainArea.addEventListener(&amp;quot;drop&amp;quot;, async function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const files = event.dataTransfer?.files;
+    if (files !== undefined) {
+      for(let file of files){
+        if(file.type.indexOf(&amp;quot;image&amp;quot;) &amp;gt; -1){
+          const bitmap = await createImageBitmap(await new Response(file.stream()).blob());
+          tryIdentifyImageBitmap(bitmap);
+          break;
+        }
+      }
+    }
+  })
+  uiMainArea.addEventListener(&amp;quot;dragover&amp;quot;, function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+}
+</code></pre>
+<h2>从计算机上选择（上传）图像</h2>
+<p>这个是比较常见的需求，实现的方法也很多，这里也是随便抄了一段。</p>
+<pre><code>if (selectImageBtn !== null){
+  selectImageBtn.onclick = function(){
+    const input = document.createElement(&amp;quot;input&amp;quot;);
+    input.type = &amp;quot;file&amp;quot;;
+    input.accept = &amp;quot;image/*&amp;quot;;
+    input.onchange = async function(event){
+      const files = input.files;
+      if(files !== null){
+        for(let file of files){
+          if(file.type.indexOf(&amp;quot;image&amp;quot;) &amp;gt; -1){
+            const bitmap = await createImageBitmap(await new Response(file.stream()).blob());
+            tryIdentifyImageBitmap(bitmap);
+            break;
+          }
+        }
+      }
+    }
+    input.click();
+  }
+}
+</code></pre>
+<h2>模型的储存</h2>
+<p>Tesseract 的中文模型大小大约 50 M，要说到存储，我首先想到的是包含模型的 ArrayBuffer 转成字符串然后存储在 LocalStorage 中（因为 LocalStorage 的值是要求以字符串的形式存储的），然后需要用的时候再读出来。</p>
+<blockquote>
+<p>另外，localStorage 中的键值对总是以字符串的形式存储。 (需要注意，和 js 对象相比，键值对总是以字符串的形式存储意味着数值类型会自动转化为字符串类型).
+—— MDN 文档</p>
+</blockquote>
+<p>不过 LocalStorage 并不适合存储这么多数据，而且 ArrayBuffer 和字符串如何进行转换呢？</p>
+<p>很自然地，可以找到 <a href="https://www.npmjs.com/package/arraybuffer-to-string">arraybuffer-to-string</a> 这个 NPM 包。不过这个用起来在我的环境下会报错，怀疑是因为内容量太大导致转换有问题或者是导致资源不足没办法进行转换。而且明明 ArrayBuffer 是一个很方便的东西，却被搞成了这个样子（指被转换成了字符串），真是痛心疾首，愧对浏览器，愧对内存（bushi）</p>
+<p>其实这种场景是应该使用 IndexedDB 的，包括 MDN 在 Service Worker 的使用指南中也提到了这一点。这个东西其实上手有些难度（至少对我来说），不过已经有一些封装好的库了（像是 LocalForage）所以也不会特别困难。</p>
+<pre><code>
+const getModelBuffer = async function (): Promise&amp;lt;ArrayBuffer&amp;gt; {
+  return (await localforage.getItem(&amp;quot;models&amp;quot;) as object)[&amp;quot;chi_sim&amp;quot;];
+}
+
+const isModelDataInCache = async function (): Promise&amp;lt;boolean&amp;gt; {
+  if (await localforage.getItem(&amp;quot;models&amp;quot;) !== null &amp;amp;&amp;amp; (await localforage.getItem(&amp;quot;models&amp;quot;) as object)[&amp;quot;chi_sim&amp;quot;] !== null) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+const startModelDownload = function (bitmapToIdentifyThen: ImageBitmap): void {
+  downloadingModelModal.show();
+  const xhr = new XMLHttpRequest();
+  xhr.responseType = &amp;quot;arraybuffer&amp;quot;;
+  xhr.open(&amp;#39;GET&amp;#39;, &amp;quot;./models/chi_sim.traineddata&amp;quot;, true);
+
+  xhr.addEventListener(&amp;#39;progress&amp;#39;, (event) =&amp;gt; {
+    if (event.lengthComputable) {
+      const percentage = (event.loaded / event.total) * 100;
+      updateProgressOfModelDownloading(percentage);
+    }
+  });
+
+  xhr.addEventListener(&amp;#39;load&amp;#39;, async () =&amp;gt; {
+    await localforage.setItem(&amp;quot;models&amp;quot;, { &amp;quot;chi_sim&amp;quot;: await xhr.response });
+    downloadingModelModal.hide();
+    startIdentifyImageBitmap(bitmapToIdentifyThen);
+  });
+
+  xhr.addEventListener(&amp;#39;error&amp;#39;, () =&amp;gt; {
+    console.error(&amp;#39;Error during download&amp;#39;);
+  });
+
+  xhr.send();
+}
+</code></pre>
+<h2>PWA 支持</h2>
+<p>按照 MDN 文档的示例写一个 Manifest 和 Service Worker 即可。不过 MDN 的示例是缓存优先的策略，那么网络优先的策略呢？一番搜索后可以找到 <a href="https://developer.chrome.com/docs/workbox/caching-strategies-overview/#the-cache-interface-versus-the-http-cache">https://developer.chrome.com/docs/workbox/caching-strategies-overview/#the-cache-interface-versus-the-http-cache</a> 这个教程，直接抄上来就完了。</p>
+<p><code>manifest.json</code>：</p>
+<pre><code>{
+    &amp;quot;name&amp;quot;: &amp;quot;bocchi&amp;quot;,
+    &amp;quot;start_url&amp;quot;: &amp;quot;.&amp;quot;,
+    &amp;quot;display&amp;quot;: &amp;quot;standalone&amp;quot;,
+    &amp;quot;theme_color&amp;quot;: &amp;quot;#cc3366&amp;quot;,
+    &amp;quot;description&amp;quot;: &amp;quot;一个现代的 OCR 工具。&amp;quot;,
+    &amp;quot;icons&amp;quot;: [
+      {
+        &amp;quot;src&amp;quot;: &amp;quot;icon.png&amp;quot;,
+        &amp;quot;type&amp;quot;: &amp;quot;image/png&amp;quot;,
+        &amp;quot;sizes&amp;quot;: &amp;quot;512x512&amp;quot;
+      }
+    ]
+}
+</code></pre>
+<p><code>sw.js</code>：</p>
+<pre><code>const cacheName = &amp;#39;cache_v1&amp;#39;;
+
+self.addEventListener(&amp;#39;install&amp;#39;, (event) =&amp;gt; {
+    event.waitUntil(
+        caches.open(cacheName).then((cache) =&amp;gt; {
+            return cache.addAll([
+                &amp;#39;/bootstrap.min.css&amp;#39;,
+                &amp;#39;/{{BUNDLED_JS_FILENAME}}&amp;#39;,
+                &amp;#39;/icon.png&amp;#39;,
+                &amp;#39;/manifest.json&amp;#39;,
+                &amp;#39;/tesseract-worker.js&amp;#39;,
+                &amp;#39;/tesseract-core.wasm&amp;#39;,
+                &amp;#39;/tesseract-core-fallback.wasm&amp;#39;
+            ]);
+        })
+    );
+});
+
+
+self.addEventListener(&amp;#39;fetch&amp;#39;, (event) =&amp;gt; {
+    if (event.request.mode === &amp;#39;navigate&amp;#39;) {
+        event.respondWith(
+            caches.open(cacheName).then((cache) =&amp;gt; {
+                return fetch(event.request).then((fetchedResponse) =&amp;gt; {
+                    cache.put(event.request, fetchedResponse.clone());
+                    return fetchedResponse;
+                }).catch(() =&amp;gt; {
+                    return cache.match(event.request);
+                });
+            })
+        );
+    } else {
+        event.respondWith(
+            caches.match(event.request).then((cachedResponse) =&amp;gt; {
+                return cachedResponse || fetch(event.request);
+            })
+        );
+    }
+});
+</code></pre>
+<p>以及别忘了 register <code>sw.js</code>：</p>
+<pre><code>const registerServiceWorker = async () =&amp;gt; {
+  if (&amp;quot;serviceWorker&amp;quot; in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register(&amp;quot;/sw.js&amp;quot;, {
+        scope: &amp;quot;/&amp;quot;,
+      });
+      if (registration.installing) {
+        console.log(&amp;quot;正在安装 Service worker&amp;quot;);
+      } else if (registration.waiting) {
+        console.log(&amp;quot;已安装 Service worker installed&amp;quot;);
+      } else if (registration.active) {
+        console.log(&amp;quot;激活 Service worker&amp;quot;);
+      }
+    } catch (error) {
+      console.error(`注册失败：${error}`);
+    }
+  }
+};
+
+registerServiceWorker();
+</code></pre>
+<h2>移除识别结果中中文之间的空格</h2>
+<p>还有一个问题，就是在识别中文的时候识别结果始终会在任意两个汉字之间有一个没有意义的空格，英文则可以正常地加入空格。这显然完全不符合中文阅读习惯和要求。因此，我们需要去除中文字之间多余的空格，但保留英文之间正确的空格。</p>
+<p>问了一下 ChatGPT，给出了这样的答案：</p>
+<pre><code>const removeSpacesAroundChinese = (text: string) =&amp;gt; {
+  const result = text.replace(/(\S)\s+(\S)/g, function (match, p1, p2) {
+    // 只有当空格的左边和右边都是中文字符时才替换为空字符串
+    if (/[\u4e00-\u9fa5]/.test(p1) &amp;amp;&amp;amp; /[\u4e00-\u9fa5]/.test(p2)) {
+      return p1 + p2;
+    } else {
+      return match;
+    }
+  });
+
+  return result;
+};
+</code></pre>
+<p>使用<code>/[\u4e00-\u9fa5]/</code>这个正则表达式来识别中文字符还是挺神奇的，学到了。但是这段代码测试下来有一个问题，就是每次只能去除一部分空格，不过我懒得细究原因了，既然每次至少能去除一部分空格，那么我们循环进行这个过程直到所有空格都被去除即可。于是可以编写如下的函数，循环调用<code>removeSpacesAroundChinese</code>函数直到前后两次调用的结果相等：</p>
+<pre><code>const removeSpacesAroundChineseRecursively = (text: string) =&amp;gt; {
+  let first_text = text;
+  let second_text = removeSpacesAroundChinese(first_text);
+  while (first_text !== second_text) {
+    first_text = second_text;
+    second_text = removeSpacesAroundChinese(first_text);
+  }
+  return second_text;
+}
+</code></pre>
+<h2>使用效果</h2>
+<p><img src="./images/webocr.png" alt="image"></p>
+<p><img src="./images/webocr-result.png" alt="image"></p>
+<h2>问题</h2>
+<p>使用之后不难发现一个问题：识别率比较低下。这个其实是 Tesseract 本身识别率比较低的原因。Tesseract 本身发布是一个比较早的框架，虽然也在不断进步，比如在 Tesseract 4 中使用了 LSTM 神经网络技术，但是相比现在更流行的 PaddleOCR 可能存在一定的落后吧。（我对 OCR 技术了解不多，这方面不是很懂）</p>
+<p>另外 Tesseract 本身设计是为了识别非常干净整洁的图像的，也要求使用者在使用之前先对图像进行某种程度上的处理。比如根据我查阅到的资料来看，需要进行去噪，二值化、旋转至 90 度等操作。并且在必要的时候应该先识别出带有文字的行，然后把每个行截取出来处理好后使用 Tesseract 的单行模式依次进行识别然后再合并，而不是直接进行识别。而这些操作都是我所没有进行的。由于精力原因也没有进行（考虑到，网络上的教程大多数是基于 Python 给出的示例，在浏览器端进行等效操作需要查阅另外的资料，虽然最后也能实现）。</p>
+<p>之后我也尝试了使用 PaddleOCR 的 <code>paddle.js</code>。不过它给出的示例在我的 Firefox 上并无法正常运作。</p>
+<pre><code>Error: Requested texture size [10240x16] greater than WebGL maximum on this browser / GPU [8192x8192].
+</code></pre>
+<p>另外，使用 Chrome 尝试后对于英文部分的识别效果有一些问题（与 Tesseract 相反，PaddleOCR 的问题是不加空格），可能和浏览器端运行的模型大小比较小有关。</p>
+<h2>其它的一些杂七杂八</h2>
+<p>在这个东西做好之后，我其实在考虑托管到哪里。因为模型文件比较大（50M），这已经超出了 Cloudflare Pages 的单文件大小限制。虽然可以分拆模型但是感觉有点像 Abuse，就不这样操作了。<a href="https://github.com/Misaka13514">Misaka13514</a> 倒是提醒了我 GitHub Pages 的大小限制更宽松一些，但是一个是，GitHub Pages 的速度太慢了，再一个，我讨厌让网站构建完成的文件（<code>dists/</code>）出现在 Git 仓库的任何位置（即使它不位于 <code>main</code>/<code>master</code> branch 我也不喜欢，不过我研究了半天也没搞明白怎么做）。最后还是放到我自己的服务器上了。第一次尝试 Caddy，感觉比 nginx 方便很多，尤其是 SSL 自己就配置好了，我一点脑子也不用动。现在想来其实还可以设置成（让用户）从 tessdata 的 GitHub Releases 那里获取模型文件，这样我就完全不必托管 50M 的模型文件了，不过我懒的修改代码了，再加上这样的话估计国内用户下载一天也不一定能把模型下载完。</p>
+<p>如果有谁还想试用一下这个有点失败的尝试的话，可以前往 <a href="https://ocr.nekomoe.xyz/">https://ocr.nekomoe.xyz/</a>。网页图标是我使用 Stable Diffusion 配合一个下载的 LoRA 制作的。最终效果至少我自己还是很满意的。这里放上我所使用的 Prompt 和相关参数：</p>
+<pre><code>Prompt: (pixelart:1.2), bright colours, 1girl, gotoh hitori, pink hair, long hair, hair between eyes, blue eyes, cube hair ornaments, pink clothes, close-up, sunlight, snowy, falling snow
+
+Negative prompt: hands
+
+Steps: 24
+
+Sampler: DPM++ 2S a
+
+CFG scale: 5
+</code></pre>
+
       </content>
       <summary type="html">想做这个的起因是因为虽然网页端有很多在线 OCR 的，但是它们大多数都是上传到服务器端进行的。</summary>
+      <updated>2024-01-07T00:00:00.000Z</updated>
+      <published>2024-01-07T00:00:00.000Z</published>
       </entry><entry>
       <title>最近的一些事</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=2023-5.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=2023-5.md</id>
       <content type="html">
-          关于在没写博客的这五个月里我都干了些什么
+          <p>距离我上次写博客已经隔了将近五个月的时间了，我这段时间不更新的原因其实是 <del>单纯就是懒得写（误）</del> 一方面我这几个月确实没特别钻研过什么复杂的东西，水平也不到位，虽然可以「为了让自己的博客看上去充实而作为一个自己也刚入门某个东西的人还要去写一篇类似XX入门指南的东西」，但是我自己是不想这么做，而写写自己的生活或者评析一下看过的动画/玩过的Galgame这种文章我写起来也没有之前写这类文章的那种感觉了。我试着推理一下可能的原因，其实现在这个博客刚刚建立是在2021年的8月份，从这个时间一直到去年的7月份就是我上高三的时间，那段时间里在各种大考小考中写了无数篇议论文，虽然挺累的，但是这种频繁的训练大概也激发了我写点什么东西的冲动，而到了现在我就变懒了，乐。</p>
+<p>下面我就随便说说这几个月里我觉得值得说一说的事情。</p>
+<h2>开始使用 YubiKey</h2>
+<p>三月份的时候 <a href="https://i.apeiria.net/">Misaka13514</a> 送了我一个 YubiKey 5C NFC，从此就开始了我使用 YubiKey 的经历。那么什么是 YubiKey 呢？请看下面的介绍。</p>
+<blockquote>
+<p>YubiKey是由Yubico生产的身份认证设备，支持一次性密码（OTP）、公钥加密和身份认证，以及由FIDO联盟（FIDO U2F）开发的通用第二因素（U2F）协议。它让用户可以透过提交一次性密码或是使用设备产生的公开/私密金钥来安全地登录自己的帐户。针对不支持一次性密码的网站，YubiKey也可以存储静态密码。Facebook使用YubiKey作为员工凭证；Google同时为雇员和用户提供支持。还有一些密码管理器也支持YubiKey。
+--- 维基百科&amp;lt;ref url="https://zh.wikipedia.org/wiki/YubiKey"&amp;gt;YubiKey - 维基百科&amp;lt;/ref&amp;gt;</p>
+</blockquote>
+<p>我入门 YubiKey 的时候除了官方的教程，主要参考的文章是这一篇：</p>
+<ul>
+<li><a href="https://blog.gimo.me/posts/getting-started-with-yubikey/">开始使用 YubiKey | Yuanji&amp;#39;s Blog</a></li>
+</ul>
+<p>我目前使用 YubiKey 的用途有两个，一个是将其作为网站的两步验证因素之一，另一个是用它来存储自己的 OpenPGP 私钥。对于两步验证和 OpenPGP 这两个概念不在这里过多介绍，简单来说前者指的是在登录网站账户的时候除了账户密码还同时要求另一个方式来验证，后者比较复杂，如果你完全不知道的话可以看<a href="https://zh.wikipedia.org/wiki/PGP">这个来自维基百科的链接</a>做进一步了解。</p>
+<p>&amp;lt;info-hint&amp;gt;虽然不用 YubiKey 这样的硬件安全密钥也可以设置两步验证或者比较安全的存储 OpenPGP 私钥，但是实际上在做这些事的时候 YubiKey 比传统方式安全得多。因为不管是 TOTP 还是 FIDO U2F 还是使用 GPG 加密/解密/签名文件，传统方式都必须要将 TOTP 私钥 / OpenPGP 私钥 / 其它各种类型的私钥存储在设备本地，如果相关应用没有妥善地存储私钥（比如不加密/加密方式极其简单/加密所用的密钥泄露）就有可能被恶意软件窃取。而对于 YubiKey 来说私钥一旦被导入 YubiKey 中就无法再次读出，确保了私钥不会泄露。&amp;lt;ref url="https://developers.yubico.com/U2F/Protocol_details/Key_generation.html"&amp;gt;Key generation&amp;lt;/ref&amp;gt;&amp;lt;ref url="https://support.yubico.com/hc/en-us/articles/360013790259-Using-Your-YubiKey-with-OpenPGP"&amp;gt;Using Your YubiKey with OpenPGP - Yubico&amp;lt;/ref&amp;gt;&amp;lt;ref url="https://developers.yubico.com/OATH/"&amp;gt;OATH&amp;lt;/ref&amp;gt;&amp;lt;/info-hint&amp;gt;</p>
+<p>具体到我的使用体验上，一方面我想说的是<strong>自己在 YubiKey 上设置的 PIN 一定要牢记</strong><del>（关于我忘记了自己两个月前为 YubiKey 的 OpenPGP 功能设置的 PIN 这件事（还好之前备份过私钥文件，重新导入回来了））</del>，另一方面就是要把 YubiKey 放在一个你认为合适的位置（要兼顾安全性和方便性），当然更不要随便乱放导致弄丢。</p>
+<h2>游戏</h2>
+<h3>原神</h3>
+<p><img src="./images/2023-5-genshin-impact.png" alt="2023-5-genshine-impact.png"></p>
+<p>原神是我四月份刚刚开始玩的，玩到现在玩了差不多一个多月吧。感觉还是挺好玩的，在我玩过的游戏当中算是比较好玩的那一类。</p>
+<p>游戏的类型是 RPG，我玩过的 RPG 不多，但是感觉原神和我记忆里的 RPG 游戏从玩法上差不多（有主线剧情任务（魔神任务）和支线任务）。单从任务系统的设计上来说，我还挺喜欢它的角色支线任务的设置（好像叫传说任务），这种任务的玩法有点类似 Galgame 和 RPG 的结合体，有多结局和流程图以及结局的 CG，也可以重复进行从而达成所有结局，我目前玩了芭芭拉的角色支线任务，感觉和 Galgame 差不多。如果角色和剧情多一点就好了。其它支线任务有一个缺点就是接了之后不能取消，我最近才发现，结果就导致主线剧情有时会因为支线任务没做完而无法继续。我玩到现在主线和支线的剧情感觉还是不错的，有些剧情还是挺有趣的，也有的剧情挺感人的。</p>
+<p>每日委托实在有点太千篇一律了，我不是很喜欢，以至于有的时候我即使登录游戏也懒得做每日委托。</p>
+<p>从战斗系统上来说，其实这方面我玩的不怎么样。原因之一是因为我不氪金，所以抽到的角色和武器也不多，而在我抽到的角色中符合我审美的就更少了。而我又很希望一个队伍里都是我所喜欢的角色，所以队伍搭配和战斗能力可能都不是很好。</p>
+<p>下个版本有一个新的猫耳娘角色（绮良良），感觉还挺好看的，虽然没有到特别特别喜欢的程度，但还是希望到时候可以抽到。</p>
+<h3>雀魂麻将</h3>
+<p>虽然已经了解玩法并入门，但是我大概不会继续玩下去，原因是这个麻将一局的时间感觉不太确定，有时候会拖到很久，太占时间了。</p>
+<h3>Minecraft</h3>
+<p>这几个月里确实玩的不多，除了 23w13a_or_b 那个快照更新的时候重新玩了一下。</p>
+<h2>DN42</h2>
+<p>在学习 DN42 的过程中学习了 WireGuard 和 BIRD2 等软件的使用，过程中踩了不少坑，感谢 <a href="https://i.apeiria.net/">Misaka13514</a> 孜孜不倦的指导。</p>
+<p>P.S. 我注册 DN42 域名的时候竟然发现 <a href="https://neko.dn42/">neko.dn42</a> 这个域名还没有被注册于是直接注册了，成功拿到，好耶！</p>
+<p><img src="./images/2023-5-dn42-domain-register.png" alt="2023-5-dn42-domain-register.png"></p>
+<h2>CTF</h2>
+<p>今年三月份的时候参加了一场线下的 CTF。这次比赛组队是每个学校组几个队，而我很幸运地和两个大佬组在了一队，我就做了个签到题和一道最简单的 Misc 题。</p>
+<p>参加之前低估了这次比赛的难度，本来还是有机会多做出一道 Pwn 的题目的，可惜解法我是在最后的时间想到的，以至于没有时间进行验证和作答了。</p>
+<p>虽然最后还是拿奖了，不过 CTF 的分确实不高。</p>
+<h2>AI 相关</h2>
+<h3>GitHub Copilot</h3>
+<p>前几天向一个同学问了一下我学校的 edu 邮箱是怎么登录的，然后用这个 edu 邮箱去申请了一下 GitHub 的 Student Pack。这个 Student Pack 里我最用得着的其实就是 GitHub Copilot，别的我到目前为止还没怎么用。</p>
+<p>我此前用过 Tabnine 的免费版和 AWS 的 CodeWhisperer。前者好像是只能单行补全的，但是因为我很长一段时间里没有找到它的替代品（虽然那段时间 Copilot 已经出了但是我那时候还没整明白学校的 edu 邮箱怎么登录）所以忍受着 Tabnine 免费版用了很久，也不好用。后来四月份的时候 AWS 出了 Copilot 的竞品 CodeWhisperer，凑合着一直用着，效果也还行。直到前两天终于换上了 GitHub Copilot，感觉不管是上下文的理解还是补全的正确性都比 Tabnine 免费版和 CodeWhisperer 强了一大截。</p>
+<h3>New Bing</h3>
+<p>New Bing 刚开始用的时候感觉还是挺新鲜的，但是我目前还是手动用 Google 搜索东西更多一点。</p>
+<h3>大语言模型</h3>
+<p>某一天刷知乎的时候这篇文章吸引了我的注意：</p>
+<ul>
+<li><a href="https://zhuanlan.zhihu.com/p/623648932">rwkv.cpp: CPU 也能跑的 RNN 中文语言大模型</a></li>
+</ul>
+<p>反正也没什么事，就随便玩了玩。用的是 <a href="https://huggingface.co/BlinkDL/rwkv-4-raven/tree/main">这个</a> 里面的一个模型。虽然效果明显远远不如 ChatGPT，不过比我一开始想象的还是要好一点，<del>还有最重要的是可以扮猫娘</del>。</p>
+<p>同时在使用中发现了一个小问题，于是顺便开了个 PR 解决了。</p>
+<ul>
+<li><a href="https://github.com/saharNooby/rwkv.cpp/pull/58">Fix encoding issue when loading prompt data by baiyuanneko · Pull Request #58 · saharNooby/rwkv.cpp</a></li>
+</ul>
+<h2>计算机相关</h2>
+<p>计算机语言方面，试着学习了 C#，并写了一个小项目来练手（虽然没完工）。目前还学的不是很深入，不过在这个过程中对面向对象程序设计有了更深入的理解。</p>
+<h2>动画和 Galgame</h2>
+<p>从三月份以来其实没怎么玩过 Galgame。除了五月份的时候玩了个<a href="https://store.steampowered.com/app/2114770/">《零岁的星光》</a>，最近我是在推<a href="https://bgm.tv/subject/409483">《天使☆騒々 RE-BOOT!》</a>。</p>
+<p>三月份以及从今年一月份到三月份之前中我推过的 Galgame 中比较喜欢的是<a href="https://bgm.tv/subject/22423">《樱之诗》</a>和<a href="https://bgm.tv/subject/257527">《青空下的加缪》</a>。</p>
+<p>喜欢《樱之诗》的原因是觉得各个方面都挺不错的。和很多人相反，我其实是挺喜欢《樱之诗》的这种描绘日常的风格的，觉得有一种闲适自然（？）的感觉，当然每个人对作品的品味都不一样。游戏的整个气氛也挺美的，玩着很放松很舒服。音乐/BGM当中也有几首让我觉得很好听，也单曲循环了一阵子。下面列举几首：（链接均指向网易云音乐）</p>
+<ul>
+<li><a href="https://music.163.com/song?id=399367366">舞い上がる因果交流のひかり</a></li>
+<li><a href="https://music.163.com/song?id=399367367">瞬間を閉じ込めた永遠</a></li>
+<li><a href="https://music.163.com/song?id=399366411">螺旋に伸びる色彩</a></li>
+</ul>
+<p>&amp;lt;warning-hint&amp;gt;这里提示一下在 Linux 下想要用 Wine 来运行《樱之诗》的人：这个游戏用原版 Wine 运行的话在某一段剧情会卡死崩溃。如果遇到了可以换用 Proton 运行时来运行。&amp;lt;/warning-hint&amp;gt;</p>
+<p>喜欢《青空下的加缪》一方面是因为气氛很美，作画也很精美，另一方面剧情至少我觉得很感人。结局有点遗憾，不过从整个故事的角度来看也是一种必然。</p>
+<p>动画方面就挑几部我这几个月看的又很喜欢的动画来评价吧。</p>
+<p>首先是《虚构推理》。Bangumi 上这部的评分好像不是很高，但是我自己还是很喜欢的：我觉得这部番的女主（<a href="https://bgm.tv/character/66614">岩永琴子</a>）很好看，在性格上又很有特点；这部番的整体画风还不错；故事背景、具体情节和故事主题从整体来讲都比较对我的胃口。这部番和《冰菓》给我的感觉不太相同，但我觉得它比《冰菓》还要更有意思一些（也许一个原因是我对千反田爱榴完全无感，但是这部番的女主还挺有趣的）。</p>
+<p>其次是《天使降临到我身边》，OP 和 ED 都很好听！（不过我更喜欢 ED 一点）</p>
+<p>目前我正在看的动画是<a href="https://bgm.tv/subject/386809">《【推しの子】》</a>和<a href="https://bgm.tv/subject/909">《とらドラ！》</a>。</p>
+
       </content>
       <summary type="html">关于在没写博客的这五个月里我都干了些什么</summary>
+      <updated>2023-05-20T00:00:00.000Z</updated>
+      <published>2023-05-20T00:00:00.000Z</published>
       </entry><entry>
       <title>关于我的 2022</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=my-2022.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=my-2022.md</id>
       <content type="html">
-          关于我的 2022
+          <p>2022 年里我也是顺利从高中毕业，迈入大学生活了。因为疫情原因，从2022年3月开始大概两个半月的时间我们高中都是以网课的形式在上课，感谢这段时间里香子兰群里的大家在 Minecraft 里的陪伴，让我在这段枯燥的学习过程之余多了许多愉快的时光。也感谢 <a href="https://i.apeiria.net/">Misaka13514</a>、<a href="https://koishi514.ml/">scientificworld</a>、<a href="https://mzwing.eu.org/">mzwing</a>、<a href="https://im.chihuo2104.dev/">chihuo2104</a> 以及其它很多人对我的高考祝福。</p>
+<p>高考之后的这个暑假我大概没有做很多事情，虽然回想起来的话好像确实是做了一个<a href="https://github.com/baiyuanneko/my-bot">能在群聊中使用的 bot</a> 和一个<a href="https://nekomoe.xyz/index.html?type=article&amp;filename=minecraft-chat.md">能从 Minecraft 日志中导出聊天记录的程序</a>，但是我其实真正花在代码上的时间并不多，还是有点无聊的。这里还是感谢这段时间里香子兰群里的大家在 Minecraft 中的陪伴（特别是 <a href="https://i.apeiria.net/">Misaka13514</a> 和 <a href="https://koishi514.ml/">scientificworld</a>），让我消磨了无聊的时间。</p>
+<p>大学里开了一门教 Python 的课，在这门课中我算是基本掌握了 Python 的语法，然后我在大概是接近年底的时候用Python 3（Pypy 3）稍微刷了一些洛谷上的题目，大致学会了深度优先搜索的算法和一些常见的剪枝方法，也了解了一些算法思想（比如“贪心算法”）。动态规划看着就好难所以没什么兴趣学习。目前也还没有学习 C++，因为暂时感觉对我目前用处不大，也许在之后时间比较有空并且我比较有兴趣的时候会继续学习 C++。</p>
+<p>这一年里我第一次参加了 <a href="https://hack.lug.ustc.edu.cn/">Hackergame</a>，感谢 <a href="https://i.apeiria.net/">Misaka13514</a> 介绍给我这个比赛，比赛的过程很开心！值得一提的是，比赛中有一道叫做“二次元神经网络”的题目的题目背景中出现了 NovelAI。大概现在正在看这篇文章的人应该都已经听说过 NovelAI 或者 ChatGPT 了？嘛，其实相比 ChatGPT 来说还是 NovelAI 给我的震撼程度更大一点。我以前用过一些二次元插画生成的程序或者网站（比如 <a href="https://crypko.ai/">Crypko AI</a> 以及 <a href="https://make.girls.moe/">MakeGirlsMoe</a>），但是效果不是特别好。但是 NovelAI 生成的插画就非常的精美好看。相比之下 ChatGPT 虽然似乎更厉害，但是给我感觉还是有点傻傻的，没有 NovelAI 给我的那种惊喜感。很可惜的是我的电脑没有独显，没有办法在自己的电脑上实践 AI 绘画。</p>
+<p>最近几个月里一直在玩 Galgame，我感觉我在过去几个月里玩过的 Galgame 数量快要和我在这几年里玩过的 Galgame 总数要差不多了。虽然我接触 Galgame 大概是从初中开始的，但是在高中里却玩的不多。其实我的高中又不是寄宿制学校，也就是说我完全可以在放学回家之后的时间玩，但是如果用本来应该用来写作业的几个小时时间去玩 Galgame，还是会让我的内心有一点点负罪感的，虽然这段时间里本来我其实也没在好好写作业就是了。</p>
+<p>这几个月里我遇到了很多自己比较喜欢的 Galgame，比如《冬滚滚》和《星空列车与白的旅行》。关于前者，其实一开始吸引我的是它好看的封面，于是详细了解了一下，是科幻+悬疑类型，是我比较感兴趣的题材，于是就简单地决定下载开玩了。真正去玩的时候发现自己很喜欢里面的角色 空丘夕阳。其实对我来说，如果一个 ACG 作品能找出一个我很喜欢的角色，我觉得是一件很幸运的事情，毕竟许多作品中连一个自己很喜欢的角色都找不到。这也是我喜欢《星空列车与白的旅行》的原因之一，我很喜欢里面的角色诺瓦。《星空列车与白的旅行》是 <a href="https://i.apeiria.net/">Misaka13514</a> 推荐给我的，许多人说这部作品比较“像童话”，它的故事前期还是比较温馨的，但是其实它最终要讲述的道理大概可以算是深刻的，我觉得还是一部比较让人感动的、剧情也不错的作品，还是很推荐没有玩过的人去尝试一下的。</p>
+<p>在玩过《冬滚滚》之后，<a href="https://koishi514.ml/">scientificworld</a> 也向我推荐了一些类似风格的作品，打算之后去玩玩看。</p>
+<p>这一年里我能感受到许多人对我的关心，谢谢你们。希望自己在新的一年里能继续加油。祝大家新年快乐！</p>
+<h3>See also</h3>
+<p>也可以看看其它人的年终总结：</p>
+<ul>
+<li><a href="https://blog.apeiria.net/2022/my-2022/">我的 2022</a> by <a href="https://i.apeiria.net/">Misaka13514</a></li>
+<li><a href="https://koishi514.ml/blog/bbg/index.html?type=article&amp;filename=tfdCB7WihRBr.md">我的 2022 年终总结</a> by <a href="https://koishi514.ml/">scientificworld</a></li>
+<li><a href="https://blog.chihuo2104.dev/posts/goodbye-2022">2022 年度总结</a> by <a href="https://im.chihuo2104.dev/">chihuo2104</a></li>
+<li><a href="https://blog.mk1.io/posts/2023">2023新年快乐！ + 年度总结</a> by <a href="https://blog.mk1.io/pages/about">Ray</a></li>
+<li><a href="https://mujitogawa.github.io/posts/b7a38911/">2022总结&amp;amp;My Resolutions</a> by <a href="https://mujitogawa.github.io/about/">Muji Togawa</a></li>
+</ul>
+
       </content>
       <summary type="html">关于我的 2022</summary>
+      <updated>2023-01-10T00:00:00.000Z</updated>
+      <published>2023-01-10T00:00:00.000Z</published>
       </entry><entry>
       <title>参加 Hackergame 2022 的一些感想和部分题解</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=hackergame-2022.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=hackergame-2022.md</id>
       <content type="html">
-          参加了中国科学技术大学第九届信息安全大赛（即 Hackergame 2022），最终总分 4600，排名 64，排名有点遗憾地没有达到前 50，不过本来我的 CTF 经验也很少，而且，比赛的过程还是很开心的，也学到了很多很有意思的知识。
+          <p>参加了中国科学技术大学第九届信息安全大赛（即 Hackergame 2022），最终总分 4600，排名 64，排名有点遗憾地没有达到前 50，不过本来我的 CTF 经验也很少，而且，比赛的过程还是很开心的，也学到了很多很有意思的知识。</p>
+<p>&amp;lt;info-hint&amp;gt;Hackergame 2022 比赛已于 2022 年 10 月 29 日中午 12:00 正式结束，本文发布于当天晚上，不存在提前公布题解的情况。&amp;lt;/info-hint&amp;gt;</p>
+<h1>一些感想</h1>
+<p>这次给我印象很深的是「杯窗鹅影」和「传达不到的文件」这两题，一个是因为自己平时用 Wine 也挺多的，但是却很少思考 Wine 存在的安全问题。包括我在网上搜集「Wine 如何访问 Linux 根目录」相关资料的时候，也发现很多人其实都是认为删除了 Wine 默认的 <code>Z:</code> 磁盘映射之后，Wine 运行的程序就无法访问 Linux 根目录了（我自己在做这道题之前也是这样想的）；再比如「传达不到的文件」这一题，即使设置了文件权限，也不代表文件完全处于保护之中，所以这两道题给我的启示就是说计算机安全是没有也不能「想当然」的。可惜的是「传达不到的文件」这题我在比赛时未能想到解题方法。</p>
+<p>另外一个给我印象很深的是「evilCallback」这题，V8 是 Chromium 所使用的 JavaScript 引擎，使用的是非常广泛的，并且它的开发者的水平都是非常顶尖的，但是这样的程序也并不是完美的，而计算机安全中任何一个小小的漏洞和疏忽（即使漏洞想要被利用非常困难，但也是有可能的）都有可能导致不良的后果。所以说计算机安全真的是一个很深奥的学问。当然，以我的水平是无法利用「evilCallback」的漏洞的（（</p>
+<h1>部分题目的题解</h1>
+<h2>Flag 自动机</h2>
+<p>因为之前没有反汇编相关的经验，所以在这道题上卡了很久。不过事后来看还是不难的。不过因为这是我第一次学习和实践反汇编相关的知识，还取得了成功，所以感觉这道题对我自己还是很有意义的。</p>
+<p>首先是「获取 Flag」的按钮在鼠标移上去之后会不断乱动；其次是，即使成功点击了「获取 Flag」的按钮，程序会弹出「你不是本机的超级管理员」的提示，也不会输出 Flag。</p>
+<hr>
+<p>我首先是用 IDA 看了很久的汇编代码执行流程，然后发现看不太懂。同时，在反汇编后可以注意到程序中包含这样一个字符串：<code>Hint: You don&amp;#39;t need to reverse the encryption itself.</code>，因此我开始尝试通过修改程序的汇编代码的执行流程来获取 Flag，而不是研究程序的汇编代码执行流程。</p>
+<p>因为此前没有反汇编和修改汇编代码的相关经验，所以一开始我并不知道使用什么软件来修改程序的汇编代码。我一开始尝试了原版 Ollydbg 和 Windbg，可是都没怎么用明白。最后换用 LCG 版本的 Ollydbg 来修改汇编代码。我主要使用了两个功能：LCG 版本的 Ollydbg 自带的参考文本字串检索功能，以及分析代码功能，可以让我了解从某个位置到另一位置，中间包含的汇编代码大致都在干些什么。</p>
+<p>对于「按钮乱动」的问题，首先搜索字符串「放手离开」，可以找到「获取 Flag 按钮」和「退出程序按钮」这两个按钮的创建流程。考虑到<code>0040159F</code>上面的汇编代码看上去像是用来创建「获取 Flag」的按钮，那么也许删去接下来的一些汇编代码就可以解决按钮会乱动的问题。于是凭感觉使用 Ollydbg 将 <code>0040159F</code>到 <code>004015FB</code> 的汇编代码全部改为 <code>nop</code>，获取 Flag 的按钮就不会乱动了。</p>
+<p>对于「无法输出 Flag」的问题，搜索文本「您不是本机的超级管理员」，在这个文本下面的<code>0040183B</code>处可以看到一处<code>jmp</code>指令，而这个<code>jmp</code>指令的下一行就是正常输出 Flag 相关的流程，所以删除掉这处<code>jmp</code>即可让程序正常输出 Flag。不过，也可以将<code>004017FD</code>到<code>0040183B</code>的汇编代码全部改为<code>nop</code>，这样那个「您不是本机的超级管理员」的对话框也不会弹出了（不过如果嫌麻烦，只删<code>0040183B</code>处的这个<code>jmp</code>指令应该也可以）。</p>
+<hr>
+<p>这道题让我学习了反汇编和修改汇编代码的基本知识，虽然做的时候花了很久的时间，但是事后来看其实是不难的，我花的时间太久，主要还是因为我的经验不足而且操作不熟练。</p>
+<h2>微积分计算小练习</h2>
+<p>这道题主要是需要注意到<code>姓名</code>字段的内容在“练习结果”页面不经任何处理就被加载到结果页面中。而检测练习结果的程序又会在加载结果页面的时候设置会话 Cookie 为 Flag，然后才会输出分数等信息。因此我们可以考虑使用对姓名字段进行一个类似于<code>XSS</code>注入的过程，在结果页面加载姓名字段的时候想办法把 Cookie 中的内容放到分数输出里面。然后把得到的结果页面 URL 放到检测练习结果的程序里面，让检测练习结果的程序输出分数的时候输出 Flag。（这段话说起来好像有些绕（（</p>
+<p>我使用的是 <code>&amp;lt;img&amp;gt;</code> 标签的 <code>onerror</code> 属性进行 XSS。在姓名字段填入如下内容，然后提交后，将结果页面的 URL 提交到那个检测练习结果的程序里即可：</p>
+<pre><code>&amp;lt;img src=&amp;quot;./neko.png&amp;quot; onerror=&amp;quot;document.querySelector(`#score`).innerHTML=document.cookie&amp;quot; /&amp;gt;
+</code></pre>
+<h2>杯窗鹅影</h2>
+<p>我参考的文章：<a href="https://schlafwandler.github.io/posts/attacking-wine-part-i/">Attacking applications running under WINE (Part I)</a>。</p>
+<p>从这篇文章中可以知道，我们可以通过 Wine 运行 Linux Shellcode，并且上面的参考文章中已经给出了示例代码，所以直接使用 <a href="https://github.com/schlafwandler/attacking_wine/blob/master/Part_I/exec_shellcode.c">https://github.com/schlafwandler/attacking_wine/blob/master/Part_I/exec_shellcode.c</a> 这里面的代码，将<code>linux32_printline</code>中的 Shellcode 替换成读取<code>/flag1</code>或<code>/flag2</code>的Shellcode然后编译，将编译得到的程序提交即可。</p>
+<p>关于如何生成一段 Shellcode，我的方法是，先用 <a href="https://www.exploit-db.com/exploits/44445">https://www.exploit-db.com/exploits/44445</a> 这个 Python2 脚本将 Shell 命令转换成汇编代码，然后使用如下命令生成二进制文件：</p>
+<pre><code>nasm -f elf64 shell.asm -o shell.o
+ld shell.o -o shell
+./shell
+</code></pre>
+<p>最后用 <a href="https://github.com/tangsilian/SomeCode/tree/master/bin2shellcode">https://github.com/tangsilian/SomeCode/tree/master/bin2shellcode</a> 将二进制文件转换成 ShellCode。</p>
+<h2>量子藏宝图</h2>
+<p><strong>第一步：登录进入题目</strong></p>
+<p>首先是要知道 <code>BB84</code> 加密算法是什么工作的，这里我参考的是<a href="https://zhuanlan.zhihu.com/p/22474140">https://zhuanlan.zhihu.com/p/22474140</a> 这篇知乎文章。</p>
+<p>我的做法是：制备基底填写30个字母x（或者全填加号），量子态填写30个0（或者全填1），然后看它给的测量基底和你填写的制备基底有多少个字符是相同的，就填写多少个量子态那里填写的数字，比如如果量子态全填的0，然后测量基底和制备基底有11个字符相同的话，最后那个安全密钥就填写11个数字0。</p>
+<p>我的制备基底和量子态的长度都是30个字符长度，因为如果这里的字符长度太小的话，最后它给的测量基底和你填写的制备基底可能只有小于10个字符是相同的，但是那个安全密钥长度应该是必须大于10个字符长度，所以制备基底和量子态的长度不能太短。</p>
+<p><strong>第二步：解出「量子电路图」</strong></p>
+<p>一开始查了一堆乱七八糟的资料试图理解量子电路 <del>，但是可惜的是我实在看不懂</del>，不过考虑到题目给了我一个 QISKit 的链接，而 QISKit 又是一个可以基于 Python 的可以用来模拟量子电路的框架，那么，我们能不能使用 QISKit 来模拟它给出的电路图呢？答案是<strong>可以</strong>的。</p>
+<p>先导入 QISKit 和其它的一些库，并搭建电路：</p>
+<pre><code>from qiskit import QuantumCircuit, Aer, execute, transpile;
+circ = QuantumCircuit(129,128);
+</code></pre>
+<p>然后就是漫长的电路搭建过程，这里给出几行例子：</p>
+<pre><code>circ.x(128); # 在 q128 处放置那个写着 X 的小方块
+circ.h(128); # 在 q128 处放置那个写着 H 的小方块
+circ.barrier(); # 创建那个带有灰色背景的竖线虚线，虽然我也不知道那个竖线叫什么（）
+circ.cx(0,128); # 在 q0 处创建那个蓝色的最底下有加号的竖线，当然，我也不知道这个竖线叫什么（）
+</code></pre>
+<p>电路布置完成后，放置测量器：（至于为什么要放测量器，我参考的是这篇文章：<a href="https://www.qmunity.tech/tutorials/bernstein-vazirani-algorithm">https://www.qmunity.tech/tutorials/bernstein-vazirani-algorithm</a> ）</p>
+<pre><code>for i in range(128):
+    circ.measure(i, i)
+</code></pre>
+<p>最后编写模拟电路并输出 Flag 的相关代码；</p>
+<pre><code>sim = Aer.get_backend(&amp;quot;aer_simulator&amp;quot;);
+result = sim.run(circ).result().get_counts();
+
+print(result);
+</code></pre>
+<p>注意最后会得到的是二进制的 Flag，按 ASCII 编码进行解读即可得到 Flag。</p>
+<h2>火眼金睛的小 E</h2>
+<p>第一问就是简简单单的 BinDiff，然后就是第二问了。由于并没有找到使用命令行进行 Bindiff 的方法，也没有找到 Bindiff 有什么其它的接口，因此我只能手动进行 Bindiff 了。因为输入相同的时间戳可以得到相同的题目，因此我们可以先随意填写100次，从而一次获取全部的题目，然后慢慢 Bindiff。时间限制是 60 分钟，这 60 分钟里要完成获取题目、下载需要比较的文件、进行 100 次 BinDiff、提交所有 BinDiff 结果这四个步骤，所以肯定是有一些过程需要自动化的。实际上除了进行 BinDiff 这一步骤之外，获取所有比较题目、提交所有比较结果、每次下载两个bin文件的过程都是可以自动化的， <del>最后练一下手速，争取做到每分钟两次bindiff，基本上就够了。 一开始操作不熟练，再加上很多过程一开始没有自动化，所以浪费了好几个小时。</del> （别学我浪费时间手动 Bindiff（</p>
+<h1>官方题解的一些观后感</h1>
+<h2>链上记忆大师</h2>
+<p>我大概确实是没有完成这道题所需的相关的基础知识，实在想不到 <code>Player Bytecode</code> 指的是 <code>Solidity</code> 语言源代码编译之后的字节码qwq</p>
+<h2>二次元神经网络</h2>
+<p>明明已经想到是利用 Pickle 的反序列化漏洞，也构造出写入那10张图像到 <code>result.json</code> 的 payload 了，可惜最后仍然没能做出来。对比官方题解，我的问题出在两个地方。</p>
+<p>一个是我需要用<code>torch.save()</code>来保存<code>Exploit()</code>而不能手动写入，否则会提示「在加载和解析模型时出错」。另外一个是我疏忽大意，本来应该将<code>result.json</code>保存到<code>/tmp/</code>的，但我为了在本地调试方便直接将<code>result.json</code>保存到了<code>infer.py</code>所在目录。</p>
+<p>我的失败的代码如下：（由于篇幅原因，图像的 base64 在此省略）</p>
+<pre><code>import pickle
+import os
+
+class Exploit(object):
+    def __reduce__(self):
+        return (eval, (&amp;#39;&amp;#39;&amp;#39;open(&amp;quot;./result.json&amp;quot;, &amp;quot;wb&amp;quot;).write(b&amp;#39;{&amp;quot;gen_imgs_b64&amp;quot;:[]}&amp;#39;)&amp;#39;&amp;#39;&amp;#39;,),);
+
+attack = Exploit();
+
+attack_payload = pickle.dumps(attack,protocol=0);
+
+attack_payload = attack_payload.decode(&amp;#39;UTF-8&amp;#39;).strip(&amp;quot;.&amp;quot;).encode();
+
+with open(&amp;quot;./checkpoint/model.pt&amp;quot;, &amp;quot;wb&amp;quot;) as handler:
+    handler.write(attack_payload+b&amp;#39;c__builtin__\neval\np0\n(Vsys.exit()\np1\ntp2\nRp3\n.&amp;#39;);
+</code></pre>
+<h1>总结</h1>
+<p>虽然没有参加过几次 CTF，但是这次 Hackergame 给我感觉还是很有意思的，除了排名止步于 64 名有点遗憾（本来感觉就差一点点就可以排到前 50 名的qwq），明年也许会继续参加。</p>
+<h1>另请参见</h1>
+<ul>
+<li><a href="https://blog.apeiria.net/2022/hackergame-2022-writeup/">Hackergame 2022 WriteUp</a> by <a href="https://apeiria.net/">欠陥電気</a></li>
+</ul>
+
       </content>
       <summary type="html">参加了中国科学技术大学第九届信息安全大赛（即 Hackergame 2022），最终总分 4600，排名 64，排名有点遗憾地没有达到前 50，不过本来我的 CTF 经验也很少，而且，比赛的过程还是很开心的，也学到了很多很有意思的知识。</summary>
+      <updated>2022-10-29T12:00:00.000Z</updated>
+      <published>2022-10-29T12:00:00.000Z</published>
       </entry><entry>
       <title>Python 和 Node.js 实现 Minecraft 聊天记录导出和检索程序</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=minecraft-chat.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=minecraft-chat.md</id>
       <content type="html">
-          Python 和 Node.js 实现 Minecraft 聊天记录导出和检索程序
+          <p>在 Minecraft 中聊天是一件趣事，然而过往的聊天记录，却无法简单地回顾。</p>
+<p>我们怎样才能找回过往在 Minecraft 中留下的点点滴滴的回忆呢？</p>
+<p>&amp;lt;info-hint&amp;gt;本文中，导出的聊天记录是<strong>临时所用的中间格式</strong>。只有在通过本文第二部分的检索程序实现才能够从导出的聊天记录中检索消息。&amp;lt;/info-hint&amp;gt;</p>
+<h2>特别感谢</h2>
+<p>本文中的数据检索相关功能主要是由 <strong><a href="https://github.com/Misaka13514/">欠陥電気 𝑹𝒂𝒅𝒊𝒐𝑵𝒐𝒊𝒔𝒆</a></strong> 开发和完善。</p>
+<h2>准备工作</h2>
+<ul>
+<li>Minecraft 客户端日志</li>
+<li>Node.js</li>
+<li>Python 3</li>
+</ul>
+<blockquote>
+<p>小提示：Minecraft 日志存放于<code>.minecraft/logs</code>（若开启版本隔离，则是<code>.minecraft/&amp;lt;版本&amp;gt;/logs</code>）</p>
+</blockquote>
+<h3>简单分析日志格式</h3>
+<p>随便打开任何一个带有聊天记录的日志，定位到日志中带有聊天记录的行：</p>
+<pre><code>[20:00:00] [INFO]: &amp;lt;baiyuanneko&amp;gt; hi
+</code></pre>
+<p>容易发现格式如下：</p>
+<pre><code>[当天时间（不包含当天日期）] [无关信息][]: &amp;lt;消息发送者&amp;gt; 消息内容
+</code></pre>
+<p>我们下一步要进行的是聊天日志的导出，因此必要的信息是消息发送时间、发送者和消息内容。</p>
+<p>只考虑这一行聊天记录：</p>
+<ul>
+<li>消息发送者通过<strong>正则表达式</strong>匹配<strong>尖括号</strong>可以得到</li>
+<li>消息发送时间通过<strong>正则表达式</strong>匹配<strong>第一个方括号</strong>可以得到，但是只是当天内的时间却不包含当天日期，不过容易发现当天日期可以通过<strong>读取日志的文件名</strong>变相获取。</li>
+<li>消息内容的获取方式很多，可以将方括号、尖括号、冒号全部去除，剩下的就是具体内容；也可以读取尖括号之后的内容来得到消息内容。</li>
+</ul>
+<p>最后我们只剩下需要解决的问题就是：</p>
+<ul>
+<li>显然，日志中不是每一行都包含聊天记录，那么如何过滤只得到聊天记录行？</li>
+</ul>
+<p>这个问题比想象中简单，因为经过大量观察和实验可以发现，只要一行中包含<strong>尖括号</strong>（即通过正则表达式匹配到了尖括号），我们基本可以断言这一行就是包含聊天记录的行。</p>
+<blockquote>
+<p>小提示：实际上还有一个例外，就是有时命令的帮助文本中也会出现尖括号，不过一方面，命令的帮助文本的出现概率通常远小于聊天记录的内容数量，从而你可以事后或在处理过程中手动筛选，如果你去做了就会发现，<strong>这个工作量肯定会比你想象中小很多</strong>，另一方面本身你会发现很难简单地判断出聊天记录行和帮助文本行的区别。所以手动筛选应该已经是比较好的解决方案（如果你有更好的，欢迎告诉我，我会更正）。</p>
+</blockquote>
+<h2>开始实现聊天记录导出</h2>
+<blockquote>
+<p>本部分的代码使用 Node.js 完成。</p>
+</blockquote>
+<h3>简单的步骤分解</h3>
+<ol>
+<li>遍历一个文件夹（假设为<code>source</code>文件夹）中的所有日志文件（此处可以使用<code>fs.readdirsync()</code>实现）</li>
+<li>逐一对每个日志文件逐行地读取（如果日志放在压缩包中，则先解压）（此处使用<code>fs.readFileSync()</code>结合正则表达式<code>/\r?\n/</code>匹配得到包含每一行的内容的数组）</li>
+<li>若某一行包含尖括号，则判定为聊天日志行（把帮助日志筛选出去的步骤可以加在这里）（附：判断尖括号的正则表达式是<code>/\&amp;lt;(.+?)\&amp;gt;/</code>）</li>
+<li>对于聊天日志行，使用正则表达式匹配尖括号，获取消息发送者；使用正则表达式匹配第一个方括号，获取消息当天发送时间，然后结合当前日志的文件名获取当天日期，组合后使用 <code>new Date()</code> 获取具体时间对象，最后使用 <code>Date.parse()</code>获取完整的消息发送的<strong>时间戳</strong>。最后将行中的方括号、尖括号、冒号全部去除，得到聊天的具体内容。最后组合成一个 JSON 对象大致如下：</li>
+</ol>
+<pre><code>{
+    &amp;quot;Sender&amp;quot;: &amp;quot;baiyuanneko&amp;quot;,
+    &amp;quot;Time&amp;quot;: 1661414501000,
+    &amp;quot;Content&amp;quot;: &amp;quot;Hi&amp;quot;
+}
+</code></pre>
+<ol>
+<li>将此对象加入到一个数组当中保存起来（可以使用数组的<code>push</code>方法）</li>
+<li>导出到文件（可以使用<code>fs.writeFileSync(JSON.parse())</code>实现）</li>
+</ol>
+<p>另外还有一点要注意：部分版本的游戏日志在导出时会出现乱码情况，这是因为这些版本的日志是以 GBK 编码格式保存的，如果遇到这种情况，解决办法是先判断文件编码，然后如果判断出来是 GBK 编码，则使用<code>iconv-lite</code>库按照 GBK 编码对日志文件进行正确解码。</p>
+<pre><code>const Encoding = require(&amp;quot;iconv-lite&amp;quot;);
+
+if(buffer.toString(&amp;quot;utf-8&amp;quot;).indexOf(&amp;quot;�&amp;quot;) !== -1){
+    return Encoding.decode(buffer,&amp;quot;GB18030&amp;quot;);
+}else{
+    return buffer.toString(&amp;quot;utf-8&amp;quot;);
+}
+</code></pre>
+<h2>版本隔离：区分不同来源的日志</h2>
+<p>因为许多情况下，每个玩家都有许多个不同的游戏版本，并且开启了版本隔离，此时游戏的日志会散落在不同的文件夹中。</p>
+<p>因此我们需要区分不同来源的日志，此时在<code>Sender</code>、<code>Time</code>和<code>Content</code>字段之外，我们需要额外增加<code>Source</code> 字段来记录聊天消息的来源。</p>
+<p>这里简述一种简单的解决方法。</p>
+<p>首先，改变日志来源的文件夹的目录结构。</p>
+<p>如果不区分不同来源的话，我们的日志来源的文件夹的目录结构如下：</p>
+<pre><code>source/2022-01-01-1.log
+source/2022-01-01-2.log
+source/2022-01-02-1.log
+</code></pre>
+<p>那么区分之后，我们的日志来源的文件夹的目录结构应该如下。（假设有两个不同来源的日志，<code>1.12.2</code>和<code>1.14.4</code>）</p>
+<pre><code>source/1.12.2/2022-01-01-1.log
+source/1.12.2/2022-01-02-1.log
+source/1.12.2/2022-01-02-2.log
+source/1.14.4/2022-01-01-1.log
+source/1.14.4/2022-01-02-1.log
+</code></pre>
+<p>这样在遍历日志文件这一步之前，我们先要遍历文件夹名，然后才能遍历文件夹中的日志文件，并填充<code>Source</code> 字段。</p>
+<h1>最终导出的格式</h1>
+<p>一个数组内包含了消息对象，消息对象由<code>Sender</code>、<code>Time</code>、<code>Content</code> 和 <code>Source</code> 字段构成。</p>
+<p><strong>注意</strong>这是一个临时使用的中间格式，我们还需要通过本文第二部分的检索程序实现才能够从导出的聊天记录中检索消息</p>
+<pre><code>[
+    {
+        &amp;quot;Sender&amp;quot;: &amp;quot;张三&amp;quot;,
+        &amp;quot;Time&amp;quot;: 1661414501000,
+        &amp;quot;Content&amp;quot;: &amp;quot;how are you&amp;quot;,
+        &amp;quot;Source&amp;quot;: &amp;quot;1.12.2&amp;quot;
+    },
+    {
+        &amp;quot;Sender&amp;quot;: &amp;quot;李四&amp;quot;,
+        &amp;quot;Time&amp;quot;: 1661414508000,
+        &amp;quot;Content&amp;quot;: &amp;quot;i&amp;#39;m fine, thank you, and you?&amp;quot;,
+        &amp;quot;Source&amp;quot;: &amp;quot;1.12.2&amp;quot;
+    }
+]
+</code></pre>
+<h2>具体实现</h2>
+<p>具体实现我放在了<a href="https://github.com/baiyuanneko/Converter">https://github.com/baiyuanneko/Converter</a>。</p>
+<h1>从数据导出到数据检索</h1>
+<p>特别感谢 <strong><a href="https://github.com/Misaka13514/">欠陥電気 𝑹𝒂𝒅𝒊𝒐𝑵𝒐𝒊𝒔𝒆</a></strong> 对此章节中功能的实现！</p>
+<blockquote>
+<p>备注：本部分的代码均使用 Python 完成。</p>
+</blockquote>
+<p>实质上，我们在上一步中导出的聊天记录只是一种临时使用的中间格式，因此我们需要实现一个检索程序，才能从导出的聊天日志中检索消息。</p>
+<h2>功能目标</h2>
+<ul>
+<li>按条件检索。可以按照消息内容是否包含特定关键词、按消息发送者筛选（可以选多个）、按消息来源筛选（可以选多个）进行消息的检索。</li>
+<li>在检索到结果后，能够定位相应消息的上下文。</li>
+<li>统计同一来源，不同发送者的占比，或者同一发送者，不同来源的占比</li>
+<li>对于占比统计功能能够绘制饼图</li>
+</ul>
+<h2>一些功能的简单实现思路</h2>
+<h3>按条件检索聊天记录</h3>
+<p>这个功能比较简单，遍历所有消息对象然后看是否满足所有筛选条件即可。</p>
+<p>筛选条件一般有：</p>
+<ul>
+<li>发送者名称</li>
+<li>消息包含关键词</li>
+<li>日期和时间范围</li>
+<li>来源</li>
+</ul>
+<h3>统计功能与饼图绘制</h3>
+<p>统计功能本身比较简单也容易理解，所以就用一个例子带过：比如统计谁发送的消息数量最多。其实就是遍历这些消息对象，统计每位发送者发送了多少条消息。</p>
+<p>接下来主要说一说如何实现饼图绘制。这个功能是对统计功能的延伸。使用 <code>matplotlib</code>中的<code>pyplot</code>功能可以绘制饼图。</p>
+<p>这里采用的具体的实现方法是，对<code>pyplot.pie()</code>采用给定<code>sizes</code>和<code>labels</code>的方式让其绘制饼图。</p>
+<blockquote>
+<p><code>sizes</code>指的是饼图中每一个部分的大小。以统计“谁发送的消息数量比较多”为例，我们可以将消息数量作为<code>sizes</code>传入。<code>labels</code>指的是饼图中每一个部分代指的内容。注意这个顺序要和传入的<code>sizes</code>的顺序一致。</p>
+</blockquote>
+<p>这里注意一个问题：在发送者数量比较多的情况下，我们不可能把每一个发送者的占比全都完整的显示在饼图上，根据我自己的经验，一般来说能完整显示的是8个人，之后的发送者合并在第9个（即“其它”）栏目中。而根据常识，我们<strong>完整</strong>显示在饼图上的那几个发送者要是发言排名最前的几名发送者而不是随便的几个发送者，所以在绘制前应当记得先对数据进行排序，并将之后的发送者的数据进行合并。</p>
+<h3>定位上下文功能</h3>
+<p><strong>第一步：获取被定位上下文的消息是哪一条消息。</strong></p>
+<p>因为目前我们没有为每个消息分配不同的唯一 ID，因此我们想要得知被定位上下文的消息是哪一条消息，可以通过与给定的消息的所有参数进行比对来进行。</p>
+<blockquote>
+<p>这里我们假设<strong>不会出现</strong>消息发送者、消息内容、消息发送时间和消息来源完全一致的消息对象（事实上也不太可能，除非导出时本身就出现了消息重复）。因此，我们接受消息发送者、消息内容、消息发送时间和消息来源作为参数，这就是一条消息的全部参数。遍历所有消息对象，并找到这些参数完全相同的消息，<strong>我们一般就认为这条消息就是被查看上下文的那条消息。</strong></p>
+</blockquote>
+<p><strong>第二步：获取该消息的上下文。</strong></p>
+<p>找到消息在数组中的位置之后，向前向后各检索一定量的条目，最终将这些消息返回。</p>
+<blockquote>
+<p>注意：因为导入的时候就是按照上下文的顺序导入的，所以这里对数组向前向后地检索条目<strong>一般没有顺序问题</strong>。</p>
+</blockquote>
+<h2>一些没有实现的功能</h2>
+<p>除此之外还有一些暂且没有实现的功能，比如词频统计（词云）等等。也许还可以添加一些更有创意的功能，比如现在是有一些开源的自然语言分析的 Python 库，可以对消息内容中包含的情绪进行一个分析，那么就可以了解自己在 Minecraft 中聊天的心情等等。</p>
+<h3>具体实现</h3>
+<p>具体实现是在 <a href="https://github.com/MSKNET/MinecraftChatLogFilter">https://github.com/MSKNET/MinecraftChatLogFilter</a>。这是一个使用 Flask 框架的应用，按照步骤操作可以启动一个本地服务器，通过浏览器访问后可以实现聊天日志和检索、统计功能。</p>
+<h1>效果</h1>
+<h3>筛选器</h3>
+<p><img src="https://s2.loli.net/2022/10/02/MAhI2ajzxrKoQvN.png" alt="image"></p>
+<h3>统计不同发送者占比</h3>
+<p><img src="https://s2.loli.net/2022/10/02/9rJmbAPQXihtk6N.png" alt="image"></p>
+<h3>按条件检索消息</h3>
+<p><img src="https://s2.loli.net/2022/10/02/gzNax9beBVWonfq.png" alt="image"></p>
+
       </content>
       <summary type="html">Python 和 Node.js 实现 Minecraft 聊天记录导出和检索程序</summary>
+      <updated>2022-10-02T00:00:00.000Z</updated>
+      <published>2022-10-02T00:00:00.000Z</published>
       </entry><entry>
       <title>八月的一些事</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=2022-august-summary.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=2022-august-summary.md</id>
       <content type="html">
-          夏天已经过去，秋天就要到了
+          <p>最近仍然是在玩 Minecraft，8月上旬玩了一个单方块空岛生存服务器，中下旬又去玩创造服务器。不知不觉中 Minecraft 已经成了我玩的时间最久的一个游戏了。</p>
+<p>我最早接触 Minecraft 是 2017 年左右，那时候我已经使用 Ubuntu 不短的时间了，逛贴吧的时候在 Linux 贴吧的一篇帖子里找到了一篇在 Linux 上安装 Minecraft 的教程，想着自己平时也没什么娱乐，不如在 Linux 上安装个游戏给自己娱乐一下，于是就在 Linux 上安装并入门了 Minecraft。</p>
+<p>我喜欢 Minecraft 是因为它很轻松。我到现在都没试过在单人生存打过末影龙，更别说什么红石啊大型的机械啊什么的，但是这都完全不影响我游戏嘛。我以前连附魔都不会的时候，去服务器里玩照样跟别人一起玩的很开心，反正又不 PVP ，即使什么也不会，反正只要打得过怪也不是不够用。</p>
+<hr>
+<p>然后是应该你点进我博客就能注意到的是博客名字不一样了。修改的原因主要是因为原先的名字看起来不够可爱。下面简单介绍一下这个名字。</p>
+<p>首先是读音，我一开始没有想到这个词语会有人读错，不过前两天我点进了一个非常可爱的 VTuber 的直播间，但是 Ta 把我的名字给读错了，我才想到，确实“柏”是一个多音字。（PS：这个 VTuber 是见到直播间里有人进入的话就会读一下名字，我实际上和其不算熟悉）。柏园里的柏，我个人倾向于含义是“柏树”，所以自然应该读“bǎi”（第三声）。错误的读音就不说了，我印象比较深刻的一件事是我高中的英语老师在说一个词组不能怎样搭配的时候，只说对的搭配形式，从来不会把错误的搭配说出来，怕学生听得不仔细结果记住了错误的反而忘记了对的，所以这里我也不写柏字的另一个读音了。</p>
+<p>关于柏园，我的理解是“有很多柏树的公园”，虽然柏园本身不是一个很常用的词语，但是按照字面意思理解大概上总是差不多的。《某科学的超电磁炮》中有一集叫做《罗汉柏园》，是一个有趣的故事。而关于猫，我在<a href="https://nekomoe.xyz/index.html?type=article&amp;filename=W8yNkPetJyib.md">之前这篇文章</a>里也写过为什么我喜欢猫。</p>
+<hr>
+<p>最近双拼已经比较熟练了，这篇文章就是用双拼输入法打出来的，感觉输入的节奏感和效率相比全拼有了不小的提升，另外最近看了《征服》，是我一直想看但没看的作品。相比在看这篇文章的许多人都听说过“华强买瓜”的对话，其就出自《征服》，感觉还行。</p>
+<hr>
+<p>最近试了下在个人电脑上安装 Windows Server 2022，别的都不错，但是声音驱动始终安装不起来。然后又试了 Windows 10 的 LTSC 版本，感觉也不错。我已经很久不用 Microsoft Store 所以基本上也不考虑手动安装 Microsoft Store。</p>
+<p>八月里有许多可爱人物过了生日，比如8月31号是初音未来的生日。下面列举几个我喜欢的初音未来的歌曲：</p>
+<blockquote>
+<ul>
+<li>妄想感傷代償連盟</li>
+</ul>
+<p>歌词题材是关于失恋分手的。我个人对歌词的理解是两人因为单纯的喜爱而选择在一起，但是生活过程中发现彼此不想一开始想象的那样完美和可爱，又因为一些小事而彼此都逐渐对这段爱情感到厌烦，最终发展到无法维系爱情。</p>
+<p>从2分33秒开始到2分50秒的部分个人觉得比较好听。</p>
+<ul>
+<li>No Title</li>
+</ul>
+<p>我最早听的是 REOL 的版本。REOL的版本和初音未来的版本都很好听，初音未来的版本有一种仿佛置于空中的清淡的感觉。</p>
+<ul>
+<li>ねぇねぇねぇ</li>
+</ul>
+<p>个人理解歌词中是在说 Rin 和 Miku 两个人在网络上遇见了对方，互相聊天并逐渐发现彼此相互喜欢的故事，比较可爱和温馨。</p>
+<ul>
+<li>ありふれたせかいせいふく</li>
+</ul>
+<p>前奏建议带耳机听，因为前奏的动感和节奏感比较强。歌词本身的题材是关于反对校园霸凌的。</p>
+<ul>
+<li>カトラリー、quiet room 和 ツギハギスタッカート</li>
+</ul>
+<p>这三首歌曲有一种清淡的感觉和梦幻感。</p>
+</blockquote>
+<p>如果你的歌曲口味和我类似的话，或者是想要推荐歌曲，可以留言告诉我。</p>
+
       </content>
       <summary type="html">夏天已经过去，秋天就要到了</summary>
+      <updated>2022-09-06T00:00:00.000Z</updated>
+      <published>2022-09-06T00:00:00.000Z</published>
       </entry><entry>
       <title>七月的一些事，以及七夕节祝福</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=5QHi2BixsR3P.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=5QHi2BixsR3P.md</id>
       <content type="html">
-          今天是 8 月 3 日，七夕就要到了
+          <p>七月初，我开始读《樱风堂书店》，花了两天时间看完了。这本书让我很感动。首先是书中描写的书店让我有一种向往之情。以前，我对书店没什么好印象，我对书店不多的印象是小时候小学老师让买教辅，我拖着疲惫的身躯，天都黑了，还要去买书。但是这本书中描写的书店不一样。</p>
+<p>首先是，在这本书中描写的书店里，书店店员排列书在书架上的位置不是随便摆放的，而是由店员自己对书店风格、读者的阅读习惯、店员对书的理解等多个因素的理解，而最终做出的排列，凝结了整个书店和店员对书的热爱。这点和电子书店是不同的。</p>
+<p>我用过一段时间的 Kindle，也用过一部分阅读 App。他们的书店首页一般由“编辑推荐”、“大家都在看”和“个性化推荐”组成。里面的编辑推荐是由 App 的运营团队挑选的，但是往往编辑推荐的质量都不高（事实上我不认为App运营团队有能力和意愿推荐好看的书籍，更何况所谓的推荐里有很多广告），而“大家都在看”往往是当时的热门书籍（比如《少年的你》电影放映的时候，“大家都在看”栏目里会有《少年的你，如此美丽》这本原作小说，反映了电影带动了原作书籍阅读量的增长），但是大家都在看不代表书的质量非常好，比如《天才在左》这本书，在许多阅读 App 的评分都非常的高，也一直名列排行榜的前几位，但是实际上它的内容非常有争议：这本书声称自己是一篇“心理障碍者”的访谈录，但是许多专业人士都指出，这篇访谈录显然是艺术加工获得的，而且这种加工美化了这些障碍人群的想法，让大众觉得心理障碍是一种很酷的东西，但是实际上根本不是。</p>
+<p>说到这个问题，顺便提一个相关的问题，在印象里，许多人认为强迫症就是看到不够整洁的东西就不舒服（比如看到许多个正方形中混入了一个多边形而觉得不舒服）。但是其实这是大众对强迫症的误解。更典型的现象是反复检查某些事物，或者担心某些小错误会引发严重的后果，而这个问题严重的时候会影响正常生活（比如花很多的时间检查和忧虑），资料显示，强迫症其实是很常见的一个问题。而许多人抱有对强迫症的一些错误印象（比如，有人认为“强迫症的智商更高”，实际上研究表明强迫症反而做事更慢，因为他们需要花更多的时间来检查自己）。总之，“大家都在看”也有许多问题，再说一句话有说：“许多美好的事物需要人们不断的提醒，才能继续存在下来——正因为人是会遗忘的，如果在记忆中湮灭了经典，又是多么遗憾。”这说明除了那些潮流，我们也要多看经典。反过来说，个性化推荐一直是信息茧房的代名词，但是在“读书”这个情况下，很多时候它确实是很有用的，比如，看完了一本科幻小说之后，个性化推荐会推荐更多更多的科幻小说，就可以一直一直按照自己喜欢的口味看下去，提高了我们的阅读体验。</p>
+<p>然后是《樱风堂书店》有很多我喜欢的细节，比如序章部分，以一只小猫的视角展开，这一部分里面有很多细节描写，很有代入感。这本书的序章不知道为什么还莫名地让我想到了《美好的每一天》的序章。关于小猫的视角，我最近也有在看夏目漱石的《我是猫》，但是《我是猫》里面对人情世故的描写我读起来觉得冗长乏味，所以也没什么动力接着往下读呢。</p>
+<p>另外顺便说一下图书馆。我对图书馆的印象首先是小学和初中去借书看书，但是上了高中之后就很少去了。还有，我很喜欢《凉宫春日的忧郁》的《Someday in the rain》一集，有两个原因：一个是雨天有很好的氛围感。（许多音乐加上了雨天的音效就会增加氛围感，比如<a href="https://www.bilibili.com/video/BV14g41137Lv">这首 Lemon tree</a>）另一个原因是这一集中长门有希一直在看书，伴随着背景的人声，给人一种奇妙的感觉。不过对于《凉宫春日的忧郁》的评价和赞誉已经很多，我也没什么可班门弄斧的，感兴趣的可以自己去查阅。</p>
+<h2>折腾了许多次 Linux 桌面</h2>
+<blockquote>
+<p>注：<strong>这一部分与 Linux 有关，如果不感兴趣或不想了解可以直接跳过</strong></p>
+</blockquote>
+<p>为了搞定 Fractional Scaling 的问题，我算是大概搞明白了 Linux 下的 HiDPI 是个什么解决思路。下面的都是我的理解，有错误欢迎指出，我会修改的：</p>
+<p>首先是 Xorg，它本身不支持非整数倍缩放，要实现非整数倍缩放，是靠先以200%的分辨率渲染画面，然后在按设定的非整数倍倍率缩小到屏幕尺寸来实现。这种方法的问题就是 GPU 需要渲染远多于屏幕原始像素数的像素，并且在运行窗口化游戏的时候造成性能的明显下降。Ubuntu/Linux Mint等发行版在X11下的 Fractional Scaling就是这样实现的。理论上只有游戏性能下降这么一个缺点，不过实际上在我的电脑上一旦在 X11 上启用 Fractional Scaling，画面就完全做不到垂直同步（屏幕从上往下数大约三分之一的地方出现一道横线，横线上下两部分是完全不同的两幅画面，这个问题在启用了平滑滚动的浏览器和播放视频时尤其明显。）不过这个更像是 Intel 驱动的问题，可能随着驱动更新会正常。</p>
+<p>然后是 Wayland，这是新一代的显示服务器，支持非整数倍缩放这样的“高级”特性，但是不是所有的应用都适配了 Wayland，对于不支持 Wayland 的程序（比如 Electron），就会使用 Xwayland 后端来运行。但是 Xwayland 后端不能和合成器配合起来实现真正的非整数倍缩放，只能用原始尺寸渲染画面然后直接放大渲染结果，导致没有适配 Wayland 的程序的字体显示看起来非常模糊。</p>
+<p>另外一种解决方案是缩放 Qt/Gtk 部件大小和字体大小（而不修改渲染的分辨率）。X11 下的 KDE 默认使用这种方案。 效果还不错，如果 KDE 的稳定性更好一点，我就用这种方案了。但是 KDE 在我的电脑上还是不太稳定，三天两头的就要崩溃一次，想象你正在 Minecraft 中探索地图，然后突然画面卡住了，过了几秒一个 KDE 的 Logo 显示在屏幕上，表明它崩溃了。这种情况我起初以为是小概率事件，然而实际上在某一个小时里这种情况竟然发生了整整三次。当然除了这个崩溃的问题之外，Fractional Scaling 的效果还是非常好的。可惜的是因为这个问题，我没再继续用 KDE。</p>
+<p>反过来说，GNOME 下是不是也能只缩放部件大小和字体大小而不修改渲染的分辨率呢？似乎是可以的，我用 GNOME Tweaks 调整了字体缩放倍率，字体虽然大了，但是软件的图标大小和标题栏大小却纹丝不动，仍然非常的狭小。我根据 <a href="https://wiki.archlinux.org/title/HiDPI#GTK+_vs_Gnome_Shell_elements_on_Xorg">ArchWiki</a> 调整了 WM 设置，并且还尝试了修改<code>gnome-shell.css</code>，都没有什么效果。</p>
+<p>最后还是 GNOME + Wayland 吧。虽然现今还是有很多应用不支持 Wayland 而导致字体模糊，但是“把时间当做朋友”，相信随着时间，越来越多的程序会支持 Wayland，而且往好的方面想，Wayland 是更先进的显示服务器，人总是要向前看的。</p>
+<h2>Minecraft</h2>
+<p>从7月中旬开始玩 Minecraft 1.7.10 + Nevermine2。</p>
+<p>Nevermine2 的体验还是不错的，主要是新增的内容量大，再加上资源占用的少。除此之外我还加了家具模组，里面有许多实用的设备（比如洗衣机，可以恢复装备的耐久），并且这些家具拿来装饰房间也是挺好的。</p>
+<h2>双拼</h2>
+<p>从上周又开始练习双拼了。此前，我只了解过双拼的原理，但是没有学习过，这次，我选择了一个双拼方案（小鹤双拼）然后一直用到目前为止学习了大约一周。本来打算这篇文章全用双拼完成的，但是在打了几行字之后发现目前我的双拼效率还是不足以让我思路流畅地写完一篇文章，所以这篇文章的大部分内容还是用全拼完成的。</p>
+<p>最后，七夕节快乐。我回想了一下我对七夕的印象，想到的只有这首洛天依演唱的歌曲：<a href="https://www.bilibili.com/video/BV1Cs411m77G">《七夕》</a>，还是挺好听的。我刚刚打开重温了一下，发现同时观看人数达到了3人之多，作为一首七年前的曲子，而且直到现在这个曲子的播放量只有5.2万，现在还有3个人同时观看，说明跟我一样有很多人喜欢这首曲子。</p>
+
       </content>
       <summary type="html">今天是 8 月 3 日，七夕就要到了</summary>
+      <updated>2022-08-03T00:00:00.000Z</updated>
+      <published>2022-08-03T00:00:00.000Z</published>
       </entry><entry>
       <title>在 Windows 上摸鱼（安装和使用 Fish Shell）</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=hDa5T3wDjTRj.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=hDa5T3wDjTRj.md</id>
       <content type="html">
-          在 Windows Terminal、VS Code 中配置 Fish Shell
+          <p><img src="https://s2.loli.net/2022/07/12/AqRbeBnWVETN7d5.png" alt="image"></p>
+<p>众所周知，Linux 桌面的 HiDPI 存在着种种问题。为了守护我的视力健康，我又回到了 Windows。</p>
+<p>然而，习惯了 Fish 的交互式体验，因此我想要在 Windows 下也默认使用 Fish.</p>
+<p>首先，<a href="https://fishshell.com/">Fish Shell 官网</a> 提供了其在 Windows 下的安装方法。总的来说归为 Cygwin、WSL 和 MSYS2 三类。我使用的是 Cygwin。</p>
+<h2>安装 Cygwin</h2>
+<p>在 <a href="https://cygwin.com/install.html">Cygwin 官网</a> 下载 Cygwin 的安装程序。</p>
+<p>这是一个在线安装程序，安装过程会要求你选择软件源和要安装的软件包，其中软件源我选择的是 <code>mirrors.aliyun.com</code>，速度还是挺快的，然后在软件包选择界面中搜索<code>fish</code>，双击 <code>fish</code> 旁边的 <code>Skip</code> 字样，然后你就为 <code>fish</code> 指定了一个默认的安装版本，<code>Skip</code>字样会变成 Fish 的安装版本。用同样的方法安装 <code>python3</code>，因为 <code>fish_config</code> 和其它的一些工具都依赖 <code>python3</code>，然后等待安装完成。</p>
+<blockquote>
+<p>Cygwin 默认的安装目录是<code>C:\cygwin64</code>，如果之后想要安装什么别的软件包，或者想要修改一些配置，重新运行那个在线安装程序即可。</p>
+</blockquote>
+<p>你可以在开始菜单找到 Cygwin64 Terminal，但是目前 Fish 还没有被设定为默认 Shell，而且你应该会希望使用更现代的 Windows Terminal。</p>
+<h2>将 Fish 设定为 Cygwin 的默认 Shell</h2>
+<p>参考资料：<a href="https://stackoverflow.com/questions/22363210/set-default-shell-in-cygwin">这篇 Stack Overflow 文章</a></p>
+<p>以下操作均在 Cygwin 环境中运行。</p>
+<p>首先编辑<code>/etc/nsswitch.conf</code>，加入或修改这一行：</p>
+<pre><code>db_shell: /usr/bin/fish
+</code></pre>
+<p>然后执行</p>
+<pre><code>mkpasswd &amp;gt; /etc/passwd
+</code></pre>
+<p>最后编辑 Cygwin 安装目录下的<code>Cygwin.bat</code> 文件，把<code>bash</code>改成<code>fish</code>即可。</p>
+<h2>在 Windows Terminal 中添加 Fish on Cygwin 的配置文件</h2>
+<p>首先，更新你的 Windows Terminal 到最新版本，这样Windows Termianl 才有图形化的设置界面。</p>
+<p>然后进入 Windows Terminal 设置，在配置文件中点击“新建配置文件”。</p>
+<p>名称图标什么的按自己喜好来就行，命令行（可执行文件）的路径是<code>C:\cygwin64\bin\fish.exe</code>（当然如果你更改了默认安装路径就不是这个）。注意不要填成安装路径下的<code>Cygwin.bat</code>，那样虽然看起来可以工作，但是“在指定目录下打开终端”的功能就会失效。</p>
+<h2>在 VS Code 集成终端中默认使用 Fish Shell，并为部分工作区设置例外</h2>
+<p>在 VSCode 中按 Ctrl+Shift+P打开命令面板，搜索<code>setting json</code>打开 JSON 格式的配置文件，加入下面这一段：</p>
+<pre><code>{
+    &amp;quot;terminal.integrated.profiles.windows&amp;quot;: {
+        &amp;quot;Fish on Cygwin&amp;quot;: {
+           &amp;quot;path&amp;quot;: &amp;quot;C:\\cygwin64\\bin\\fish.exe&amp;quot;
+        }
+    },
+
+    &amp;quot;terminal.integrated.defaultProfile.windows&amp;quot;: &amp;quot;Fish on Cygwin&amp;quot;
+}
+</code></pre>
+<p>然后你再打开 VS Code 的集成终端看到的就是 fish 了。</p>
+<p>但是，对于 VS Code 来说情况没有这么简单，比如，如果你使用 VS Code 开发 Java 程序，你会发现在切换到 Fish 之后，由扩展插件提供的运行和调试按钮都用不了了。可见它们还是需要调用 PowerShell 的。因此，我们需要为特定的工作区设定一些例外。（注：如果有更好的方法可以绕过这个问题，欢迎你告诉我）。</p>
+<p>在需要调用 PowerShell 的工作目录下添加<code>.vscode</code>文件夹，在其中新建<code>settings.json</code>文件（如果已经有了，就直接编辑它），加入下面这段内容：</p>
+<pre><code>&amp;quot;terminal.integrated.defaultProfile.windows&amp;quot;: &amp;quot;PowerShell&amp;quot;
+</code></pre>
+<p>这样，对于该工作区来说，默认调用的 Shell 就不是 Fish 而是 PowerShell 了，然后那些运行和调试按钮又可以正常使用了。而其它的工作区还是可以正常使用 Fish，这个设置只有在该工作区才会生效。</p>
+<p>效果图（Windows Terminal）：</p>
+<p><img src="https://s2.loli.net/2022/07/12/AqRbeBnWVETN7d5.png" alt="image"></p>
+<p>效果图（VS Code）：</p>
+<p><img src="https://s2.loli.net/2022/07/12/zhx21BCtGSfkrwW.png" alt="image"></p>
+
       </content>
       <summary type="html">在 Windows Terminal、VS Code 中配置 Fish Shell</summary>
+      <updated>2022-07-12T00:00:00.000Z</updated>
+      <published>2022-07-12T00:00:00.000Z</published>
       </entry><entry>
       <title>在初夏的第一阵微风过后</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=NSyJ4KZWmC5s.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=NSyJ4KZWmC5s.md</id>
       <content type="html">
-          今天是 6 月 30 号，夏天就要到了
+          <blockquote>
+<p>很快就消失了 你那如初夏的微风一般的背影</p>
+<p>逐渐朦胧在被打湿的视野之中</p>
+<p>一个人漫步 在无人的归途</p>
+<p>——《青嵐のあとで》（在青岚之后）</p>
+<p>（注：青岚意为初夏的第一阵微风）</p>
+</blockquote>
+<p>ACG 中有关夏天的作品有很多。我玩过的作品中比较有名的一个是《Summer Pockets REFLECTION BLUE》（下文简称 SPRB），讲述的是主人公不愿意面对自我，因此在暑假来到鸟白岛的故事。最初推完这部游戏是去年（2021）年的暑假，到现在已经将近一年的时间了。</p>
+<p>对我来说，我不喜欢春天和冬天，一个原因是冬天到初春的这段时间天气太冷，更重要的原因是这两个季节的空气湿度不适合我的皮肤。如果要说最喜欢的季节，可能是秋天或者夏天。我喜欢没有目标的散步，而秋天的空气里总是洋溢着一种好闻的味道，比春天的花香更让我舒服。秋天的气候也很适宜，《故都的秋》把秋天称作 Golden days。但是除了秋天之外，我最喜欢的季节就是夏天了。</p>
+<p>从小到大，夏天和暑假是紧密联系在一起的。出生在网课时代之前，老师也不会在假期里定期收缴或者催促暑假作业（当然，更不会安排补课），所以开学前几天的之前都是轻松的每一天。我的老家在内蒙古，小时候的很多个暑假我都会回到那里和老家的亲戚小孩们一起玩。如果不回老家，那就是躲在有空调的屋子里面整天整天的玩电脑（其实现在也是）。比较幸运的是，在初三之前我也没有补过课，所以可以说小时候的学习压力相比同龄人不是很大，特别是暑假，基本上每天就是吃吃喝喝玩玩。暑假绝对是许多人喜欢夏天的一大原因。</p>
+<p>除了暑假，夏天还承担了许多经历和体验：</p>
+<ul>
+<li>我中考是在六月份，当时的考场离我家比较远，乘网约车到考场，一路上看着车窗外的景色，比如茂盛的植被，宽厚的树荫，河上的桥（以及栏杆）</li>
+<li>有一年暑假我每周去学游泳，给我的印象是消毒水的气味以及混合着水汽的朦胧感觉。</li>
+<li>初中一次期末考试结束过后下起了小雨，考试结束正好雨停，外面的天空比较灰暗，我和同学从校门外一起走了一段路</li>
+<li>坐火车的颠簸经历，以及在机场或者火车站送行其它人时候的五味杂陈。</li>
+</ul>
+<p>相比之下，其它季节给我的印象一般没有这么深刻或者具体。</p>
+<p>最后，我试着列举了一下我<strong>印象</strong>中的夏季的气候特征：</p>
+<ul>
+<li>夏天的太阳更亮，照在能反光的金属上感觉可以反射出更强烈的光线</li>
+<li>夏天比较热，给人一种朦胧的感觉</li>
+<li>夏天的天看起来更蓝</li>
+<li>夏季的雨天更频繁（也更大）。</li>
+</ul>
+<p>尽管不全是好的特征，但是因为夏季给我的好印象，我往往也喜欢（或者不讨厌）它们（爱屋及乌）。</p>
+<hr>
+<p>关于 SPRB，我最喜欢的是野村美希和白羽。白羽不用说是人气角色，性格非常惹人喜欢。野村美希则是我自己比较喜欢的性格。</p>
+
       </content>
       <summary type="html">今天是 6 月 30 号，夏天就要到了</summary>
+      <updated>2022-06-30T00:00:00.000Z</updated>
+      <published>2022-06-30T00:00:00.000Z</published>
       </entry><entry>
       <title>在 Thinkbook 16 G4+ 上安装 Ubuntu 22.04 LTS 的过程记录</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=Hb2Y6syPnZfA.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=Hb2Y6syPnZfA.md</id>
       <content type="html">
-          编译安装 RTL8852BE 无线网卡驱动，安装 OEM 内核以增强对 Xe 显卡支持，修改内核启动参数来解决闪屏问题
+          <p>俗话说：好马配好鞍。最近获得了一台新电脑 Thinbook 16 G4+，但是它原装的是 Windows 11。本来，我用 Windows 平台的一大理由就是腾讯会议的 Linux 版本有无数不支持的功能，这无疑会为我的网课带来许多尴尬，但是，因为下周就线下复课了，所以腾讯会议也可以暂时抛弃了，因此为什么不试一试 Linux 呢？</p>
+<p>对于我来说，在发行版上选择 Ubuntu 22.04 的原因如下：</p>
+<ul>
+<li>内核、固件、驱动等版本比较新，并且自带许多闭源驱动，从而减少硬件不兼容的概率 <del>虽然事实证明还是很不兼容</del></li>
+<li>支持安全启动 <del>然而最后为了安装第三方驱动还是需要关掉</del></li>
+</ul>
+<p>值得一提的是，我用的这台电脑没有带独显，因此这里不考虑 Nvidia 显卡支持。</p>
+<h2>开始之前</h2>
+<p>在系统设置-&amp;gt;显示器中打开 Fractional Scaling （非整数倍缩放），然后修改显示器的缩放为 150%（或者你认为合适的值）。</p>
+<p>在系统设置-&amp;gt;电源中暂时关闭“自动挂起”，并将挂起或关屏时间暂时修改到“3小时”。因为现在我们还没有安装 OEM 内核，自带内核还没有适配好硬件，一旦锁屏或挂起就无法正常唤醒。</p>
+<h2>编译安装 RTL8852BE 无线网卡驱动</h2>
+<p>本来我以为 Ubuntu 22.04 应该可以兼容大部分的硬件，实际上你会发现最基本的无线网卡都不能兼容。</p>
+<p><strong>在进行下列过程时，你需要设法先使电脑获得一个有效的网络环境。我的方法是，将安卓手机与电脑USB口相连，U并在手机上的USB选项中选择“提供网络连接”来达到手机与电脑的网络共享。蓝牙在这个场景下不可行，虽然它也能传输网络信号，但是至少在我这里蓝牙驱动也不能正常工作。</strong></p>
+<p>那么获得网络连接之后，可以进行无线网卡驱动的编译安装了。首先<code>sudo apt update &amp;amp;&amp;amp; sudo apt install build-essential bc git</code>进行必要的准备，然后确保当前内核的linux-header已经安装（包名linux-headers-xxx，关于这个xxx是什么，应该用uname -a去获取）。</p>
+<p>然后参看这个仓库：<code>https://github.com/HRex39/rtl8852be</code>，并按照里面的步骤编译安装。注意Ubuntu 22.04自带的内核版本是5.15，需要参看的是**Build(for kernel &amp;gt;= 5.15)**这一段，如果版本对应错将无法编译。</p>
+<p>之后每次更换内核都需要在你克隆的rtl8852be仓库文件夹中执行一次<code>sudo make clean</code>和仓库文档中的编译安装过程。（或者，你可以设法自动化这段过程。）</p>
+<h2>更换 OEM 内核</h2>
+<p>自带内核还没有适配好硬件，一旦锁屏或挂起就无法正常唤醒。我们需要更换到 OEM 内核，它提供了 Xe 核显的更好支持，解决了关屏无法唤醒的问题。</p>
+<pre><code>sudo apt install linux-oem-22.04
+</code></pre>
+<p>检查一下oem内核的linux-header是否也连带安装了，如果没有，手动安装它。</p>
+<p>重启生效。</p>
+<h2>修改内核启动参数来解决闪屏问题</h2>
+<p>重启后你会发现系统出现闪屏现象。这是因为面板自我刷新功能存在的问题导致的。</p>
+<p>这时需要编辑<code>/etc/default/grub</code>并在<code>GRUB_CMDLINE_LINUX_DEFAULT=&amp;quot;quiet splash&amp;quot;</code>的引号内添加<code>i915.enable_psr=0</code>，然后别忘了<code>sudo update-grub</code>，重启生效。</p>
+<h2>其它问题</h2>
+<p>目前对我影响最大的几个问题已经解决，目前 Thinkbook 16 G4+对桌面 Linux 的支持还不是很好，如果希望稳定的话还是可以等等下半年的 Ubuntu 22.10。</p>
+
       </content>
       <summary type="html">编译安装 RTL8852BE 无线网卡驱动，安装 OEM 内核以增强对 Xe 显卡支持，修改内核启动参数来解决闪屏问题</summary>
+      <updated>2022-06-02T00:00:00.000Z</updated>
+      <published>2022-06-02T00:00:00.000Z</published>
       </entry><entry>
       <title>安装和配置 WSL1</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=heKzxSJZcdeR.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=heKzxSJZcdeR.md</id>
       <content type="html">
-          WSL1 的安装、图形界面的安装、中文输入法和中文支持的安装
+          <h2>前言</h2>
+<p>WSL 是在 Windows 上配置 Linux 环境的简单方法，WSL 目前有两个版本，WSL 1 和 WSL 2。关于它们的区别和联系，可以参考 <a href="https://docs.microsoft.com/zh-cn/windows/wsl/compare-versions">这篇微软的官方文档</a>。简单来说：</p>
+<ul>
+<li>WSL 2 基于 Hyper-V ，支持 Docker，支持 WSLg 因而有图形界面的原生支持，大多数情况下比 WSL1 具有更好的性能。</li>
+<li>WSL 1 不使用 Hyper-V，不支持 Docker，没有对图形界面的原生支持，且性能也弱于 WSL2 （跨文件系统性能除外）。</li>
+</ul>
+<p>参考个人需求后，我选择了 WSL1。以下教程基于 WSL1 进行。</p>
+<p>本教程假定你已经熟悉 Windows 和 Linux 的基础知识。</p>
+<h2>手动安装 WSL1</h2>
+<p>建议参考：<a href="https://docs.microsoft.com/zh-cn/windows/wsl/install-manual">旧版 WSL 的手动安装步骤</a></p>
+<p>启用相关 Windows 功能：</p>
+<pre><code>dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+</code></pre>
+<p>重启电脑使配置生效。</p>
+<p>设置 WSL 1 为默认版本：</p>
+<pre><code>wsl --set-default-version 1
+</code></pre>
+<p>最后在 Microsoft Store 安装 Ubuntu。安装完成后，开始菜单会出现一个Ubuntu 的应用，直接点击，会进入 Linux 安装流程，完成后会要求配置 Linux 用户名和密码，分别输入即可。</p>
+<h2>为 Ubuntu 更换软件源、更新系统</h2>
+<p>编辑<code> /etc/apt/sources.list</code> </p>
+<p>替换所有的 <code>archive.ubuntu.com</code>为<code>mirrors.tuna.tsinghua.edu.cn</code> </p>
+<p>然后执行 <code>sudo apt update &amp;amp;&amp;amp; sudo apt upgrade</code> 更新系统。</p>
+<h2>为 Ubuntu 添加图形环境支持</h2>
+<p>因为我们使用的是 WSL1 ，没法使用 WSLg，因此需要手动配置图形环境。</p>
+<p>首先，安装桌面组件。（耗时比较久）</p>
+<pre><code>sudo apt install ubuntu-desktop
+</code></pre>
+<p>然后，执行<code>export DISPLAY=localhost:0</code>以设置 X 输出端。</p>
+<p>并在<code>/etc/profile</code>添加同样的内容：</p>
+<pre><code>export DISPLAY=localhost:0
+</code></pre>
+<p>然后在 Windows 下下载安装<a href="https://sourceforge.net/projects/vcxsrv/">VCXSrv</a>。</p>
+<p>安装完成后，开始菜单中会出现 XLaunch 程序，直接打开它，所有选项都按默认配置无需更改，一路下一步即可。</p>
+<p>完成后，右下角托盘会出现 XLaunch 程序驻留。</p>
+<p>现在可以尝试在 Ubuntu 下打开图形程序了，如<code>gedit</code>。Linux 下的图形程序也会以窗口形式打开，并和 Windows 程序具有类似的体验。</p>
+<p><img src="https://s2.loli.net/2022/05/06/J6IzQ17XbtNpkne.png" alt="image"></p>
+<h2>为 Ubuntu 添加中文支持</h2>
+<p><a href="https://stackoverflow.com/questions/58304278/how-to-fix-character-map-file-utf-8-not-found">WSL 1 存在一个 Bug 会阻碍 Character Map 文件的解析</a>，因此这里需要手动在Windows 的文件资源管理器中找到并进入 Linux 文件系统（通常在文件资源管理器的侧边栏中可以看到），定位到 /usr/share/i18n/charmaps/UTF-8.gz ，把这个gz 文件拷贝到 Windows 中，使用 Windows 上的解压软件解压出 UTF-8 文件（<strong>注意不是文件夹而是文件</strong>），然后将解压出的 UTF-8 文件再放到 /usr/share/i18n/charmaps/ 去 。</p>
+<p>输入以下命令安装中文语言包、中文字体和中文输入法：</p>
+<pre><code>sudo apt install language-pack-zh-hans fonts-wqy-microhei dbus-x11 im-config fcitx fcitx-pinyin
+</code></pre>
+<p>建议编辑<code>/etc/locale.gen</code>文件然后把<code>zh_CN UTF-8 UTF-8</code>前面的注释符号去掉。（如果不执行此操作，Locale 数据会是<code>zh_SG UTF-8 UTF-8</code>，但对后续使用没有决定性的影响）</p>
+<p>使用<code>sudo locale-gen</code>生成 Locale 数据。</p>
+<p>编辑<code>/etc/profile</code>，在文件末尾加入：</p>
+<pre><code>export LANG=zh_CN.UTF-8
+export LANGUAGE=zh_CN.UTF-8
+export LC_ALL=zh_CN.UTF-8
+export INPUT_METHOD=fcitx
+export XMODIFIERS=@im=fcitx
+export GTK_IM_MODULE=fcitx
+</code></pre>
+<p>然后执行<code>source /etc/profile</code>。</p>
+<p>执行<code>sudo apt remove ibus</code>删除 ibus，因为它会对 Fcitx 造成干扰。</p>
+<p>执行<code>fcitx-autostart</code>，这样就能在WSL启动时自动启动输入法了。</p>
+<p>重启 WSL 后中文支持和输入法生效。</p>
+<p><img src="https://s2.loli.net/2022/05/06/8UbvGpljIKY9BPc.png" alt="image"></p>
+<h2>开发环境配置</h2>
+<p>许多开发工具已有对 WSL 的支持，可以直接调用 WSL 环境来执行操作。如 Visual Studio Code 的 Remote - WSL 插件等等。这一方面可参考开发工具的官方文档；WSL 本身的开发环境配置与正常的 Linux 大同小异。</p>
+
       </content>
       <summary type="html">WSL1 的安装、图形界面的安装、中文输入法和中文支持的安装</summary>
+      <updated>2022-05-06T00:00:00.000Z</updated>
+      <published>2022-05-06T00:00:00.000Z</published>
       </entry><entry>
       <title>换了新的域名，以及其它的一些事</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=W8yNkPetJyib.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=W8yNkPetJyib.md</id>
       <content type="html">
-          如题，一些流水账
+          <p>换了个新域名：<code>nekomoe.xyz</code>。</p>
+<p>对于<code>neko</code>，这里指的是猫以及猫娘，我觉得猫的习性和外貌都很可爱（<a href="https://fiveyellowmice.com/zh/posts/2020/02/kitty-cats-why-are-they-so-cute.html">科学解释见此</a>）。我没有养过猫但是经常看猫的视频，所以我对猫的好印象主要还是来源于想象，可能也因为是自己脑补的因素在所以觉得Ta们格外的完美和可爱。</p>
+<p>在今年五一假期的前两天看完了《轻音少女》的第一季，我最喜欢的镜头就是OP开头平泽唯弹吉他的那一段，看起来特别帅。至于有人说真正学吉他需要的时间比平泽唯所需的时间长得多，我的评价是：<del>我不听，人家平泽唯天赋高不行吗</del>。学习吉他不容易，但是作为普通观众存留一点不切实际的幻想我觉得应该也OK。就像云吸猫，我只是觉得猫猫们真是好啊。</p>
+<p>初三的时候我第一次推Nekopara，然后不知道怎么的就对香子兰越看越觉得喜欢。之后我又接触了一些和猫（娘）有关的角色，比如五更琉璃（《我的妹妹不可能这么可爱》）、《猫咪日常》（表情包“给我也整一个”出处），还有一直人气很高的猫羽雫，不过到最后我还是最喜欢香子兰，这也不一定是因为人均白毛控（实际上香子兰的头发是淡粉色），可能只是一种一见钟情吧。</p>
+<blockquote>
+<p><del>她可以褪色，可以枯萎，怎样都可以，但只要我看她一眼，万般柔情便涌上心头。（出自《洛丽塔》）</del></p>
+</blockquote>
+<p>说到轻音少女，其实我很少看番剧，这次一口气补完一季只是一时兴起。<del>可能坚持力不强的人干什么都坚持不下去，连看番剧都坚持不了。</del>果然有的时候东游西逛的生活感觉挺适合我的。</p>
+<p>从三月份又开始玩Minecraft了。说起来Minecraft是我玩的最久的非文字类游戏（虽然我总共也没玩过多少游戏）。对我来说决定性的原因大概是不需要钻研技能搭配、碎片合成、卷轴强化或者各种繁杂的数值这种既费脑细胞又费肝的东西，而且对注意力（反应速度）的要求也不是很高。上一个让我感觉到这么开心的游戏是《植物大战僵尸》。</p>
+
       </content>
       <summary type="html">如题，一些流水账</summary>
+      <updated>2022-05-03T00:00:00.000Z</updated>
+      <published>2022-05-03T00:00:00.000Z</published>
       </entry><entry>
       <title>函数式发行版的安装和使用</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=2ZWC47D3rnRe.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=2ZWC47D3rnRe.md</id>
       <content type="html">
-          关于 NixOS 的一个简单的教程和使用体验
+          <p>你听说过 NixOS 吗？</p>
+<p>一个 Linux 发行版，但它有两大特点：</p>
+<ul>
+<li>从<strong>几个简单的配置文件</strong>（<code>configuration.nix</code>）出发构建整个操作系统，建立了配置文件与操作系统的函数般的一一对应关系（其它的操作系统通常是，从操作系统出发，配置文件只是为操作系统进行定制和修改的工具）</li>
+<li>完全使用 Nix 包管理器来管理软件包，从根源上杜绝了软件依赖关系之间的问题。</li>
+</ul>
+<p>如果想要进一步地了解它，可以参考这篇<a href="https://www.zhihu.com/question/56543855/answer/491883533">由 bobby285271 编写的帖文</a>。（我也是从这篇帖文出发入门 NixOS 的）。</p>
+<h2>如何安装 NixOS？</h2>
+<p><strong>最根本的还是 <a href="https://nixos.org/manual/nixos/stable">阅读官方手册</a>，下面的步骤只是简单介绍说明。</strong> </p>
+<p>然后我的建议是在安装前做好以下三件事：</p>
+<ul>
+<li>最好有 Arch Linux 或者 AOSC Linux 或者 Gentoo Linux 的安装经验，否则你不能理解很多步骤</li>
+<li>了解 NixOS 配置文件的语法</li>
+<li>了解 NixOS 的常见命令及其用法（如<code>nixos-rebuild switch</code>）</li>
+</ul>
+<hr>
+<p>首先是下载镜像，制作安装介质并从安装介质启动。安装镜像的选择，如果你没有特别的需求的话就应该下载 NixOS Graphical ISO Image 的 GNOME 版本。（不然你的分区，联网，看手册都会非常不方便。）</p>
+<p>然后是联网，分区和挂载。如果你用的是Graphical ISO Image 直接在桌面环境联网就好，而分区和挂载的步骤和 Arch Linux 几乎完全一致。</p>
+<p>然后是<strong>换源</strong>，步骤可以参考<a href="https://mirror.sjtu.edu.cn/docs/nix-channels/store">这个教程</a>。</p>
+<p>接下来是生成新系统的默认配置文件：</p>
+<pre><code>nixos-generate-config --root /mnt
+</code></pre>
+<p>建议拿你喜欢的编辑器调整一下刚刚创建的<code>/mnt/etc/nixos/configuration.nix</code>。里面有很多注释所以应该还挺好理解的。</p>
+<p>而且你会发现这个自动生成的配置文件已经包含桌面环境的安装和启动引导器的安装，所以说这个工作会比想象中的简单。</p>
+<p>最后执行安装命令：</p>
+<pre><code>nixos-install
+</code></pre>
+<h2><code>configuration.nix</code>怎么写？</h2>
+<p>这个文件完全决定了系统长什么样，所以修改这个文件，就是我们安装软件包，修改配置的必由之路。</p>
+<p>除了<code>nixos-generate-config</code>默认生成的那些配置之外，至少还有这些事要做：</p>
+<ul>
+<li>中文字体：可以参考<a href="https://github.com/bobby285271/nixos-config/blob/master/desktop/fonts.nix">这个配置文件</a></li>
+<li>中文 Locale</li>
+<li>中文输入法：可以参考<a href="https://github.com/bobby285271/nixos-config/blob/master/desktop/fcitx.nix">这个配置文件</a></li>
+<li>安装软件包：<a href="https://search.nixos.org/packages">Nixpkgs search</a></li>
+<li>进行其它配置：<a href="https://search.nixos.org/options">NixOS Search - Options</a></li>
+</ul>
+<p>一些常用的软件，比如 Fcitx，官方手册也有介绍过它们的安装方式，所以安装软件前在手册中搜索一番也是很重要的。</p>
+<h2>运行第三方软件包</h2>
+<p>Nixpkgs 中可用的软件包对于日常使用不是很够用。运行第三方软件包是一个显然的需求。</p>
+<p><strong>最根本的还是<a href="https://nixos.org/manual/nixpkgs/stable/">阅读官方文档</a></strong> ，不过考虑到这篇文档比较复杂，下面给出一些常见的方法供参考：</p>
+<ul>
+<li>对于 AppImage 程序，不论是运行还是打包，都需要使用 <a href="https://nixos.org/manual/nixpkgs/stable/#sec-pkgs-appimageTools">AppImage Tools</a> 进行</li>
+<li>对于 Flatpak 程序，直接使用 Nixpkgs 中的 <code>flatpak</code> 即可</li>
+<li>参考 Nixpkgs 中已有的软件包构建文件，自行编写新的 Nix 软件包构建文件</li>
+</ul>
+<h2>题外话</h2>
+<p>为什么我想尝试 NixOS 呢？就我个人而言是因为觉得相比其它发行版配置文件的复杂和零散，NixOS 从另一个角度看待配置文件的意义和作用，设计出了兼具<strong>可重复性</strong>，<strong>声明式</strong>，<strong>可靠性</strong>的发行版，这种理念和角度令我耳目一新。</p>
+<p>然而，这个发行版的使用人数不多，因此打包不多，不能很方便的使用许多软件，我暂且没有更深入地研究。</p>
+
       </content>
       <summary type="html">关于 NixOS 的一个简单的教程和使用体验</summary>
+      <updated>2022-03-18T00:00:00.000Z</updated>
+      <published>2022-03-18T00:00:00.000Z</published>
       </entry><entry>
       <title>初春的一些话——长久的谎言</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=QX52HKPXfNBp.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=QX52HKPXfNBp.md</id>
       <content type="html">
-          写在初春的一些话，或者说，初春饰利的一些话
+          <blockquote>
+<p>Just a little more time</p>
+<p>Let&amp;#39;s stay together, my friend</p>
+<p>Won&amp;#39;t you tell me why</p>
+<p>Let me know what makes you cry</p>
+<p>One day in your life</p>
+<p>Don&amp;#39;t you know things can change, my friend</p>
+<p>Won&amp;#39;t you dry your eyes</p>
+<p>Someday you will find your light</p>
+<p>Shining, jumping, singing, dreaming, growing...</p>
+<p>So just the way you are</p>
+<p>Here&amp;#39;s my heart, no need to hurry</p>
+<p>&amp;#39;Cause no one can take away your right</p>
+<p>In every case, you can break through</p>
+<p>Realize, I think of you</p>
+<p>Here&amp;#39;s your heart, happy-go-lucky</p>
+<p>We can make it, hope our dreams will all come true</p>
+<p>——<a href="https://zh.moegirl.org.cn/SMILE_-You%26Me-">《SMILE - You and Me》</a>词/西田惠美</p>
+</blockquote>
+<p>大概是在初二年级的一次春游的大巴车上，我开始看《某科学的超电磁炮》。共青森林公园的繁茂的<a href="https://baike.baidu.com/item/%E8%AF%B4%E2%80%9C%E6%9C%A8%E5%8F%B6%E2%80%9D">木叶</a>和学园都市标志性的风车融为一体，明晃晃的阳光和同学们的合影，构成了我对初二美好的印象之一。真正补完《某科学的超电磁炮》是在我初三的寒假的最后几天里，寒假作业还没写完的我看似意外却又在情理之中地沉迷在了这部番剧之中，并在开学前终于补完了它（指 <del>寒假作业</del> 超炮和超炮S）。</p>
+<p>去年我在补《超炮T》的时候，发现了一个奇妙的事实。在情节的紧凑和精彩（当然还有精美的画质）之余，我似乎有一种上当的感觉。超炮T在各种方面都无可替代，但是就是让我感觉没有前两部好看了。</p>
+<p>这种无聊的感觉在《魔禁》动画的时候最为明显。后来我试着想了几个原因：一方面，我喜欢看日常，但是《魔禁》和《超炮T》都少了一些日常；另一个矛盾的是，我又不喜欢《日常》或者《点兔》那样多的日常，《超炮》和《超炮S》在这方面做的很出色。（还有其它一些番剧也让我感觉在这方面做的不错，比如《潜行吧！奈亚子》）。另一方面，超炮T中对食蜂操祈等人友情的刻画，对我来说，没有《超炮》中的四人组有吸引力。而《魔禁》中的情节过于紧凑，因此也不足以让友情片段完全展开，这也导致了我看《魔禁》很多时候都游离在剧情之外，无法代入其中。另外需要提一嘴的是，食蜂操祈在超炮T中利用能力让白井黑子忘记了御坂美琴，当时看到黑子对炮姐的冷淡我心都碎了。</p>
+<p>一个有趣的事实是，我对《超炮》有一个有趣而深刻的印象。大概是在《罗汉柏园》那一集（就是炮姐和黑子帮助宿管寻觅爱情的那一集），那只是一个普通的爱情故事，它也不是对情节有很明显的推动作用，但是这种有趣的日常就是我所喜欢看的——对于我来说想到《超炮》，我脑海中浮现出的是深蓝色的天空下学园都市标志性的风车，是《Dear My Friend》MV里面炮姐醒来看到黑子盯着她看的那一幕，是泪爷揣着手机插着耳机听歌的画面——为什么御坂妹妹让人心疼，正是救猫、大叔送雪糕、御坂妹妹抢呱太徽章的几个情节的铺垫，从这种美好有些呆萌的日常转换到Lv6计划的鲜明的对比，从而美琴的心情被我们所感同身受。</p>
+<p>回到超炮T上，它让我感觉“上当”，不是因为它说了谎，不如说是一种“长久的误解”，认为学园都市永远会是那个小打小闹，能让四人组友谊永存的地方。当然，这样说法就有些<a href="https://www.zhihu.com/question/449383880/answer/2206641387">青春伤痛文学</a>的意味了。</p>
+<blockquote>
+<p>We&amp;#39;ve known each other for so long</p>
+<p>Your heart&amp;#39;s been aching but you&amp;#39;re too shy to say it</p>
+<p>Inside we both know what&amp;#39;s been going on</p>
+<p>We know the game and we&amp;#39;re gonna play it</p>
+<p>——<a href="https://zh.moegirl.org.cn/Never_Gonna_Give_You_Up">《Never gonna give you up》</a>词/Stock-Aitken-Waterman</p>
+</blockquote>
+<p>去年十一月，一个著名的 Markdown 编辑软件 Typora 发布 1.0 正式版，同时宣布成为付费软件，售价为 14.99 美元（非订阅制）。我也因此放弃了它，转向了 <code>vscode-office</code>（一个 VSCode 插件，也能提供所见即所得的编辑体验，而且是免费开源的）。</p>
+<p>Typora 从来没有说过自己是一个免费软件，所以这实际上不是一个谎言，更不能称之为长久的谎言。不过一个事实是，许多人认为 Typora 都会永远保持免费模式，甚至部分人有一个不知从何而来的误解，认为 Typora 是开源软件。Typora 进入付费模式，理所应当地击破了这些幻想。以前 Typora 被很多人誉为能使用终生的软件，但是大概的确食言了。妄自尊大地认为 Typora 会一直保持免费，又是一个长久的误解。</p>
+<p>有多少人会为 Typora 付费呢？Typora 对我来说不是刚需，而且我觉得它对其它人也不会是刚需。不过，前提是你确实把它只把它当做 <strong>Markdown 编辑器</strong> 来使用：在这个无数软件都在标榜着自己“支持 Markdown 语法”的时代，我们并不缺 Markdown 编辑器。但是 Typora 能够脱颖而出的地方在于其有机整合的功能是同类软件中最丰富的。比如比较完整的数学公式支持、支持不同类型的Markdown方言、图床设置、导出到其它格式（如PDF、Pandoc）、主题支持、流程图绘制等等。相比之下，其它MD编辑器不是没有这些功能，就是支持的不完整，或者整合度和体验太差。当然，这不是因为其它 Markdown 编辑器太弱，而是因为 Typora 做的太好了。</p>
+<p>具体怎么说呢，Markdown 没有一个兼具普适性和功能性的规范，这导致了它的实现难度既可以很简单（比如只支持Vanilla Markdown），也可以很复杂（比如额外支持数学公式和流程图功能）。Typora 肯定是朝着后者这条路做的，而且做到了同类软件中较完善的水平。相比之下，许多人推荐的竞品，比如 Marktext，我在使用时仍然觉得很多地方不如 Typora。</p>
+<p>这其实是一个普遍的话题：商业软件比开源软件似乎在不少体验方面有优势。但是对于这一点，我却感受到了疑惑：按理来说，开源软件是一种源于开发者、服务开发者的事业，就像自己给自己造房子，应该更有动力也做的更好。在我看来，这是另一个长久的谎言。因为事实并非如此。除了因为开源软件能调度的资源没有商业软件多之外，还有一点：开源软件不代表它就会为用户着想，而是只会为开发者着想，更悲观地说，是只为“这个软件的开发者”着想。</p>
+<p>这点上怎么解释呢，我可以举两个例子。比如，GNOME 40发布的时候，我在知乎网上提问“如何评价 GNOME 40”，收到了许多 GNOME 40的负面评价。这里举一例：</p>
+<blockquote>
+<p>从GNOME 3开始就充斥着各种各样的过度设计，什么桌面热角什么乱七八糟的功能，就像早年间Compiz的3D切换桌面一样，花里胡哨，但是不好用。</p>
+<p>我始终觉得应用程序分类是一个十分有必要的功能，结果都学苹果学坏了，搞扁平化，想自己分类自己建文件夹，平白增加使用难度的同时又加上搜索的功能，我搞不清楚到底是图啥…</p>
+<p>GNOME 40更是发挥了把过度设计进行到底的原则，我之前在Fedora上体验的时候一开始硬是不知道该怎么用，动不动就蹦到切换桌面和应用程序列表的界面了。怎么说我也是用了小20年Linux桌面的了，也不知道是我年龄大了接受不了新鲜事物还是什么其他原因，反正就是用不惯，非要让我选我宁可用CDE也不会用GNOME 40…</p>
+<p>作者：小春</p>
+<p>链接：<a href="https://www.zhihu.com/question/451667852/answer/2149500656">https://www.zhihu.com/question/451667852/answer/2149500656</a></p>
+<p>来源：知乎</p>
+<p>此段引用文字著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
+</blockquote>
+<p>以及如果没记错的话，<a href="https://margaret-zhang.github.io/">布洛妮娅</a>曾经试图停留在 Arch Linux 软件源的某个时间节点，来抵抗 GNOME 40 的发布。</p>
+<p>另一个例子是，Firefox Quantum 发布时，许多人对此感到不满，因为 Quantum 抛弃了旧有的扩展机制，改用 WebExtensions。但是，旧有的扩展机制提供了更加强大的能力，WebExtensions 相比它甚至可以说是一种倒退。WaterFox 社区于是克隆了旧版本的 Firefox 源代码，后来将其改名为 WaterFox Classic，不过最终因为成本和精力原因还是放弃了维护。</p>
+<p>当然这些开源项目做出的决定都是为了项目的整体发展考虑的。比如 Firefox 如果固守传统的扩展机制，在浏览器市场就不会有足够的竞争力。我们从中认识到的是，开源软件虽然是所有人的，同时又不完全属于我们所有人：开源项目完全不代表用户的意见会被最大化。我们自以为是，认为“这样美好的生活会永远持续下去”（《素晴日》），但是这就如同水上由歧的梦一样是一种长久的谎言，是虚幻的，荒诞的。当然，如果你有足够的能力，你可以把它变成凉宫春日的梦（《凉宫春日的忧郁》），但是我们并没有足够的能力和意愿。</p>
+<p>想到 Typora，我又想到了 ElementaryOS。它和 Typora 都有一个共同点就是注重设计感，同时兼具实用性。而且，ElementaryOS 同样会在你下载它的时候鼓励你为它捐助一番，并且 ElementaryOS 的 AppCenter 也有付费软件作为其营收来源。在我看来，不管是 Typora 还是 ElementaryOS的盈利策略，在我所处的环境下，我无法想象它们能够成功。但是它们似乎运作的还算可以，那大概是我对人们付费意愿的理解还没有到位。</p>
+<blockquote>
+<p>身负重伤的野兽们用尽最后的力气亮出獠牙仍要反抗</p>
+<p>走开，我不需要你们——用尽最后的力气还要编织谎言</p>
+<p>——《<em>给我一个永远的谎言</em>》词/中岛美雪</p>
+</blockquote>
+<p>今年年初有一则新闻：开源项目 Faker.js 的作者删除了其所有源代码，并将相关的 NPM 包替换为恶意的代码。其原因是，项目作者希望以此方式呼吁大家注意他因火灾而失去财产的悲惨境遇，并希望大家能给其提供帮助。不过他的目的并没有达到，社区迅速 Fork 了他的项目，然后他也因这个行为而遭到了社区的批评和不满。本应提倡互相分享的开源社区，却沦为了互相伤害的境地，“现实比小说更荒谬”，“头脑比天空更广阔”（《头脑，比天空广阔》），再比如chihuo2104所说的<a href="https://blog.chihuo2104.dev/newcdn-unpkg-ghraw/">“JSDelivr 坠落事件”</a>，美好的东西不会一直存在，我们既然生活在如此多的谎言和误解中，我就想到了一句话：“人不能生活在完全的真实中，那就像是在纯氧中呼吸一样。当真实和谎言恰如其分地混合之后，人才能正常地思考和生活。”（<a href="https://store.steampowered.com/app/1246020">《NOESIS-虚假的记忆之物语》</a>）</p>
+
       </content>
       <summary type="html">写在初春的一些话，或者说，初春饰利的一些话</summary>
+      <updated>2022-03-05T00:00:00.000Z</updated>
+      <published>2022-03-05T00:00:00.000Z</published>
       </entry><entry>
       <title>《Needy Girl Overdose》、蒸汽波美学、怀旧与小众文化</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=4dKFj8X5Nwd3.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=4dKFj8X5Nwd3.md</id>
       <content type="html">
-          最近热度很高的游戏《Needy Girl Overdose》为什么吸引人？为什么它的画面风格如此有特色而极具冲击力？为什么它能带给观众情感的共鸣？
+          <p>最近一个游戏作品引起了许多人的注意：<a href="https://store.steampowered.com/app/1451940/_/?l=schinese">《Needy Girl Overdose》</a>。很多人第一眼就被其视觉风格所吸引：渐变的粉色配色、复古的UI界面让人仿佛穿越回2000年代。</p>
+<p>那么，这种风格是什么呢？其实这种风格早在2012年就已兴起，它被称为<a href="https://zh.wikipedia.org/wiki/%E8%92%B8%E6%B0%94%E6%B3%A2">“蒸汽波”</a>。</p>
+<p><img src="https://s2.loli.net/2022/02/06/RCGZ3Qivb25Mjms.jpg" alt="image"></p>
+<h2></h2>
+<h2>什么是蒸汽波（Vaporwave）艺术？</h2>
+<p>蒸汽波美学出现于2010年初的网络社区，它的核心理念是对<strong>20世纪80年代、90年代的流行文化的模仿和追忆</strong>。</p>
+<p>以《Needy Girl Overdose》为例，游戏的启动画面是在模仿2000年代计算机的启动画面，而游戏中出现的Windows 20 操作系统的原型是 Windows 2000。渐变的粉色配色、时不时弹出的Windows对话框、经典的点阵字体也是蒸汽波艺术的典型表现。</p>
+<hr>
+<p>蒸汽波美学看起来似乎与目前大众的主流审美格格不入，但却得到许多人的追捧。为什么人们反过头去模仿过去的设计风格？这是因为人们对当下的设计风格不满意吗？</p>
+<p>简单的说：<strong>是的。蒸汽波是对当下（现实生活）、流行文化、消费主义等一系列事物的反抗</strong>。反过来说，蒸汽波鼓励或者发扬的正是当下与现实的反面，也就是 <strong>虚拟世界（网络）</strong> ，以及过去或者遥远的未来（总之不是现在）。</p>
+<blockquote>
+<p>蒸汽波艺术家使用多种方法来制造这种蒸汽波艺术的氛围。除了上文中提到的，还有比如加入古希腊的石膏和雕像（比如断臂维纳斯），使用Lo-Fi（低分辨率，与Hi-Fi相对）等等。</p>
+</blockquote>
+<p>话说回来，为什么《Needy Girl Overdose》会在游戏中使用蒸汽波的美学设计风格呢？我认为原因有二。</p>
+<ul>
+<li><p>对于在1980、1990年代，以及部分2000年代初出生的玩家，这种风格可以增加玩家的亲切感和熟悉感，触发玩家的怀旧心理，使这些玩家得以回想起自己的童年时代。</p>
+</li>
+<li><p>另一个重要的原因是，蒸汽波的理念与《Needy Girl Overdose》传达的寓意存在相似之处：即：<strong>对大众文化和流行文化的一种反思和抵抗。</strong></p>
+</li>
+</ul>
+<p>每当说到大众文化，我们总会联想到娱乐圈当红的明星，微博热搜，当红歌手最新的专辑等等。而大众文化的洪流背后是商业的支持、电视广告、消费主义盛行、大众传媒等因素的共同影响。与大众文化和流行文化相对的概念就是小众文化。而小众文化之所以是小众文化，除了人数多寡之外，更因为</p>
+<ul>
+<li><strong>其大部分来说是一种自发的行为，加入其中的人们是因为自发的兴趣和感受，而不是受到大众传媒或者商业的影响。</strong></li>
+</ul>
+<hr>
+<p>除此之外，蒸汽波艺术发展的另一个缘由就是它勾起了人们的怀旧情节。这里又需要谈到另一些话题，比如近些年才流行起来的 WeirdCore 和 DreamCore。</p>
+<p>WeirdCore 同样是一种小众文化，与蒸汽波艺术类似，WeirdCore 同样大量使用Lo-fi（低分辨率图像）来渲染其气氛。WeirdCore 图像的制作流程通常是，寻找过去年代的室内或室外拍摄图像，然后将人像用黑色填涂（如果没有人像的话就假设有一个人像存在于某处，然后再用黑色填涂对应位置），从而营造出一种“不在场感”，勾起人们对旧有岁月的回忆。</p>
+<p>人们为什么经常怀旧？</p>
+<p>因为我们可以精挑细选，从回忆中剪出片段细细品味，回忆是情节固定不用担心会有突发事件的剧本，换而言之是相对于现实生活中的一种“避风港”。</p>
+<ul>
+<li><strong>然而，相比于回顾旧有的体验，当下的大众文化更倾向于让人们获得更多的新体验，而这却未必是人们真正想要的。</strong></li>
+</ul>
+<p><a href="https://www.bilibili.com/video/av87739724">《不买立省百分百》：B站上一个有趣的视频</a></p>
+<hr>
+<h2>《Needy Girl Overdose》想告诉我们什么？</h2>
+<p>这部作品的True Ending自然是<code>秘密.txt</code>。然而，它只是解决了人物的身世问题，但对于最重要的问题（也就是这部游戏作品的意义）避而不答。</p>
+<p>我认为这部作品的目的是为了勾起人们对于当下文化和生活的反思。</p>
+<p>一方面，<strong>我们能否在大众文化的洪流中保持自我？流行文化和消费主义带给我们的，真的是我们自己想要的吗？</strong> 比如说，我们为什么喜欢看直播？我们为什么忍不住“买买买”？另一个例子是，反过来说，许多不健康的直播题材，正是来源于大众的一种猎奇心理所带来的恶果，比如本作品的Angel Fall Down路线和NoFuture路线。</p>
+<p>另一方面，不健康直播题材、精神问题、网络霸凌等等问题仍需解决。（本作品中反映这一点的是结局INTERNET OVERDOSE。）一项研究显示，当代年轻人中面临着精神方面的困扰的比例远比我们想象中的要多，所以我们需要关注当代人的心理健康问题。</p>
+
       </content>
       <summary type="html">最近热度很高的游戏《Needy Girl Overdose》为什么吸引人？为什么它的画面风格如此有特色而极具冲击力？为什么它能带给观众情感的共鸣？</summary>
+      <updated>2022-02-06T00:00:00.000Z</updated>
+      <published>2022-02-06T00:00:00.000Z</published>
       </entry><entry>
       <title>GNOME 41 个性化指南与 NVIDIA 专有驱动使用 Wayland 的方法记录</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=JMADXYNaCjJd.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=JMADXYNaCjJd.md</id>
       <content type="html">
-          此教程的环境是 Manjaro GNOME，在 Arch Linux 及其其它衍生版中应该同样可用。
+          <h2>GTK 主题 / 图标主题 / Shell 主题 / 声音主题 / 光标主题</h2>
+<p>主题喜好纯粹是个人口味问题，这里提供一个搜索链接来帮助你找到各类主题。当然，保持默认也是一个好选择。</p>
+<ul>
+<li><a href="https://archlinux.org/packages/?sort=&amp;q=gtk-theme&amp;maintainer=&amp;flagged=">GTK 主题</a></li>
+<li><a href="https://archlinux.org/packages/?sort=&amp;q=icon-theme&amp;maintainer=&amp;flagged=">图标主题</a></li>
+<li>Shell 主题：一般随 GTK 主题附带安装</li>
+<li><a href="https://archlinux.org/packages/?sort=&amp;q=sound-theme&amp;maintainer=&amp;flagged=">声音主题</a></li>
+</ul>
+<blockquote>
+<p>“愿你美化半生，归来仍是默认”。这里的默认指的是英文中的“Vanilla”，也就是香草（香子兰）。之后我会翻译中文维基百科上的“香草软件”条目，让读者更方便地了解计算机术语中的“Vanilla”。</p>
+</blockquote>
+<h2>顶栏透明</h2>
+<p>GNOME Shell 设计时就考虑到自定义性，支持通过 CSS 来调整 GNOME Shell 的显示方式。</p>
+<p>首先，确保已经安装了“扩展”和“优化”两个工具。（Manjaro GNOME 应该自带这两个工具），如果没有安装，按照下面的命令安装：</p>
+<pre><code>sudo pacman -S gnome-extensions-app gnome-tweaks 
+</code></pre>
+<p>打开“扩展”，里面应该已经有了一些基本的扩展，启用其中的<code>User Themes</code>。</p>
+<p>然后打开“优化”，进入外观版块，查看自己目前所用的 Shell 主题，然后在文件管理器中定位到<code>/usr/share/themes</code>，找到该主题的名字（如<code>Pop</code>），将该主题文件夹复制一份并改名（比如原来是<code>Pop</code>则修改为<code>Pop-Modified</code>）。</p>
+<blockquote>
+<p>理论上直接在原主题文件夹修改也是可以的，但是如果这样做，每次当主题更新时就会抹去你对主题文件做出的更改，所以不建议。</p>
+</blockquote>
+<p>进入你改名的文件夹（比如<code>Pop-Modified</code>）中的<code>gnome-shell</code>目录，编辑其中的<code>gnome-shell.css</code>。</p>
+<p>首先通过<code>Ctrl+F</code>定位到该文件<code>#panel</code> 部分，然后找到其中是否有 <code>background-color</code>相关的项目。</p>
+<p>如果有的话直接将该行修改为如下的内容，如果没有的话自行在该部分新建一行也可以。</p>
+<pre><code>  background-color: rgba(0, 0, 0, 0.3);
+</code></pre>
+<blockquote>
+<p>此步骤假定阅读者掌握基本的 CSS 语法，这里提醒阅读者在修改时不要漏掉语句最后的分号。</p>
+</blockquote>
+<p>最后重新打开“优化”工具，进入外观版块，将 Shell 主题这项更改为改名文件夹的名称即可（比如<code>Pop-Modified</code>）。这项更改是立刻生效的。</p>
+<h1>安装扩展：前提和基本步骤</h1>
+<p>GNOME 扩展在 <a href="https://extensions.gnome.org/">GNOME Extensions</a> 下载和安装。</p>
+<p>从这种方式安装扩展需要安装软件包<code>chrome-gnome-shell</code>和针对浏览器安装的一个插件（这个插件会在扩展详情的页面顶部提示你安装）。除此之外最好安装<code>gnome-extensions-app</code>这个包，否则无法在本地调整扩展设置。</p>
+<blockquote>
+<p>当然，你也可以忽略上面的步骤然后手动下载和安装扩展，只要不嫌麻烦。</p>
+</blockquote>
+<h2>触发角，显示桌面与“侧边鼠标滚轮调整音量”</h2>
+<p>Windows 上我常用一个软件叫做 MouseInc，但经常使用不是其特色的“鼠标手势”功能，而是“触发角”（Hot Corner）以及“侧边鼠标滚轮调整音量”的功能。</p>
+<p>有一个扩展可以达到类似的目的，即<a href="https://extensions.gnome.org/extension/4167/custom-hot-corners-extended/">Custom Hot Corners Extended</a>。它可以帮助我们自定义触发角的行为和触发角的覆盖区域。包括，如果不喜欢 GNOME 默认触发角行为的（即鼠标移到左上角时自动进入“活动”页面）也可以通过此扩展来移除。</p>
+<p>我习惯的设置是将右上角设置为“应用程序菜单”（这个菜单可以是 Arc Menu 或者 GNOME Application Menu），右下角设置为“显示桌面”。</p>
+<p>一个技巧是，左上角触发角的覆盖区域可以调节到“几乎整个屏幕左侧”，而触发角可选行为中包含“Sound”部分。这两个原理的结合可以变相的实现“侧边鼠标滚轮调整音量”的功能。</p>
+<blockquote>
+<p>小提示：如果屏幕尺寸不大，可能无法看到完整的行为列表，此时可以善用键盘上的方向键。</p>
+</blockquote>
+<h2>全局菜单</h2>
+<p><a href="https://extensions.gnome.org/extension/4114/fildem-global-menu/">Fildem Global Menu</a>。</p>
+<p>有不少 Bug，但是确实可以用。在安装和设置时需要踩许多坑。查阅 GitHub Issues 和项目 Wiki 可以解决大部分问题。</p>
+<p>但是，只有在支持的应用程序中才可用，所以在大部分应用上不生效是正常现象。实际上并不实用。</p>
+<p>有时会导致菜单内容失灵，比如有概率导致 Icalingua 菜单选项失效。</p>
+<h2>开始菜单</h2>
+<p>如果你和我一样不喜欢 GNOME 默认的应用程序屏幕，你可以考虑以下选项。</p>
+<ul>
+<li><a href="https://extensions.gnome.org/extension/1228/arc-menu/">Arc Menu</a>。其提供了非常多种样式（比如有模仿 Win11 风格的，模仿 macOS 风格的，模仿 KDE 风格的，尽管没有一个是像的）</li>
+</ul>
+<p>除了样式很多，它可以被设置为放置在顶栏的左端或者右端，视乎个人习惯而定，你也可以设置其文字和图标。</p>
+<ul>
+<li><a href="https://extensions.gnome.org/extension/6/applications-menu/">Applications Menu</a>。这个应该无需安装而是自带的，功能和自定义性比上一个缺乏了许多，但是也堪用。</li>
+</ul>
+<h2>任务栏或者 Dock</h2>
+<p>这个用到的是经典的<a href="https://extensions.gnome.org/extension/307/dash-to-dock/">Dash to Dock</a>。</p>
+<p>设置为面板模式就是任务栏，默认的就是简单的 Dock。可以设置透明度，外观样式，图标大小等等。</p>
+<p>这里建议在其设置中修改“行为”-“点击图标”，改为“最小化”，更加符合 Windows 的习惯。</p>
+<p>除此之外还有<code>docky</code>和<code>cairo-dock</code>可以作为dock使用。</p>
+<h2>信息显示</h2>
+<ul>
+<li>天气显示：<a href="https://extensions.gnome.org/extension/750/openweather/">OpenWeather</a>。国内使用可能速度欠佳。</li>
+<li>网速显示：<a href="https://extensions.gnome.org/extension/104/netspeed/">NetSpeed</a>。</li>
+</ul>
+<h2>修复托盘程序图标不显示</h2>
+<p>GNOME 从某个版本起取消了托盘功能。我们可以用<a href="https://extensions.gnome.org/extension/615/appindicator-support/">AppIndicator and KStatusNotifierItem Support</a>加回来。</p>
+<p>类似的扩展还有：<a href="https://extensions.gnome.org/extension/1674/topiconsfix/">TopIcons Fix</a></p>
+<h2>桌面图标</h2>
+<p><a href="https://extensions.gnome.org/extension/2087/desktop-icons-ng-ding/">Desktop Icons NG</a></p>
+<h2>其它推荐的扩展</h2>
+<p><a href="https://extensions.gnome.org/extension/1287/unite/">Unite</a></p>
+<p><a href="https://extensions.gnome.org/extension/4158/gnome-40-ui-improvements/">GNOME 4x UI Improvements</a></p>
+<h1>NVIDIA 专有驱动使用 Wayland 会话</h1>
+<blockquote>
+<p>问：为什么要使用 Wayland？</p>
+</blockquote>
+<blockquote>
+<p>答：Wayland 是新一代的显示服务器，实现上优于传统的 X11。</p>
+</blockquote>
+<p>建议参考<a href="https://forum.manjaro.org/t/howto-use-wayland-with-propietary-nvidia-drivers/36130">这个来自 Manjaro 论坛的帖子</a>。这里简述其基本步骤。</p>
+<p>1.修改<code>/etc/gdm/custom.conf</code>然后注释掉<code>WaylandEnable=false</code></p>
+<blockquote>
+<p>注释就是在行前加一个<code>#</code>。这一行正常来说应该已经是被注释掉的状态了。</p>
+</blockquote>
+<p>2.执行 <code>sudo ln -s /dev/null /etc/udev/rules.d/61-gdm.rules</code></p>
+<p>3.执行<code>gsettings set org.gnome.mutter experimental-features &amp;#39;[&amp;quot;kms-modifiers&amp;quot;]&amp;#39;</code></p>
+<p>4.编辑<code>/etc/mkinitcpio.conf</code>，在<code>MODULES</code>这里加入<code>nvidia</code> , <code>nvidia_modeset</code> , <code>nvidia_uvm</code> 和<code>nvidia_drm </code>。</p>
+<p>然后执行<code>sudo mkinitcpio -P</code></p>
+<p>编辑<code>/etc/default/grub</code>，在<code>GRUB_CMDLINE_LINUX_DEFAULT</code>这里加入<code>nvidia-drm.modeset=1</code></p>
+<p>然后执行<code>sudo update-grub</code></p>
+<p>5.执行 <code>sudo pacman -Syu --needed xorg-xwayland libxcb egl-wayland</code></p>
+<p>6.重启进入Wayland会话。</p>
+
       </content>
       <summary type="html">此教程的环境是 Manjaro GNOME，在 Arch Linux 及其其它衍生版中应该同样可用。</summary>
+      <updated>2022-01-25T00:00:00.000Z</updated>
+      <published>2022-01-25T00:00:00.000Z</published>
       </entry><entry>
       <title>一个伪命题：桌面 Linux 用户是苦难主义者</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=RzJPxykTSpGH.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=RzJPxykTSpGH.md</id>
       <content type="html">
-          最近我看到很多人在网络上晒出了自己的年终总结，但是我回顾2021年，却发现自己今年什么也没干，所以自然写不了年终总结了。所以写一写今年发生的一些事情，和我想讨论的一些事情吧。
+          <p>最近我看到很多人在网络上晒出了自己的年终总结，但是我回顾2021年，却发现自己今年什么也没干，所以自然写不了年终总结了。所以写一写今年发生的一些事情，和我想讨论的一些事情吧。</p>
+<hr>
+<h2>为什么这是一个伪命题</h2>
+<p>一个现象是许多人认为使用 Linux 作为桌面操作系统是一种苦难哲学，有些人甚至将这句话针对的范围推广到了所有开源软件。这显然是荒谬的。</p>
+<p>首先，软件被开发的目的是使用户的需求得到满足，那么在这个需求本身没有被明确的情况下，怎么能贸然断定结论呢？这跟“抛开剂量谈毒性”犯了类似的错误。比如，开发者、办公室文员、计算机爱好者，他们都属于桌面用户，但他们对桌面的需求都大相径庭，怎么可以一概而论呢？</p>
+<p>其次，许多人在说这句话的时候不考虑客观事实。比如，对于 LibreOffice（一个开源的办公套件），<a href="https://www.zhihu.com/search?type=content&amp;q=libreoffice%20wps">有人说</a>“在 Linux 上，它的功能比 WPS 更强，但是界面不够好看”，<a href="https://www.zhihu.com/search?type=content&amp;q=libreoffice%20wps">也有人说</a>“它的功能比 WPS  For Linux 弱得多”。对于一个事实问题都无法达成一致，这是不考虑客观事实的表现，使比较的重点轻易地滑向一个主观的个人体验问题。</p>
+<p>而当这种问题转化为主观的个人体验问题后，他人就无法从中得到任何真正有意义的东西，这是危险的。</p>
+<p>主观体验毕竟是一种个人的感受，当然不是放之四海而皆准的。当我们在列举客观事实时，即使立场不同或者描述方式不同，也不会改变事实本身的真实性。但是一旦过于主观就很容易会有夸张或者虚构的成分。</p>
+<p>你可以把这种现象理解为“情人眼里出西施”：</p>
+<p>比如，<a href="https://www.zhihu.com/search?type=content&amp;q=%E8%8B%B9%E6%9E%9C%20%E7%BB%86%E8%8A%82%20%E6%9E%81%E8%87%B4">一些果粉说不出苹果真正让他们喜欢的地方，而只能照搬一些广为流传的被说烂了的东西</a>（比如控制中心手电筒的细节诸如此类），但是这对于消费者本身来讲没有任何意义，因为手电筒的细节与产品对消费者的竞争力没有显然的联系。又比如，许多开源爱好者甚至说不出明确的开源的好处，而只能照搬“社区、自由和开放”的老话。但事实是，商业软件也可以在一定程度上自由和开放，也可以有社区。还有一些商业软件的狂热追随者，把“商业产品可以提供商业支持”挂在嘴边，但是他们自己可能都没有找过几次自己使用的商业软件的客户服务支持。</p>
+<h2>桌面 Linux 用户得到了什么</h2>
+<p>与想象中相反，不少桌面 Linux 用户，他们更加了解自己的需求，知道自己想要什么，而选择了最适合的解决方案。这与苦难主义哲学恰恰是背道而驰的。</p>
+<p>在这一点上不妨看一看<a href="https://wiki.archlinux.org/title/Arch_Linux_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)">Arch Linux 官方介绍页</a>上的“以用户为中心”一节。</p>
+<blockquote>
+<h4>以用户为中心</h4>
+<p>许多 Linux 发行版都试图变得更“用户友好”，Arch Linux 则一直是，永远会是“以用户为中心”。此发行版是为了满足贡献者的需求，而不是为了吸引尽可能多的用户。Arch 适用于乐于自己动手的用户，他们愿意花时间阅读文档，解决自己的问题。</p>
+</blockquote>
+<p>正如用户友好和“以用户为中心”是完全不等价的两个概念，后者更加强调对用户需求的满足，而前者只着重其是否提供了某些操作上的方便。我真正承认的“以用户为中心”是后者。</p>
+
       </content>
       <summary type="html">最近我看到很多人在网络上晒出了自己的年终总结，但是我回顾2021年，却发现自己今年什么也没干，所以自然写不了年终总结了。所以写一写今年发生的一些事情，和我想讨论的一些事情吧。</summary>
+      <updated>2022-01-02T00:00:00.000Z</updated>
+      <published>2022-01-01T00:00:00.000Z</published>
       </entry><entry>
       <title>绕过 Windows 11 的设备限制</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=Dsw72n7SXtQt.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=Dsw72n7SXtQt.md</id>
       <content type="html">
-          对于不满足最低要求的设备，本指南概述了在 Windows 10 / 11 下全新安装 / 安装 / 更新 到 Windows 11 或者 Windows 11 预览版本的方法。
+          <h2>什么是设备限制</h2>
+<p>根据微软官网的说法，即使电脑可以运行 Windows 10，如果不满足以下条件，也无法运行 Windows 11。</p>
+<ul>
+<li><strong>TPM 2.0</strong></li>
+<li>64 位 CPU，<strong>且 CPU 型号处于<a href="http://aka.ms/CPUlist">这份名单</a>上</strong></li>
+<li><strong>Secure Boot</strong> 与 UEFI</li>
+</ul>
+<p>但是实际上，上述要求的粗体部分并非必须。首先，作为可信计算芯片的 TPM 模块的作用主要是为了存储 BitLocker 密钥，并进行对应数据的加密和解密。如果不启用 BitLocker，TPM 就并非必须（实际上即使启用 BitLocker，TPM 也非必选项，而是可以用自己设置的密钥进行代替）。其次，CPU 是否与操作系统兼容，应该由 CPU 是否支持某些指令集，或者是否支持某些特性来决定，而不是通过白名单决定。最后，作为引导方式的 UEFI 虽然必须，但是 Secure Boot 应该是可选的。（实际上就我个人而言是直接关闭 Secure Boot 的，因为它会给一些没有得到签名的操作系统的运行造成麻烦）。</p>
+<p>非粗体部分是实际限制，不能用任何方式绕过。</p>
+<h2>设备限制的体现</h2>
+<ul>
+<li>通过安装介质安装时，在选择 Windows 版本之后安装程序会检查计算机配置是否满足最低要求，如果不满足，会弹出提示并阻止下一步操作（分区）</li>
+<li>Windows 预览体验通道在设置时会对计算机配置进行检测。对于 Windows 10 用户，如果不满足配置则只有 Release Preview 通道可用；对于 Windows 11 用户，如果不满足配置则无法加入任何一个通道</li>
+<li>Windows Update 更新时会弹出不满足要求的安装提示</li>
+</ul>
+<h2>设备限制的解决</h2>
+<h3>适用范围</h3>
+<p>截至 2022 年 3 月 31 日，从 Windows 11 正式版到 Windows 11 22H2 Preview (Build 22581)。</p>
+<h3>使安装程序不检测 TPM 和 Secure Boot 状态</h3>
+<p>此方法适用于绕过通过安装介质全新安装 Windows 11 时会遇到的设备限制。</p>
+<ol>
+<li>按下 <code>Shift+F10</code> 以打开命令提示符</li>
+<li>输入<code>regedit</code>回车以打开注册表编辑器</li>
+<li>在注册表编辑器中定位到<code>HKEY_LOCAL_MACHINE\SYSTEM\Setup</code>，创建一个名为<code>LabConfig</code>的项，然后在<code>LabConfig</code>下创建两个名字分别为<code>BypassTPMCheck</code> 和<code>BypassSecureBootCheck</code>的 <code>DWORD</code> 值，然后给这两个值赋值为<code>1</code>（双击键名即可打开赋值窗口）。</li>
+<li>完成后关闭注册表编辑器和命令提示符，安装程序已经不会再进行相关检测了。</li>
+</ol>
+<h3>加入以及管理预览体验计划</h3>
+<p>OfflineInsiderEnroll 是开源软件，可以自由管理预览体验计划的配置（包括是否加入预览体验计划，以及加入的通道类型）</p>
+<p>项目下载地址：<code>https://github.com/abbodi1406/offlineinsiderenroll/releases/</code></p>
+<h3>替换 AppRaiserRes 库文件</h3>
+<p>适用于解决 Windows Update 更新时弹出的不满足要求的安装提示。</p>
+<p>对于 Build 22509 之前的版本，直接删除<code> C:\$WINDOWS.~BT\Sources\appraiserres.dll</code>即可。</p>
+<p>对于 Build 22509 及之后的版本（包括 22581），安装程序对于<code>appraiserres.dll</code>提出更高的要求。简单删除<code>appraiserres.dll</code>已经无法欺骗安装程序，需要继续按照如下步骤操作。</p>
+<ol>
+<li>在资源管理器中进入<code> C:\$WINDOWS.~BT\Sources</code> 目录</li>
+<li>找到<code>appraiserres.dll</code>先将其删除</li>
+<li>在<a href="https://www.dllme.com/dll/files/appraiserres_dll.html">这里</a>下载Win10版的<code>appraiserres.dll</code>（注意下载时会要求你选择dll版本，版本号选择一个Win10的版本即可。因为Win10版本的这个dll不带有检查tpm2.0和cpu限制的功能，而Win11版本的这个dll有相关限制）</li>
+<li>下载完成后将下载的<code>appraiserres.dll</code>文件放入<code> C:\$WINDOWS.~BT\Sources</code> 。</li>
+<li>操作完成后关闭安装程序，然后通过设置打开 Windows 更新会提示“安装更新时遇到问题”，这次再次“解决问题”让其尝试更新就没有问题了。</li>
+</ol>
+
       </content>
       <summary type="html">对于不满足最低要求的设备，本指南概述了在 Windows 10 / 11 下全新安装 / 安装 / 更新 到 Windows 11 或者 Windows 11 预览版本的方法。</summary>
+      <updated>2022-03-31T00:00:00.000Z</updated>
+      <published>2021-11-14T00:00:00.000Z</published>
       </entry><entry>
       <title>微软和苹果的傲慢与偏见</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=CKZdC6RAFF7d.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=CKZdC6RAFF7d.md</id>
       <content type="html">
-          最近，Windows 11 故意做出了许多破坏用户体验的“改进”，比如取消了任务栏右键打开任务管理器、将 TPM 2.0 作为最低系统要求等。
+          <p>最近，我在 IT 之家看到这样一则新闻：<a href="https://www.ithome.com/0/574/907.htm">微软官方回应 Win11“任务栏拖放”被取消：可先拖住文件，再按下 Alt+Tab 放入窗口</a>。毫无疑问，这又是微软的一次《傲慢与偏见》。</p>
+<hr>
+<p>关注科技新闻的应该都听闻了 Windows 11 的发布，应该也已经有很多人像我一样已经试用过几个预览版本了。</p>
+<p>在 Windows 11 中，微软引入了全新的设计语言，看起来不错，但是...</p>
+<h2>Windows 11 很傲慢</h2>
+<p>如果你试用过 Windows 11，它给你最大的感觉应该是傲慢。</p>
+<p>最明显的傲慢是 <strong>Windows 11 默认将开始菜单放到任务栏中间。<strong>Windows 最成功的 UI 设计之一就这样被 Windows 11 给毁了。把常用的按钮放到容易点击的地方，是常识，更是天经地义的习惯做法。虽然你可以修改这个默认设置，但是它</strong>默认就不应该是这样的</strong>。</p>
+<p>如果再往深处研究，你会发现这种傲慢充斥着 Windows 11 的每个角落。</p>
+<p>比如，开始菜单取消了磁贴。（虽然对于我来说影响不大，但是很多人都不太喜欢这个改动）</p>
+<p>比如，你不能在任务栏上右键打开任务管理器了，要么用 Ctrl + Alt + Del 打开安全选项从而打开任务管理器，要么用 Windows + R 然后输入 <code>taskmgr</code> 打开任务管理器。</p>
+<p>再比如，Windows 11 的最低系统要求添加了一个不明不白的 TPM 2.0，并且要求 CPU 必须处在微软制定的名单列表当中。</p>
+<p>且不说 TPM 2.0 对于大多数桌面用户毫无用处，给 CPU 拉白名单就更加荒谬了。</p>
+<p>实际上，操作系统对主频、核心、线程数提出要求是可以理解的，但是给<strong>CPU品牌</strong>甚至<strong>CPU代数</strong>（比如必须要求七代酷睿）提出要求是荒谬的。作为对比，安卓也没有要求必须配置“骁龙”品牌的芯片，Linux更是可以在各种设备上到处运行。当然 macOS 是个例外，因为 macOS 它实际上更类似于购买硬件而附赠的“操作系统”。当然， macOS 的傲慢也有，不过是体现在其它地方。</p>
+<p>举个例子，许多 macOS 用户会用到一个叫做 Wine 的工具。</p>
+<p>这里先介绍一下 Wine，这是一个用来在非 Windows 系统上执行 Windows 程序的开源软件项目。另外，由于 Windows 上大多数应用软件都是 32 位的，所以 Wine 基本上来说必须要求系统安装有 32 位库才能运行。</p>
+<p>但 macOS 自 10.15 起取消了 32 位应用的支持。所以，Wine 就无法再用。</p>
+<p>为了解决这个问题，维护 Wine 的商业公司 CodeWeavers 使用了 <strong><a href="https://forum.winehq.org/viewtopic.php?f=9&amp;t=32590&amp;start=25">特制的编译工具链，被开源社区普遍视作奇技淫巧的方法</a></strong> ，仍然坚持克服了 macOS 的客观问题并制作了能在 macOS 10.15 以上版本使用的 Wine （即 Crossover，是付费的商业软件，而原版的 Wine 是开源软件）。</p>
+<p><strong>但用户安装 Wine 的难度却增大了，他们要么选择购买（或者用一些方法）使用付费的 Crossover，要么就只能自行安装第三方提供的特制版 Wine。而且因为使用的是奇技淫巧，也很有可能会导致稳定性和性能的下降。</strong></p>
+<p>这样来看，macOS 虽然目的是通过取消 32 位支持来改善用户体验，实际上是对用户体验的一次损失，而这无疑是 Apple 的傲慢所导致的。</p>
+<h2>所谓的理念，没有想象中重要</h2>
+<p>Windows 11 自认为是推出了新的设计理念（丢掉兼容性包袱，重新开始），所以做出了这些改动。</p>
+<p>但是，其实所谓的理念，并没有想象中重要。</p>
+<p>这里我想提一个 Firefox 和 Chrome 的例子。</p>
+<p>今年年初，<a href="https://www.zhihu.com/question/413627046">Mozilla（即运作 Firefox 浏览器的公司）宣布裁员 250 人</a>，引起社区担忧。</p>
+<p>Firefox 是真正的社区性的开源项目，坚持自由、开放的理念，尽管 Chromium 同样开源，但与 Chromium 不同，Firefox 的开发很容易参与，作为对比 Chromium 的开发主要由 Google 主导，开发者难以参与，而且 Chromium 会为了 Google 的商业考量加入一些东西（简单举个例子，比如 Google 推出的所谓的“隐私沙盒”，名义上保护个人隐私，实际上破坏个人隐私），而 Firefox 更注重技术上的中立和善良。</p>
+<p>此外，Firefox 很先进，它搭载了最新的技术，比如 WebRender，可以大幅度地提升渲染的流畅度。</p>
+<p>那么，既然 Firefox 这么好，为什么它在普通用户中的份额却是逐年下降呢？</p>
+<p>因为设计理念的先进不代表万事顺遂。理念固然需要坚守，但也要考虑现实的实际的效果。如果为了所谓的理念，抛弃了实际的东西，就变成了傲慢。微软对 Windows 11 的这些破坏用户体验改动看似是因为设计理念上的更新，其实还是设计者的傲慢。</p>
+
       </content>
       <summary type="html">最近，Windows 11 故意做出了许多破坏用户体验的“改进”，比如取消了任务栏右键打开任务管理器、将 TPM 2.0 作为最低系统要求等。</summary>
+      <updated>2021-09-11T00:00:00.000Z</updated>
+      <published>2021-09-11T00:00:00.000Z</published>
       </entry><entry>
       <title>有些细节比想象中更加重要</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=EMNZPHaMxWFE.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=EMNZPHaMxWFE.md</id>
       <content type="html">
-          bilibili 悄悄取消了 720P 60帧 的画质选项。其实 bilibili 舍弃的那部分用户体验并不会导致非常致命的问题。但是有的时候这些细节比想象中更加重要。
+          <p>相信看到这篇博文的人对 bilibili 都不会陌生，甚至有很多人可能像我一样每天都会打开它。</p>
+<p>但是，不知你是否注意到，最近（准确的说是2021年8月10日起），bilibili 悄悄取消了 720P 60帧 的画质选项。这意味着：</p>
+<ul>
+<li>以后在 bilibili 上传的视频，都不会再有 720P 60帧 的画质选项。</li>
+</ul>
+<p>也就是说，如果之后想要在 bilibili 观看 60 帧的视频，就必须选择 1080P 60帧 或者 4K 画质。而后两者都是需要大会员的。</p>
+<p><strong>60帧的画面，现在要开始收费了。</strong></p>
+<h2>60帧的画面有那么重要吗？</h2>
+<p>不一定。</p>
+<p>帧数是什么？是每秒钟视频所包含的画面数。而目前大部分视频默认来讲都是 30 帧的。</p>
+<p>这里需要澄清一个常见的误解，也就是“人眼只能识别 24 帧的画面，所以追求更高的帧数无意义”。实际上，24 帧只是能让人眼感到画面连贯的底线，而大部分人的视力都可以明显地感受到 30 帧、60帧、144帧画面间的区别。</p>
+<p>当然，单就实用度来讲，除了游戏视频这类对动作流畅度比较敏感的视频，提升到 60 帧对于其它类型的视频的观看都不会有决定性的影响。**但是，对于多数人的视力而言仍然是可以明显察觉到它们之间流畅程度的差别的（如果此前观看过 60 帧的视频的话）。**甚至对我来说，大部分情况下 720P 60帧所带来的观看体验都强于 1080P 30 帧。</p>
+<p><strong>无论如何，720P 60 帧的画质就这样被取消了。</strong></p>
+<p>所以...这就是一篇单纯的吐槽？当然不只是。</p>
+<h2>为什么 bilibili 取消 720P 60 帧画质？</h2>
+<p>我们肯定无法获知确切的原因，猜测：可能是因为服务器成本，又或者只是单纯地希望用户借此购买大会员服务。</p>
+<p>但是，我们注意到：</p>
+<ul>
+<li>YouTube 的 720P 画质无需特别选择即是 60 帧的，而且是免费的。</li>
+<li>Niconico 始终提供 720P 60 帧视频的免费观看。</li>
+</ul>
+<p>当然，上述举例都是知名的视频网站。是否是因为 bilibili 是小破站，因而无力负担 60 帧呢？</p>
+<p>且不说 bilibili 在近几年的高速发展，<strong>就连 AcFun 也始终在提供免费的 4K 与 60 帧画质观看</strong>。</p>
+<p>其实相比部分企业，bilibili 在整体上并没有那么招人恨，只是它选择了将一些用户体验作为燃料，丢进了商业化的大熔炉之中。</p>
+<h2>有些细节比想象中更加重要</h2>
+<p>其实 bilibili 舍弃的那部分用户体验，从道理上讲，并不会导致非常致命的问题，只是让人感到些许不满罢了。</p>
+<p>但是有的时候，这些细节比想象中更加重要。</p>
+<p>其实最近我加入了一个 Linux Wine 交流群。因为目前不少企业正在使用国产 Linux 来替代 Windows 进行办公，所以这个交流群中涌入了许多完全不懂 Linux 的新手，希望在他们的 Linux 办公电脑上使用 Wine 来运行 Windows 程序。</p>
+<p>其中，有许多非常简单的 Linux 操作，这些新手都完全不明白。</p>
+<p>比如，打开终端，输入<code>sudo apt update</code>命令。就这么简单的一件事。</p>
+<ul>
+<li>有不少新手根本不知道如何打开终端</li>
+<li>有很多新手打开了终端之后输入的命令又常常丢失了空格，变成<code>sudoaptupdate</code></li>
+<li>解决了丢失空格的问题之后，有些新手不知道<strong>命令需要回车才能被执行</strong></li>
+<li>还有些新手在按完回车之后不知道如何正确地输入当前用户的密码（因为 Linux 下 sudo 的密码不会表示为星号，这是为了避免泄露密码长度）。</li>
+</ul>
+<p>更别提查询文档了。某一天我进入这个群聊，发现群里有几个新手在讨论为什么添加了 WineHQ 的软件源之后，还是不能安装 winehq。其实这个问题是因为 libfaudio 引起的，并且就在 WineHQ 官网的 Wiki 上就有详细的解释和解决步骤。</p>
+<p>这真的是“人傻怪系统”吗？是，也不是。</p>
+<p>至少对于这些新手来说，或许操作系统的开发者在终端的某些操作上加个提示（比如 UOS 修改了 sudo 的提示文字为清晰简单的“请输入密码”）就能减少新手踩坑的概率。</p>
+<p>只要这些细节做的再多一些，这些新手们要考虑的就少一些。操作系统是给人服务的，而这些人不但包括那些开发者、极客，也包括初出茅庐的 Linux 使用者。</p>
+<h3>浏览器中的细节</h3>
+<p>我一直是忠实的 Firefox 使用者，但是仍然有几点问题让我感到不爽。比如，其中一个问题是在部分网站（比如bilibili、知乎）编辑文字时，会有光标跳动的现象，非常影响编辑体验。（这个其实是因为网站的适配做的不好），另外也有部分网站（比如有道云笔记）根本不支持 Firefox，要求你必须使用 Chrome。</p>
+<p><strong>但是我仍然最喜欢使用 Firefox，原因是其它的浏览器都缺乏一些细节。</strong></p>
+<p>比如，我的浏览器书签栏中收集了许多书签。Chrome 在点击书签栏中的书签时始终是在当前标签页打开的，并且我没有找到任何扩展来改变这一默认行为。而 Firefox 中国版自带了一个“标签页优化”扩展，可以使得点击书签栏中的书签是在新标签页打开的。</p>
+<p>再比如，Chrome 下缺少一个好用的“撤回刚刚关闭的标签”按钮。我能找到的最为近似的实现这个功能的扩展也不能令我满意。但是，Firefox 中国版却也是自带了这个功能。</p>
+<p>还有很多很多，比如 Firefox 自带网页截图，再比如 Firefox 设置页面的排版，再比如 Firefox 对 fontconfig 的支持更好......</p>
+<p>这些问题是致命的吗？当然不是，但是这些看似微小的细节直接决定了我使用 Firefox 的频率远远高于其它浏览器。</p>
+<h3>Apple 的细节</h3>
+<p>Apple 以其产品的设计注重细节闻名。</p>
+<p>许多设计师也更喜欢使用 Mac，因为 macOS 有着一个好用的颜色管理，对于广色域屏幕有着更好的支持。而 Windows 只有部分程序支持这一特性。而且，macOS 的设计“更加注重细节”，“更有艺术感”，因此许多设计师在<strong>价格明显是同价位的 Windows 笔记本占优</strong>的情况下还是愿意选择 MacBook。</p>
+<h2>所以说了这么多，细节到底决定了什么？</h2>
+<p>我也不知道，但是，正如我在上面举的几个例子，细节虽然不是决定性的，但是，有的时候它也起很大作用。特别是当一个细节是为某个事物所独有，而其它事物没有的时候。</p>
+<p>就比如本文最开始提到的 720P 60 帧被取消的问题，说不定之后我就会更倾向于上那些可以免费观看 60 帧视频的网站了呢。</p>
+
       </content>
       <summary type="html">bilibili 悄悄取消了 720P 60帧 的画质选项。其实 bilibili 舍弃的那部分用户体验并不会导致非常致命的问题。但是有的时候这些细节比想象中更加重要。</summary>
+      <updated>2021-08-18T00:00:00.000Z</updated>
+      <published>2021-08-18T00:00:00.000Z</published>
       </entry></feed>
