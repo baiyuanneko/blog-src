@@ -485,22 +485,11 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="theme_setting_dialog_title"><i class="fa fa-cog"></i> 主题设置</h5>
+          <h5 class="modal-title" id="theme_setting_dialog_title"></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body" id="theme_setting_dialog_body">
-          <h4><i class="fa fa-moon-o"></i> 暗色模式设置</h4>
-          <select class="form-select" onchange="hook_after_dark_mode_setting_has_been_modified()" id="selection_dark_mode_setting">
-            <option value="auto_switch">跟随系统</option>
-            <option value="light_mode">亮色模式</option>
-            <option value="dark_mode">暗色模式</option>
-          </select>
-          <br />
-          <h4><i class="fa fa-font"></i> 字体</h4>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="use_serif_font" onchange="hook_after_use_serif_font_setting_has_been_modified();">
-            <label class="form-check-label" for="use_serif_font">使用衬线字体</label>
-          </div>
+          
         </div>
       </div>
     </div>
@@ -522,6 +511,7 @@
 
     function toggle_theme_setting() {
       theme_setting_dialog.toggle();
+      loadThemeSettingsDialog();
     }
 
     function hook_after_dark_mode_setting_has_been_modified(){
@@ -536,16 +526,6 @@
       reload_serif_font_setting();
     }
 
-    if(localStorage.getItem("dark_mode_setting") === null){
-      localStorage.setItem("dark_mode_setting", "auto_switch");
-    }
-
-    if(localStorage.getItem("use_serif_font") === null){
-      localStorage.setItem("use_serif_font", "false");
-    }
-
-    document.getElementById("selection_dark_mode_setting").value = localStorage.getItem("dark_mode_setting");
-    document.getElementById("use_serif_font").checked = localStorage.getItem("use_serif_font") === "true";
 
     function reload_dark_mode_setting(){
       switch (localStorage.getItem("dark_mode_setting")) {
@@ -562,6 +542,34 @@
               switch_night_mode("light");
             }
         }
+    }
+
+    function loadThemeSettingsDialog() {
+      document.getElementById("theme_setting_dialog_title").innerHTML = `<i class="fa fa-cog"></i> 主题设置`;
+      document.getElementById("theme_setting_dialog_body").innerHTML = `<h4><i class="fa fa-moon-o"></i> 暗色模式设置</h4>
+          <select class="form-select" onchange="hook_after_dark_mode_setting_has_been_modified()" id="selection_dark_mode_setting">
+            <option value="auto_switch">跟随系统</option>
+            <option value="light_mode">亮色模式</option>
+            <option value="dark_mode">暗色模式</option>
+          </select>
+          <br />
+          <h4><i class="fa fa-font"></i> 字体</h4>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="use_serif_font" onchange="hook_after_use_serif_font_setting_has_been_modified();">
+            <label class="form-check-label" for="use_serif_font">使用衬线字体</label>
+          </div>`;
+
+          
+      if(localStorage.getItem("dark_mode_setting") === null){
+        localStorage.setItem("dark_mode_setting", "auto_switch");
+      }
+
+      if(localStorage.getItem("use_serif_font") === null){
+        localStorage.setItem("use_serif_font", "false");
+      }
+
+      document.getElementById("selection_dark_mode_setting").value = localStorage.getItem("dark_mode_setting");
+      document.getElementById("use_serif_font").checked = localStorage.getItem("use_serif_font") === "true";
     }
 
     function reload_serif_font_setting(){
