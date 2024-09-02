@@ -3,13 +3,176 @@
     <subtitle>「初めて守りたくて　寄り添いこの空のもとで」 </subtitle>
     <link href="https://nekomoe.xyz/atom.xml" rel="self"/>
     <link href="https://nekomoe.xyz"/>
-    <updated>2024-06-05T12:37:06.724Z</updated>
+    <updated>2024-09-02T04:42:07.352Z</updated>
     <id>https://nekomoe.xyz</id>
     <author>
         <name>柏园猫のBlog</name>
     </author>
     <generator uri="https://bbg.nekomoe.xyz">Baiyuanneko's Blog Generator</generator>
     <entry>
+      <title>将 Flask 部署到生产环境</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=deploy-flask-to-production.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=deploy-flask-to-production.md</id>
+      <content type="html">
+          <p><img src="./images/Azusa20240902.png" alt="图文无关，来源：Blue Archive"></p>
+<p>(↑ 图文无关，图片来源：Blue Archive / 白洲梓)</p>
+<h2>前言</h2>
+<p>Flask 应该还算是一个比较常用的 Web 框架，我此前也是用 Flask 开发过几个小项目，不过，怎么将 Flask 部署到生产环境中呢？</p>
+<p>如果对于 Web 服务器的部署流程稍有了解的话，就应该知道我们肯定不能直接在目标服务器上执行一个 <code>pip install flask</code> 然后 <code>flask --app server run</code> 这样操作——毕竟我们开发的时候也是用的这条命令，然后在生产环境也是用的这条命令，考虑到生产环境和开发环境的差异还是比较大的，这不对吧（</p>
+<p>的确不对，事实上，当我们在开发环境无数次地运行这条命令的时候，都会注意到上面有一行醒目的红字：</p>
+<pre><code>WARNING: This is a development server. Do not use it in a production deployment.
+Use a production WSGI server instead
+</code></pre>
+<p>这其实已经给我们指明了方向，也就是说我们需要使用一个可用于生产环境的比较正式的 WSGI 服务器软件来在生产环境运行我们的 Flask 应用。如果要细究为什么一定要用 WSGI 服务器而不是直接用 Flask 的话，我总结了以下几点原因：</p>
+<ul>
+<li>在默认的配置下，Flask 一次只能处理一个请求，所以显而易见地性能不好</li>
+<li>Flask 本身设计是在开发环境使用的，并不是为了在生产环境下稳定、安全、可靠的运行而设计的，如果要在生产环境使用，还是要用一个正规一点的 WSGI 服务器</li>
+<li>而且，Flask 支持 Debugger 这些功能，通过 Debugger 可以实现任意命令执行，万一要是在生产环境不慎启用了，后果不堪设想！</li>
+</ul>
+<h2>WSGI 服务器的选择和安装</h2>
+<p>WSGI，全称是 Python Web Server Gateway Interface，大体上就是将我们的 Python 环境和 Web 服务器进行通信的一种接口。我个人是把它理解为和 CGI 近似的东西，或者说是 CGI 的 Python 版本（我乱说的不一定对，只是我个人这样理解的）。不过这个其实不是重点，重点是我们要怎么去找到这个可以在生产环境使用的 WSGI 服务器软件。我们可以直接参考 <a href="https://flask.palletsprojects.com/en/3.0.x/deploying/">Flask 的官方文档</a>：上面直接列出了几个比较流行的 WSGI 服务器软件，包括 Gunicorn 和 Waitress。</p>
+<p>Gunicorn 官网：<a href="https://gunicorn.org/">https://gunicorn.org/</a></p>
+<p>Waitress 官网：<a href="https://docs.pylonsproject.org/projects/waitress/en/stable/index.html">https://docs.pylonsproject.org/projects/waitress/en/stable/index.html</a></p>
+<p>那么 Gunicorn 和 Waitress 应该选哪个呢？我个人认为比较明显的是平台支持上的差异：</p>
+<ul>
+<li>Gunicorn 不支持 Windows，不过在 WSL 上也能运行</li>
+<li>相比之下 Waitress 支持包括 Windows、Linux 在内的一些平台，所以兼容性更加广一点</li>
+</ul>
+<p>除此之外，这两个我都使用过了，在我的场景下，我没有感受到明显的差异。我最终是选择了 Waitress，除了兼容性的因素之外，如果它名字叫 Maid 就更好了（不是）</p>
+<p>安装和使用方法：</p>
+<pre><code>pip install waitress
+waitress-serve --host 127.0.0.1 --port 8000 server:app
+</code></pre>
+<p>这里你可以注意到，我所监听的是 127.0.0.1，而不是 0.0.0.0 或者某个网站域名，这并不是意味着我学艺不精，不知道应该使用 0.0.0.0 或者指定一个域名才能监听来自公网的流量，而是因为我们接下来还需要设置一个至关重要的东西：反向代理。我们打算，通过反向代理监听某个域名，然后把请求转发给本地 127.0.0.1 的 Waitress 服务器。这并不是我故意想多找点事做，而是因为我们需要区分清楚应用服务器和 Web 服务器之间的差异。包括在 Waitress 的官方文档<ref url="https://docs.pylonsproject.org/projects/waitress/en/latest/reverse-proxy.html">Using Behind a Reverse Proxy - Waitress 官方文档</ref>中也有说：</p>
+<blockquote>
+<p>Often people will set up &amp;quot;pure Python&amp;quot; web servers behind reverse proxies, especially if they need TLS support (Waitress does not natively support TLS). Even if you don&amp;#39;t need TLS support, it&amp;#39;s not uncommon to see Waitress and other pure-Python web servers set up to only handle requests behind a reverse proxy; these proxies often have lots of useful deployment knobs.</p>
+</blockquote>
+<p>翻译一下：</p>
+<blockquote>
+<p>人们经常会在“纯 Python”网络服务器的后面设置一个反向代理，尤其是当他们需要 TLS 支持时（Waitress 本身不支持 TLS）。即使你不需要 TLS 支持，也常常会看到 Waitress 和其他纯 Python 网络服务器被设置为仅在反向代理后处理请求；这些代理通常有很多有用的部署选项。</p>
+</blockquote>
+<p>简单来说，使用反向代理之后，允许我们在反向代理这一层进行很多更加高级和上层的配置，比如说这里提到的 SSL 支持，还有一些别的，比如 IP 过滤之类的。当然，这些功能不是说非要用反向代理否则就不能实现，比如说我们可以在 Flask 应用里面写一些全局的 IP 过滤器，可能也能实现过滤 IP 的效果。不过这个涉及到一个东西放在哪里更加合适的问题。通常来说，我们认为设置一个额外的反向代理服务器来实现这些功能，包括 SSL 支持等，是更加合适的。</p>
+<h2>选择和安装反向代理服务器</h2>
+<p>最常见的选项是 Nginx，当然还有些别的，比如 Apache 和 Caddy. 我是一个 Caddy 厨，因为 Caddy <em>非常</em> 方便。</p>
+<ul>
+<li>使用 Caddy 启动的任何网站，它会自动帮你申请和续期 SSL 证书。不再需要配置 <code>acme.sh</code> 或者其它类似的任何东西，只要你的网站里指定了域名信息，它就会全自动地进行证书的获取和续期。</li>
+<li>Caddy 对于任何常见需求的写法都 <em>非常</em> 简洁。简单举个例子：如果我们需要启动一个静态文件服务器，需要几行代码呢？答案是只需要一行。</li>
+</ul>
+<pre><code>file_server
+</code></pre>
+<p>同样的，如果我们需要进行反向代理，需要几行代码呢，也是一行：</p>
+<pre><code>reverse_proxy localhost:8000
+</code></pre>
+<p>简而言之，使用 Caddy 可以让你省下配置 SSL 和研究配置文件写法的一大笔时间。当然这个东西也并非完美无缺，首先，复杂的配置肯定还是需要查文档的，当然文档本身读起来也不费劲，不过如果你要用 ChatGPT 之类的生成 Caddyfile 配置文件的话，你可能会失望了。这可能是因为 Caddy 属于较新的服务器软件，所以社区资料相比 Apache 和 Nginx 确实属于偏少的状态。当然你让 GPT 生成一段配置文件给你肯定能生成，但是能用吗，如能。大部分情况下你还是需要根据报错自己排查，查看文档，进行合适的修改的。因此，如果你比较依赖使用 GPT 进行配置生成和错误排查，可能 Nginx 和 Apache 会更适合你。</p>
+<p>不管怎样，我这里是使用 Caddy 作为反向代理服务器。安装 Caddy 的方法不再说了，这里直接写怎么写配置文件。</p>
+<p>默认的配置文件是在 <code>/etc/caddy/Caddyfile</code>，使用 <code>nano</code> 编辑它。</p>
+<p>我们假设我们要部署到的域名是在 <code>example.com</code> 这里，并假设我们的 Waitress 是监听在 <code>127.0.0.1:8000</code>。那么我们的 Caddyfile 应该这么写：</p>
+<pre><code>example.com {
+    reverse_proxy localhost:8000
+}
+</code></pre>
+<p>使用<code>systemctl</code>重启一下<code>caddy</code>服务：</p>
+<pre><code>systemctl restart caddy
+</code></pre>
+<p>然后修改 DNS，你会发现 Caddy 自动给你的域名申请并使用了一个 SSL 证书。再次证明了使用 Caddy 可以为我们的服务部署提供很多便利。当然这不是重点。在现在这样的情况下，你的网站（在理论上）应该已经可以正常对外提供服务了。你可以试试访问网站的域名，看一看各种请求是不是都能够正常发送。</p>
+<p>如果你像我一样使用 Cloudflare 对流量进行了代理，可能会发现自己的服务器怎么遇到了一些奇怪的问题（比如访问超时，或者无限 308 跳转之类），这时候，我们需要做一些小小的调整。</p>
+<h2>与 Cloudflare 相互配合</h2>
+<h3>SSL/TLS 模式的正确选择</h3>
+<p>首先，我们需要正视 Cloudflare 的 SSL/TLS 模式选择。这个东西绝对不是选择什么都无所谓，在不熟悉的情况下，我们对它的理解并不一定正确。比如，我一开始没有注意这个模式选择，直接采用了它的默认设置 <code>Flexible</code> (弹性, 灵活)，从而造成了一个困扰了我很久才修好的问题：无限 308 跳转。</p>
+<p>这里贴出一些这种错误的症状：</p>
+<ul>
+<li>preflight is invalid (redirect)</li>
+<li>redirect is not allowed for preflight request</li>
+<li>(网站)将你重定向的次数过多，尝试清除 Cookies 后再试</li>
+<li>Too many redirects</li>
+<li>Error: Exceeded maxRedirects. Probably stuck in a redirect loop</li>
+</ul>
+<p>TLDR：<strong>如果你遇到了这种问题，那么很有可能是因为你的 Cloudflare 的 SSL/TLS 配置选择了默认的 Flexible，不妨试一试改成 Full 或 Full (Strict)，可能就好了。</strong> 实际上，只要你的服务器正确配置了 SSL 证书，永远最正确的选择就是使用最严格的 Full (Strict) 模式。</p>
+<p>实际上，这是一个 Cloudflare 的 SSL/TLS 模式非常容易遇到的一个问题（指无限308），并且 Cloudflare 也有一个专门的 TroubleShooting 页面来说明这个问题：<a href="https://developers.cloudflare.com/ssl/troubleshooting/too-many-redirects/">https://developers.cloudflare.com/ssl/troubleshooting/too-many-redirects/</a></p>
+<p>感谢 <a href="https://koishi514.moe">scientificworld</a> 和 <a href="https://apeiria.net">Misaka13514</a> 给我建议和帮我调试这个问题。</p>
+<p>简单来说，我们可以查阅一下 Cloudflare 官方文档，探究一下 Flexible 和 Full / Full (Strict) 都有什么区别。</p>
+<p>首先是 Flexible：</p>
+<blockquote>
+<h3>Flexible encryption mode</h3>
+<p>If your domain’s encryption mode is set to Flexible, Cloudflare sends unencrypted requests to your origin server over HTTP.</p>
+<p>Redirect loops will occur if your origin server automatically redirects all HTTP requests to HTTPS.</p>
+</blockquote>
+<p>注意到 Flexible 模式下，Cloudflare 与源服务器通讯时使用的是 HTTP 流量而非 HTTPS.</p>
+<p>然后是 Full 和 Full (Strict)：</p>
+<blockquote>
+<h3>Full or Full (strict) encryption mode</h3>
+<p>If your domain’s encryption mode is set to Full or Full (strict), Cloudflare sends encrypted requests to your origin server over HTTPS.</p>
+<p>Redirect loops will occur if your origin server automatically redirects all HTTPS requests to HTTP.</p>
+</blockquote>
+<p>而相比之下 Full / Full (strict) 模式下，Cloudflare 与源服务器通讯时是使用的 HTTPS 协议进行通讯。</p>
+<p>部分服务器软件环境下，比如在我的配置环境下，我的服务器会默认将所有的 HTTP 请求 308 到 HTTPS 上，如果我们没有套 Cloudflare CDN，那么客户端直接就是我们的电脑，这时候服务器返回的 308 理应是可以正常奏效的（也就是正确地让我们跳转到 HTTPS 而不是 HTTP），然而我们套了一层 Cloudflare CDN 之后我们客户端这里实际上始终都是 HTTPS 的，需要正确跳转到 HTTPS 的 Cloudflare 与我们服务器的通讯而不是我们与服务器的通讯。当然服务器发来的 308 请求并不会对此施加正确的影响，在这一点上， Cloudflare 的 Flexible 模式下始终是与我们的服务器使用 HTTP 通讯，不管服务器怎样要求 308 跳转，Cloudflare 与服务器这一段的通讯方式都不会改变（始终是 HTTP），也因此，相当于一直在与服务器进行 HTTP 的通讯，而服务器也一直指示希望采用 HTTPS 方式通讯，造成了无限的 308 跳转。解决方式也很简单，就是我们将 SSL/TLS 模式替换为 Full 或 Full (strict)，这样就强制 Cloudflare 在和我们的源服务器通讯的时候必须使用 HTTPS 协议。</p>
+<h3>获取客户端真实 IP</h3>
+<p>当我们使用反向代理的时候，由于中间多了一层跳转，所以假使我们 Flask 应用中写了类似 <code>request.remote_addr</code> 这样的代码，并不能正确获取到对端的 IP。对此，通常的解决办法是让反向代理服务器给应用程序通过其它方式（比如 HTTP 请求头）传输客户端的真实 IP。当然，这时候我们必须修改应用程序里面所有用到 <code>request.remote_addr</code> 的代码，这个是不可避免的。</p>
+<p>这里我们采用的解决方案是让反向代理服务器（在我们的情况下是 Caddy）给 Waitress 设置一个额外的 HTTP Header：<code>X-Real-IP</code>，然后修改我们 Flask 应用中所有与 <code>request.remote_addr</code> 相关的代码，将相关逻辑修改为读取我们手动设置的 <code>X-Real-IP</code> 头。</p>
+<p>首先是在 Caddy 这一侧，添加设置 <code>X-Real-IP</code> 头的相关逻辑：</p>
+<pre><code>reverse_proxy localhost:8000 {
+    header_up X-Real-IP {remote_host}
+}
+</code></pre>
+<p>然后修改我们的 Flask 应用的相关代码：（假设我们将对端 IP 存储在变量 <code>remote_ip</code> 中）</p>
+<pre><code>remote_ip = request.headers.get(&amp;quot;X-Real-IP&amp;quot;, request.remote_addr);
+</code></pre>
+<p>这行代码使用了 <code>request.headers.get</code>函数，第一个参数表示我们读取的 HTTP 头是哪个，第二个参数指示默认值（Default Value），也就是假使我们的应用程序没有获取到这个标头，那么仍然有一个默认值，而不是获取到 None 之类完全没有意义的值。</p>
+<p>然后就好了？等等，我们外面还套了一层 Cloudflare 呢，我们这样获取到的虽然不是 127.0.0.1 这样的本地 IP，但是获取到的也是 Cloudflare 的 IP，仍然不是客户端的真实 IP。这会有什么问题呢？比如假如我们的应用逻辑中有针对每个 IP 设定的请求次数（QPS）限制之类的东西，我们本来是希望限制该用户（或者攻击者）不能够以超出我们限制的次数发送请求，但是现在这样限制的是 Cloudflare 的 IP 不能够超出我们限制地向我们发送请求，这和我们的本意完全不相符了。正常用户如果运气不好，中间经过的 Cloudflare IP 恰好被限制了，那即使他本人一个请求都没有发送，但就是没办法继续正常使用我们的服务。而攻击者如果想要重复请求我们的服务，根本不需要用换 IP 之类成本高昂的办法，毕竟中间经过的 Cloudflare IP 是什么都不一定呢，每次也可能会变动，相当于可以利用 Cloudflare 庞大的 IP 库绕过我们的 IP 限制。因此，我们必须想办法从 Cloudflare 的请求中获取到客户端原始 IP，然后传递给我们的应用服务。</p>
+<p>经验丰富的朋友也可以看出来，在我们上面的网络结构（Waitress &amp;lt;- Caddy (Reverse Proxy) &amp;lt;- Cloudflare &amp;lt;- Client）中，变动代价最小的办法是修改 Caddy 的代码，使它向 Waitress 传递 X-Real-IP 的时候，传递客户端的真实 IP （而不是 Cloudflare 的 IP）。</p>
+<p>要做到这点非常简单，根据 <a href="https://developers.cloudflare.com/fundamentals/reference/http-request-headers/#cf-connecting-ip">https://developers.cloudflare.com/fundamentals/reference/http-request-headers/#cf-connecting-ip</a> 的文档，Cloudflare 会给每个它发出的请求附带一个 <code>CF-Connecting-IP</code> 的请求头，这里面是客户端的真实 IP。因此我们可以轻易地将上面的 Caddy 代码修改为如下的形式：</p>
+<pre><code>reverse_proxy localhost:8000 {
+    header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+}
+</code></pre>
+<p>这样，代码应该可以在<em>正常</em>环境下正常工作了。不过有什么问题呢？考虑这样的攻击情况：假如攻击者通过某种方式知道或者猜到了我们的源站 IP，然后修改了自己的 <code>hosts</code> 文件，将我们绑定的域名与源站 IP 相关联，这样就可以直接通过源站 IP 来访问我们的服务了，我们的 Caddy 服务器还傻傻地以为它是从 Cloudflare 连入的，试图读取 <code>CF-Connecting-IP</code> 头，不过攻击者此时又不是通过 Cloudflare 连进来的，当然也不能保证 <code>CF-Connecting-IP</code> 头存在，甚至攻击者可以去故意篡改这个头，比如改成 <code>114.51.4.19</code> 这种恶臭 IP 来使我们的数据库变臭（恼），我们必须有办法抵抗这种攻击。</p>
+<p>再次感谢 <a href="https://apeiria.net">Misaka13514</a> 和 <a href="https://koishi514.moe/">scientificworld</a> 在相关安全问题上对我的提醒，以及帮助我测试和调试。</p>
+<p>要达成这点并不困难。Cloudflare 公布了自己 CDN 的 IP 段：</p>
+<ul>
+<li>官网介绍页面：<a href="https://www.cloudflare.com/zh-cn/ips/">https://www.cloudflare.com/zh-cn/ips/</a></li>
+<li>IPv4：<a href="https://www.cloudflare.com/ips-v4/">https://www.cloudflare.com/ips-v4/</a></li>
+<li>IPv6：<a href="https://www.cloudflare.com/ips-v6/">https://www.cloudflare.com/ips-v6/</a></li>
+</ul>
+<p>我们可以使用上述的列表创建一个白名单，然后修改 Caddyfile，让它验证请求是否来自 Cloudflare，假如不来自，则拒绝请求。示例代码：</p>
+<pre><code>example.com {
+    @cloudflare_ips {
+        remote_ip 173.245.48.0/20
+        remote_ip 103.21.244.0/22
+        ...(省略)
+    }
+
+    handle @cloudflare_ips {
+        reverse_proxy localhost:8000 {
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+        }
+    }
+
+    handle {
+        respond &amp;quot;Only allow connections from cloudflare.&amp;quot; 403
+    }
+}
+</code></pre>
+<p>这样，在 Cloudflare CDN 关闭或者攻击者知道源站 IP 的情况下，访问我们的服务，只会提示 <code>Only allow connections from cloudflare.</code>，保证了我们的服务只能通过 Cloudflare 访问，也因此一定存在真实正确的 <code>CF-Coneecting-IP</code> 头。</p>
+<p>到了这里配置差不多就完成了，不过我们可以再考虑一些特殊情况：Cloudflare Workers 和 WARP。假如攻击者通过 Cloudflare Workers 反代我们的网站，然后在 Worker 代码中尝试篡改 CF-Connecting-IP 头，会发生什么呢？考虑到 Cloudflare Worker 的 IP 段已经被我们刚刚拉入白名单了，攻击者是否会成功呢？</p>
+<p>答案是否定的，事实上，Cloudflare 已经考虑过这种特殊情况，防止这种情况的发生。文档地址：<a href="https://developers.cloudflare.com/fundamentals/reference/http-request-headers/#cf-connecting-ip-in-worker-subrequests">https://developers.cloudflare.com/fundamentals/reference/http-request-headers/#cf-connecting-ip-in-worker-subrequests</a></p>
+<blockquote>
+<p>In same-zone Worker subrequests, the value of CF-Connecting-IP reflects the value of x-real-ip (the client’s IP). x-real-ip can be altered by the user in their Worker script.</p>
+<p>In cross-zone subrequests from one Cloudflare zone to another Cloudflare zone, the CF-Connecting-IP value will be set to the Worker client IP address &amp;#39;2a06:98c0:3600::103&amp;#39; for security reasons.</p>
+<p>For Worker subrequests destined for a non-Cloudflare customer zone, the CF-Connecting-IP and x-real-ip headers will both reflect the client’s IP address, with only the x-real-ip header able to be altered.</p>
+<p>When no Worker subrequest is triggered, cf-connecting-ip reflects the client’s IP address and the x-real-ip header is stripped.</p>
+</blockquote>
+<p>简单来说，攻击者的这种情况属于这里的第二段所描述的情况：攻击者试图从另外一个 Cloudflare Zone 连入。这时为了安全考虑，<code>CF-Connecting-IP</code> 的值会被设定为固定的 <code>2a06:98c0:3600::103</code>。这样的话如果对方使用 Cloudflare Workers 来反代我们的这个服务器，那么我们这边记录的 IP 都是那个固定的 IP，甚至可以用此来针对性屏蔽 Cloudflare Workers；即使不特意屏蔽，因为用 Cloudflare Workers 连进来的 IP 都是完全固定的，所以举个例子，假如我们为每个 IP 设置了请求次数限制（例如：每个 IP 每天最多登录失败 20 次）它仍然是生效的，而且相当于所有试图使用 Cloudflare Workers 的攻击者共享这 20 次限制，事实上并没有降低安全性。而对于 WARP 的情况，目前而言 WARP 的出口 IP 段是 104.28，因此目前还不涉及到这个问题。</p>
+<h2>结语</h2>
+<p><del>懒得写结尾了，以下总结由 GPT 生成：</del></p>
+<p>在这篇文章里，我详细探讨了如何将 Flask 应用部署到生产环境，强调了使用合适的 WSGI 服务器的重要性。由于 Flask 自带的开发服务器并不适合生产使用，是推荐使用 Gunicorn 或 Waitress 作为生产环境的 WSGI 服务器。文章分析了这两者的优缺点，最终选择了 Waitress，并介绍了如何通过反向代理服务器（如 Caddy）来处理 SSL 证书和请求转发。</p>
+<p>在与 Cloudflare 配合使用时，想要提醒读者选择适当的 SSL/TLS 模式，特别是避免使用默认的 Flexible 模式，以防止造成无限重定向的问题。此外，文章中还提供了获取客户端真实 IP 的方法，强调了在反向代理配置中确保请求来自 Cloudflare 的重要性，以提高安全性。</p>
+<p>最后，文章提到通过白名单 Cloudflare 的 IP 段，能够有效防止直接访问源服务器，确保只有经过 Cloudflare 的请求被允许。这些措施共同提升了应用的安全性和稳定性，使得在生产环境中运行 Flask 应用更加可靠。</p>
+
+      </content>
+      <summary type="html">当我们完成了一个 Flask 项目，如何将它部署到生产环境中呢？</summary>
+      <updated>2024-09-01T13:05:51.694Z</updated>
+      <published>2024-09-01T13:05:51.694Z</published>
+      </entry><entry>
       <title>在 Intel 核显上使用 Stable Diffusion WebUI</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=stable-diffusion-webui-intel-igpu.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=stable-diffusion-webui-intel-igpu.md</id>
@@ -90,7 +253,7 @@ pip install --pre openvino
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=my-2023.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=my-2023.md</id>
       <content type="html">
-          <p>&amp;lt;info-hint&amp;gt;本文章中含有大量图片（共约 28.8 MB），请注意流量消耗。&amp;lt;/info-hint&amp;gt;</p>
+          <p><info-hint>本文章中含有大量图片（共约 28.8 MB），请注意流量消耗。</info-hint></p>
 <p>坦白地说自大学以来咱就一直处在一个动力不是很足的状态下，不过还是顺利活过了 2023 年，也有很多事情让我开心 或者觉得有意义（</p>
 <p>首先是 2023 年咱终于体会到了什么是真正的大学生活，2022 年因为疫情所以几乎什么都干不了，现在看来对我来说影响最大的就是紧闭着的校门导致的不能点外卖或者出去吃，因为学校食堂真的会吃腻（对我来说）而且一些菜确实烧得不好吃。和室友出去吃饭还是很开心的，但是必须承认的一点是即便算是体会到了完全体的大学生活，也与我以前的想象差距不小。比如，大学虽然有很多自由时间和精力，但是不意味着自己就会进入自主学习或者更上进的状态，也就是说拖延症这种问题并不会因为上了大学自行解决（）自控力还在其次，性格或者成长上的进步也需要自己去努力，而不是光是靠更轻松的生活，就觉得这些问题都直接都被解决了。</p>
 <p>还有是今年参加了一些 CTF 比赛，作为一个自认为高中生活本身比较无趣（高中没有计算机社团，也没有参加过什么相关比赛）的人来说可以说是第一次的初体验了，不但拿了奖还获得了一笔对我来说数目不算小的奖金，开心（）这里也十分感谢几个队友在比赛过程中对我的帮助（我比较容易紧张）以及在分奖金时候对我的照顾；2023 年一共参加过两次 CTF 和一次 AWD 形式的比赛，还因为这几次比赛的缘故有幸得到了学校的注意，并体验了学校的护网工作。帮大忙了.webp（指参加比赛给我的前途帮大忙了，不要理解成给学校的护网工作帮大忙了，其实摸了很多鱼（</p>
@@ -116,7 +279,7 @@ pip install --pre openvino
 <p>然后是 Steam 上，终于开始买一些游戏了，首先是补票了 NEKOPARA 的全系列，然后买了一直想玩的《主播女孩重度依赖》（不过目前只通关了14/24个结局），然后是买了一些 Galgame （《恋爱绮谭 不存在的夏天》、《恋爱绮谭 不存在的真相》以及对我来说有点贵的《常轨脱离 Creative》），以及《城市：天际线》（但是还没开始玩）这里面对我来说觉得最值回票价的反而是最贵的《常轨脱离 Creative》，几位女主都很可爱，<code>最享受的一集！.webp</code> 当然我这个 Steam 库存量也算少的，也不是说要攀比或者什么，只是随便分享一下（（</p>
 <p><img src="./2023Summary_SteamLibrary.png" alt="image"></p>
 <p>其它游戏方面，玩了《Undertale》、《Getting Over It》之类的一些独立游戏。以及在时断时续地玩着《osu!》（以及《osu!lazer》），我打这个水平不是很高但是消磨时间还是一个不错的选择（以及，很荣幸能把 <a href="https://blog.chihuo2104.dev/">@chihuo2104</a> 拉入 osu! 的坑（x</p>
-<p>&amp;lt;info-hint&amp;gt;下面两张图中上面一张是 osu!stable 的个人资料，下面一张是 osu!lazer 的个人资料。&amp;lt;/info-hint&amp;gt;</p>
+<p><info-hint>下面两张图中上面一张是 osu!stable 的个人资料，下面一张是 osu!lazer 的个人资料。</info-hint></p>
 <p><img src="./2023Summary_osu_01.png" alt="image"></p>
 <p><img src="./2023Summary_osuLazer_01.png" alt="image"></p>
 <p>《Minecraft》方面，寒暑假的时候玩了群友开的服务器（</p>
@@ -426,14 +589,14 @@ CFG scale: 5
 <p>三月份的时候 <a href="https://i.apeiria.net/">Misaka13514</a> 送了我一个 YubiKey 5C NFC，从此就开始了我使用 YubiKey 的经历。那么什么是 YubiKey 呢？请看下面的介绍。</p>
 <blockquote>
 <p>YubiKey是由Yubico生产的身份认证设备，支持一次性密码（OTP）、公钥加密和身份认证，以及由FIDO联盟（FIDO U2F）开发的通用第二因素（U2F）协议。它让用户可以透过提交一次性密码或是使用设备产生的公开/私密金钥来安全地登录自己的帐户。针对不支持一次性密码的网站，YubiKey也可以存储静态密码。Facebook使用YubiKey作为员工凭证；Google同时为雇员和用户提供支持。还有一些密码管理器也支持YubiKey。
---- 维基百科&amp;lt;ref url="https://zh.wikipedia.org/wiki/YubiKey"&amp;gt;YubiKey - 维基百科&amp;lt;/ref&amp;gt;</p>
+--- 维基百科<ref url="https://zh.wikipedia.org/wiki/YubiKey">YubiKey - 维基百科</ref></p>
 </blockquote>
 <p>我入门 YubiKey 的时候除了官方的教程，主要参考的文章是这一篇：</p>
 <ul>
 <li><a href="https://blog.gimo.me/posts/getting-started-with-yubikey/">开始使用 YubiKey | Yuanji&amp;#39;s Blog</a></li>
 </ul>
 <p>我目前使用 YubiKey 的用途有两个，一个是将其作为网站的两步验证因素之一，另一个是用它来存储自己的 OpenPGP 私钥。对于两步验证和 OpenPGP 这两个概念不在这里过多介绍，简单来说前者指的是在登录网站账户的时候除了账户密码还同时要求另一个方式来验证，后者比较复杂，如果你完全不知道的话可以看<a href="https://zh.wikipedia.org/wiki/PGP">这个来自维基百科的链接</a>做进一步了解。</p>
-<p>&amp;lt;info-hint&amp;gt;虽然不用 YubiKey 这样的硬件安全密钥也可以设置两步验证或者比较安全的存储 OpenPGP 私钥，但是实际上在做这些事的时候 YubiKey 比传统方式安全得多。因为不管是 TOTP 还是 FIDO U2F 还是使用 GPG 加密/解密/签名文件，传统方式都必须要将 TOTP 私钥 / OpenPGP 私钥 / 其它各种类型的私钥存储在设备本地，如果相关应用没有妥善地存储私钥（比如不加密/加密方式极其简单/加密所用的密钥泄露）就有可能被恶意软件窃取。而对于 YubiKey 来说私钥一旦被导入 YubiKey 中就无法再次读出，确保了私钥不会泄露。&amp;lt;ref url="https://developers.yubico.com/U2F/Protocol_details/Key_generation.html"&amp;gt;Key generation&amp;lt;/ref&amp;gt;&amp;lt;ref url="https://support.yubico.com/hc/en-us/articles/360013790259-Using-Your-YubiKey-with-OpenPGP"&amp;gt;Using Your YubiKey with OpenPGP - Yubico&amp;lt;/ref&amp;gt;&amp;lt;ref url="https://developers.yubico.com/OATH/"&amp;gt;OATH&amp;lt;/ref&amp;gt;&amp;lt;/info-hint&amp;gt;</p>
+<p><info-hint>虽然不用 YubiKey 这样的硬件安全密钥也可以设置两步验证或者比较安全的存储 OpenPGP 私钥，但是实际上在做这些事的时候 YubiKey 比传统方式安全得多。因为不管是 TOTP 还是 FIDO U2F 还是使用 GPG 加密/解密/签名文件，传统方式都必须要将 TOTP 私钥 / OpenPGP 私钥 / 其它各种类型的私钥存储在设备本地，如果相关应用没有妥善地存储私钥（比如不加密/加密方式极其简单/加密所用的密钥泄露）就有可能被恶意软件窃取。而对于 YubiKey 来说私钥一旦被导入 YubiKey 中就无法再次读出，确保了私钥不会泄露。<ref url="https://developers.yubico.com/U2F/Protocol_details/Key_generation.html">Key generation</ref><ref url="https://support.yubico.com/hc/en-us/articles/360013790259-Using-Your-YubiKey-with-OpenPGP">Using Your YubiKey with OpenPGP - Yubico</ref><ref url="https://developers.yubico.com/OATH/">OATH</ref></info-hint></p>
 <p>具体到我的使用体验上，一方面我想说的是<strong>自己在 YubiKey 上设置的 PIN 一定要牢记</strong><del>（关于我忘记了自己两个月前为 YubiKey 的 OpenPGP 功能设置的 PIN 这件事（还好之前备份过私钥文件，重新导入回来了））</del>，另一方面就是要把 YubiKey 放在一个你认为合适的位置（要兼顾安全性和方便性），当然更不要随便乱放导致弄丢。</p>
 <h2>游戏</h2>
 <h3>原神</h3>
@@ -482,7 +645,7 @@ CFG scale: 5
 <li><a href="https://music.163.com/song?id=399367367">瞬間を閉じ込めた永遠</a></li>
 <li><a href="https://music.163.com/song?id=399366411">螺旋に伸びる色彩</a></li>
 </ul>
-<p>&amp;lt;warning-hint&amp;gt;这里提示一下在 Linux 下想要用 Wine 来运行《樱之诗》的人：这个游戏用原版 Wine 运行的话在某一段剧情会卡死崩溃。如果遇到了可以换用 Proton 运行时来运行。&amp;lt;/warning-hint&amp;gt;</p>
+<p><warning-hint>这里提示一下在 Linux 下想要用 Wine 来运行《樱之诗》的人：这个游戏用原版 Wine 运行的话在某一段剧情会卡死崩溃。如果遇到了可以换用 Proton 运行时来运行。</warning-hint></p>
 <p>喜欢《青空下的加缪》一方面是因为气氛很美，作画也很精美，另一方面剧情至少我觉得很感人。结局有点遗憾，不过从整个故事的角度来看也是一种必然。</p>
 <p>动画方面就挑几部我这几个月看的又很喜欢的动画来评价吧。</p>
 <p>首先是《虚构推理》。Bangumi 上这部的评分好像不是很高，但是我自己还是很喜欢的：我觉得这部番的女主（<a href="https://bgm.tv/character/66614">岩永琴子</a>）很好看，在性格上又很有特点；这部番的整体画风还不错；故事背景、具体情节和故事主题从整体来讲都比较对我的胃口。这部番和《冰菓》给我的感觉不太相同，但我觉得它比《冰菓》还要更有意思一些（也许一个原因是我对千反田爱榴完全无感，但是这部番的女主还挺有趣的）。</p>
@@ -526,7 +689,7 @@ CFG scale: 5
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=hackergame-2022.md</id>
       <content type="html">
           <p>参加了中国科学技术大学第九届信息安全大赛（即 Hackergame 2022），最终总分 4600，排名 64，排名有点遗憾地没有达到前 50，不过本来我的 CTF 经验也很少，而且，比赛的过程还是很开心的，也学到了很多很有意思的知识。</p>
-<p>&amp;lt;info-hint&amp;gt;Hackergame 2022 比赛已于 2022 年 10 月 29 日中午 12:00 正式结束，本文发布于当天晚上，不存在提前公布题解的情况。&amp;lt;/info-hint&amp;gt;</p>
+<p><info-hint>Hackergame 2022 比赛已于 2022 年 10 月 29 日中午 12:00 正式结束，本文发布于当天晚上，不存在提前公布题解的情况。</info-hint></p>
 <h1>一些感想</h1>
 <p>这次给我印象很深的是「杯窗鹅影」和「传达不到的文件」这两题，一个是因为自己平时用 Wine 也挺多的，但是却很少思考 Wine 存在的安全问题。包括我在网上搜集「Wine 如何访问 Linux 根目录」相关资料的时候，也发现很多人其实都是认为删除了 Wine 默认的 <code>Z:</code> 磁盘映射之后，Wine 运行的程序就无法访问 Linux 根目录了（我自己在做这道题之前也是这样想的）；再比如「传达不到的文件」这一题，即使设置了文件权限，也不代表文件完全处于保护之中，所以这两道题给我的启示就是说计算机安全是没有也不能「想当然」的。可惜的是「传达不到的文件」这题我在比赛时未能想到解题方法。</p>
 <p>另外一个给我印象很深的是「evilCallback」这题，V8 是 Chromium 所使用的 JavaScript 引擎，使用的是非常广泛的，并且它的开发者的水平都是非常顶尖的，但是这样的程序也并不是完美的，而计算机安全中任何一个小小的漏洞和疏忽（即使漏洞想要被利用非常困难，但也是有可能的）都有可能导致不良的后果。所以说计算机安全真的是一个很深奥的学问。当然，以我的水平是无法利用「evilCallback」的漏洞的（（</p>
@@ -626,7 +789,7 @@ with open(&amp;quot;./checkpoint/model.pt&amp;quot;, &amp;quot;wb&amp;quot;) as 
       <content type="html">
           <p>在 Minecraft 中聊天是一件趣事，然而过往的聊天记录，却无法简单地回顾。</p>
 <p>我们怎样才能找回过往在 Minecraft 中留下的点点滴滴的回忆呢？</p>
-<p>&amp;lt;info-hint&amp;gt;本文中，导出的聊天记录是<strong>临时所用的中间格式</strong>。只有在通过本文第二部分的检索程序实现才能够从导出的聊天记录中检索消息。&amp;lt;/info-hint&amp;gt;</p>
+<p><info-hint>本文中，导出的聊天记录是<strong>临时所用的中间格式</strong>。只有在通过本文第二部分的检索程序实现才能够从导出的聊天记录中检索消息。</info-hint></p>
 <h2>特别感谢</h2>
 <p>本文中的数据检索相关功能主要是由 <strong><a href="https://github.com/Misaka13514/">欠陥電気 𝑹𝒂𝒅𝒊𝒐𝑵𝒐𝒊𝒔𝒆</a></strong> 开发和完善。</p>
 <h2>准备工作</h2>
