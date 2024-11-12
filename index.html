@@ -1833,24 +1833,31 @@
             blog["全局主题设置"]["链接颜色"] = "#993366";
             document.querySelector("#theme_css").innerHTML = `
               .bg-light {
-                background-color: #fffff2!important;
+                background-color: #fffff240!important;
                 border-bottom: 1px solid #6699cc;
                 margin-bottom: 35px
               }
 
               body {
-                background-color:#fffff2;
+                background-color:#ffffe2;
               }
 
-              .article-item, .article-content, .page-content, .articlebottomnav, .tag-content {
+              .article-item, .article-content, .page-content, .articlebottomnav, .tag-content, .bbg-comment-area {
                 border: 1px solid #874342;
-                background: transparent;
+                background: #fffff2a0;
                 box-shadow: none;
               }
 
               #blog_index_title, #current_article_title, .blog_title_jumbotron h1 {
                 color: #206c89;
               }
+
+              code, pre {
+                background-color: #ffffe0;
+                color: #993366;
+                border-radius: 8px;
+              }
+              
             `;
           }
         }
