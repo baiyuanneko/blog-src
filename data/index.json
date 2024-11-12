@@ -51,8 +51,8 @@
   "全局评论设置": {
     "启用valine评论": true,
     "valine设置": {
-      "leancloud_appid": "",
-      "leancloud_appkey": "",
+      "leancloud_appid": "SykuVs4qcWMkl4RUtKEUlmog-gzGzoHsz",
+      "leancloud_appkey": "0jowkR4ct0lJbWcvocymEkKw",
       "记录评论者ip": true,
       "记录访问量": true,
       "评论区占位符（提示文字）": "",
