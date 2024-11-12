@@ -3,7 +3,7 @@
     <subtitle>「初めて守りたくて　寄り添いこの空のもとで」 </subtitle>
     <link href="https://nekomoe.xyz/atom.xml" rel="self"/>
     <link href="https://nekomoe.xyz"/>
-    <updated>2024-11-11T13:07:59.562Z</updated>
+    <updated>2024-11-12T07:33:58.004Z</updated>
     <id>https://nekomoe.xyz</id>
     <author>
         <name>柏园猫のBlog</name>
@@ -14,6 +14,7 @@
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=surface-go-linux.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=surface-go-linux.md</id>
       <content type="html">
+        <![CDATA[
           <p>虽然已经忘记了自己第一次使用平板电脑是什么时候，不过我还记得自己第一次拥有属于自己的平板电脑是一台 iPad mini 2. 那是在我小学的时候，我父母买给我的。这也几乎是我第一次接触苹果设备。再之后，应该是初中的时候，因为 iPad mini 的电池寿命已尽，我父母给我换了 iPad（不过现在已经忘记是第几代型号了）。那时候我折腾过些什么呢？越狱嘛，虽然尝试过不过失败了，毕竟当时欠缺相关知识而且技术力不够。对当时的印象只有陪伴我折腾苹果设备的爱思助手/iTools这种第三方工具了。不过令人羞愧的是我用爱思助手最大的作用只用来免费下载盗版软件。而且，假如让我重生到初中重新开始使用苹果设备，现在的我也不屑于把这种第三方的商业软件安装到自己的设备上了。</p>
 <p>iPad 的体验当然没得说：相比 Android 平板显著更好的生态、统一的体验、性能尚可的配置，这些都是 iPad 相比别家的优势。不过我是从没觉得做果粉有意思过。虽然现在我什么粉都不是，但如果让我在做果粉和软粉中选择一项，我大概会选择后者。觉得微软的生态有意思对我来说大抵是从初中开始的。彼时微软刚刚推出 Windows 8，当微软的 Windows 8 把科技感满满的 Metro 磁贴设计广而告之的时候，这个设计风格对于一个当时沉浸在 Win7 Aero 效果中的小孩哥（其实就是我）的震撼是无以言表的。换句话说这也可以说是给我对软件 UI 设计和扁平化风格的启蒙吧。</p>
 <p>从那时起我便梦想着有一台 Surface——我记得当时微软商城官网挂着的是经典的 Surface Pro 3，宣传视频和贴吧里吧友的使用体验看得我眼馋不已，但是毕竟父母已经给我买了 iPad，因此我是无缘体验到了。时光飞速流转，我已经步入大学两年了，经过各种机缘巧合，我在 <a href="https://chihuo2104.dev">chihuo2104</a> 的推荐下收了一台成色尚可的 Surface Go 一代。虽然现在的我已不是软粉，也不再执着于折腾各种系统了。</p>
@@ -66,6 +67,8 @@
 <p>标题 neta 自游戏《ISLAND》的章节小标题之一，没有什么特别的含义（</p>
 <p><img src="./images/surface-go-fastfetch.jpg" alt="image"></p>
 
+
+        ]]>
       </content>
       <summary type="html">简单折腾了一番 Surface Go 而写出的小笔记</summary>
       <updated>2024-11-11T09:13:26.793Z</updated>
@@ -75,6 +78,7 @@
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=deploy-flask-to-production.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=deploy-flask-to-production.md</id>
       <content type="html">
+        <![CDATA[
           <p><img src="./images/Azusa20240902.png" alt="图文无关，来源：Blue Archive"></p>
 <p>(↑ 图文无关，图片来源：Blue Archive / 白洲梓)</p>
 <h2>前言</h2>
@@ -229,6 +233,8 @@ waitress-serve --host 127.0.0.1 --port 8000 server:app
 <p>在与 Cloudflare 配合使用时，想要提醒读者选择适当的 SSL/TLS 模式，特别是避免使用默认的 Flexible 模式，以防止造成无限重定向的问题。此外，文章中还提供了获取客户端真实 IP 的方法，强调了在反向代理配置中确保请求来自 Cloudflare 的重要性，以提高安全性。</p>
 <p>最后，文章提到通过白名单 Cloudflare 的 IP 段，能够有效防止直接访问源服务器，确保只有经过 Cloudflare 的请求被允许。这些措施共同提升了应用的安全性和稳定性，使得在生产环境中运行 Flask 应用更加可靠。</p>
 
+
+        ]]>
       </content>
       <summary type="html">当我们完成了一个 Flask 项目，如何将它部署到生产环境中呢？</summary>
       <updated>2024-09-01T13:05:51.694Z</updated>
@@ -238,6 +244,7 @@ waitress-serve --host 127.0.0.1 --port 8000 server:app
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=stable-diffusion-webui-intel-igpu.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=stable-diffusion-webui-intel-igpu.md</id>
       <content type="html">
+        <![CDATA[
           <h2>前言：好时代，来临力？</h2>
 <p>Stable Diffusion 刚出来的时候我就想玩，不过我笔记本电脑上并没有 Nvidia 显卡，或者更准确的说，没有任何独立显卡，所以只能使用纯 CPU 跑图，生成一张图常常需要好几分钟，非常慢。</p>
 <p>忘记去年什么时候就已经听说了 <a href="https://en.wikipedia.org/wiki/OpenVINO">OpenVINO</a> 提供一个支持核显加速的 Stable Diffusion 发行版，但是由于各种原因，一直没能运行成功，这几天终于成功运行起来了。<strong>核显能够跑ai的好时代，终于来临力！</strong></p>
@@ -305,6 +312,8 @@ pip install --pre openvino
 <h2>结语</h2>
 <p>现在其实有很多方法可以让核显加速 Stable Diffusion 的图像生成，除了本文中提到的来自 OpenVINO 的 Stable Diffusion WebUI 构建之外，这里再推荐一下 <a href="https://mzwing.eu.org/">mzwing</a> 前几天编译的<a href="https://github.com/MZWNET/actions/releases/tag/sd-master-48bcce4">一个支持 CLBLast 的 stablediffusion.cpp 构建</a>，虽然最近比较忙还没有空去尝试这个版本不过应该也可以很好的利用核显的性能，从而带来更快的图像生成。感谢这些开源贡献者，让核显上跑 AI 成为了一种可能。</p>
 
+
+        ]]>
       </content>
       <summary type="html">使用来自 OpenVINO 的 Stable Diffusion WebUI 可以启用核显加速，然而存在一些小问题</summary>
       <updated>2024-03-27T00:00:00.000Z</updated>
@@ -314,6 +323,7 @@ pip install --pre openvino
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=my-2023.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=my-2023.md</id>
       <content type="html">
+        <![CDATA[
           <p><info-hint>本文章中含有大量图片（共约 28.8 MB），请注意流量消耗。</info-hint></p>
 <p>坦白地说自大学以来咱就一直处在一个动力不是很足的状态下，不过还是顺利活过了 2023 年，也有很多事情让我开心 或者觉得有意义（</p>
 <p>首先是 2023 年咱终于体会到了什么是真正的大学生活，2022 年因为疫情所以几乎什么都干不了，现在看来对我来说影响最大的就是紧闭着的校门导致的不能点外卖或者出去吃，因为学校食堂真的会吃腻（对我来说）而且一些菜确实烧得不好吃。和室友出去吃饭还是很开心的，但是必须承认的一点是即便算是体会到了完全体的大学生活，也与我以前的想象差距不小。比如，大学虽然有很多自由时间和精力，但是不意味着自己就会进入自主学习或者更上进的状态，也就是说拖延症这种问题并不会因为上了大学自行解决（）自控力还在其次，性格或者成长上的进步也需要自己去努力，而不是光是靠更轻松的生活，就觉得这些问题都直接都被解决了。</p>
@@ -376,6 +386,8 @@ pip install --pre openvino
 <h2>结语</h2>
 <p>希望自己能在新的一年里技术力越来越高，也祝正在看这篇文章的读者新年快乐！</p>
 
+
+        ]]>
       </content>
       <summary type="html">我的 2023</summary>
       <updated>2024-01-25T00:00:00.000Z</updated>
@@ -385,6 +397,7 @@ pip install --pre openvino
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=a-failure-in-web-ocr.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=a-failure-in-web-ocr.md</id>
       <content type="html">
+        <![CDATA[
           <p>想特别地缅怀（雾）一下我之前进行的比较失败的 Web 端离线 OCR 尝试。</p>
 <p>想做这个的起因是因为虽然网页端有很多在线 OCR 的，但是它们大多数都是上传到服务器端进行的。即使它写了服务器端不会保存你的图像数据，不过这种事谁说得准呢（）于是就开始了我的折腾。首先这种场景大概率是要用到 WebAssembly 的，于是直接在 Google 上搜索 <code>ocr wasm</code>。第一个结果就是 tesseract-wasm，看起来非常不错，而且还提供了使用的 Example，只是它的示例上不支持中文。但是示例不支持并不代表技术上不支持，反正本质都是 Tesseract，直接把英语模型换成中文模型其实就能正常工作了。</p>
 <p>最核心的 OCR 部分既然是可以实现的，那么剩下的就是基于这个方向上继续做了。</p>
@@ -635,6 +648,8 @@ Sampler: DPM++ 2S a
 CFG scale: 5
 </code></pre>
 
+
+        ]]>
       </content>
       <summary type="html">想做这个的起因是因为虽然网页端有很多在线 OCR 的，但是它们大多数都是上传到服务器端进行的。</summary>
       <updated>2024-01-07T00:00:00.000Z</updated>
@@ -644,6 +659,7 @@ CFG scale: 5
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=2023-5.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=2023-5.md</id>
       <content type="html">
+        <![CDATA[
           <p>距离我上次写博客已经隔了将近五个月的时间了，我这段时间不更新的原因其实是 <del>单纯就是懒得写（误）</del> 一方面我这几个月确实没特别钻研过什么复杂的东西，水平也不到位，虽然可以「为了让自己的博客看上去充实而作为一个自己也刚入门某个东西的人还要去写一篇类似XX入门指南的东西」，但是我自己是不想这么做，而写写自己的生活或者评析一下看过的动画/玩过的Galgame这种文章我写起来也没有之前写这类文章的那种感觉了。我试着推理一下可能的原因，其实现在这个博客刚刚建立是在2021年的8月份，从这个时间一直到去年的7月份就是我上高三的时间，那段时间里在各种大考小考中写了无数篇议论文，虽然挺累的，但是这种频繁的训练大概也激发了我写点什么东西的冲动，而到了现在我就变懒了，乐。</p>
 <p>下面我就随便说说这几个月里我觉得值得说一说的事情。</p>
 <h2>开始使用 YubiKey</h2>
@@ -713,6 +729,8 @@ CFG scale: 5
 <p>其次是《天使降临到我身边》，OP 和 ED 都很好听！（不过我更喜欢 ED 一点）</p>
 <p>目前我正在看的动画是<a href="https://bgm.tv/subject/386809">《【推しの子】》</a>和<a href="https://bgm.tv/subject/909">《とらドラ！》</a>。</p>
 
+
+        ]]>
       </content>
       <summary type="html">关于在没写博客的这五个月里我都干了些什么</summary>
       <updated>2023-05-20T00:00:00.000Z</updated>
@@ -722,6 +740,7 @@ CFG scale: 5
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=my-2022.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=my-2022.md</id>
       <content type="html">
+        <![CDATA[
           <p>2022 年里我也是顺利从高中毕业，迈入大学生活了。因为疫情原因，从2022年3月开始大概两个半月的时间我们高中都是以网课的形式在上课，感谢这段时间里香子兰群里的大家在 Minecraft 里的陪伴，让我在这段枯燥的学习过程之余多了许多愉快的时光。也感谢 <a href="https://i.apeiria.net/">Misaka13514</a>、<a href="https://koishi514.ml/">scientificworld</a>、<a href="https://mzwing.eu.org/">mzwing</a>、<a href="https://im.chihuo2104.dev/">chihuo2104</a> 以及其它很多人对我的高考祝福。</p>
 <p>高考之后的这个暑假我大概没有做很多事情，虽然回想起来的话好像确实是做了一个<a href="https://github.com/baiyuanneko/my-bot">能在群聊中使用的 bot</a> 和一个<a href="https://nekomoe.xyz/index.html?type=article&amp;filename=minecraft-chat.md">能从 Minecraft 日志中导出聊天记录的程序</a>，但是我其实真正花在代码上的时间并不多，还是有点无聊的。这里还是感谢这段时间里香子兰群里的大家在 Minecraft 中的陪伴（特别是 <a href="https://i.apeiria.net/">Misaka13514</a> 和 <a href="https://koishi514.ml/">scientificworld</a>），让我消磨了无聊的时间。</p>
 <p>大学里开了一门教 Python 的课，在这门课中我算是基本掌握了 Python 的语法，然后我在大概是接近年底的时候用Python 3（Pypy 3）稍微刷了一些洛谷上的题目，大致学会了深度优先搜索的算法和一些常见的剪枝方法，也了解了一些算法思想（比如“贪心算法”）。动态规划看着就好难所以没什么兴趣学习。目前也还没有学习 C++，因为暂时感觉对我目前用处不大，也许在之后时间比较有空并且我比较有兴趣的时候会继续学习 C++。</p>
@@ -740,6 +759,8 @@ CFG scale: 5
 <li><a href="https://mujitogawa.github.io/posts/b7a38911/">2022总结&amp;amp;My Resolutions</a> by <a href="https://mujitogawa.github.io/about/">Muji Togawa</a></li>
 </ul>
 
+
+        ]]>
       </content>
       <summary type="html">关于我的 2022</summary>
       <updated>2023-01-10T00:00:00.000Z</updated>
@@ -749,6 +770,7 @@ CFG scale: 5
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=hackergame-2022.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=hackergame-2022.md</id>
       <content type="html">
+        <![CDATA[
           <p>参加了中国科学技术大学第九届信息安全大赛（即 Hackergame 2022），最终总分 4600，排名 64，排名有点遗憾地没有达到前 50，不过本来我的 CTF 经验也很少，而且，比赛的过程还是很开心的，也学到了很多很有意思的知识。</p>
 <p><info-hint>Hackergame 2022 比赛已于 2022 年 10 月 29 日中午 12:00 正式结束，本文发布于当天晚上，不存在提前公布题解的情况。</info-hint></p>
 <h1>一些感想</h1>
@@ -839,6 +861,8 @@ with open(&amp;quot;./checkpoint/model.pt&amp;quot;, &amp;quot;wb&amp;quot;) as 
 <li><a href="https://blog.apeiria.net/2022/hackergame-2022-writeup/">Hackergame 2022 WriteUp</a> by <a href="https://apeiria.net/">欠陥電気</a></li>
 </ul>
 
+
+        ]]>
       </content>
       <summary type="html">参加了中国科学技术大学第九届信息安全大赛（即 Hackergame 2022），最终总分 4600，排名 64，排名有点遗憾地没有达到前 50，不过本来我的 CTF 经验也很少，而且，比赛的过程还是很开心的，也学到了很多很有意思的知识。</summary>
       <updated>2022-10-29T12:00:00.000Z</updated>
@@ -848,6 +872,7 @@ with open(&amp;quot;./checkpoint/model.pt&amp;quot;, &amp;quot;wb&amp;quot;) as 
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=minecraft-chat.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=minecraft-chat.md</id>
       <content type="html">
+        <![CDATA[
           <p>在 Minecraft 中聊天是一件趣事，然而过往的聊天记录，却无法简单地回顾。</p>
 <p>我们怎样才能找回过往在 Minecraft 中留下的点点滴滴的回忆呢？</p>
 <p><info-hint>本文中，导出的聊天记录是<strong>临时所用的中间格式</strong>。只有在通过本文第二部分的检索程序实现才能够从导出的聊天记录中检索消息。</info-hint></p>
@@ -1006,6 +1031,8 @@ source/1.14.4/2022-01-02-1.log
 <h3>按条件检索消息</h3>
 <p><img src="https://s2.loli.net/2022/10/02/gzNax9beBVWonfq.png" alt="image"></p>
 
+
+        ]]>
       </content>
       <summary type="html">Python 和 Node.js 实现 Minecraft 聊天记录导出和检索程序</summary>
       <updated>2022-10-02T00:00:00.000Z</updated>
@@ -1015,6 +1042,7 @@ source/1.14.4/2022-01-02-1.log
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=2022-august-summary.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=2022-august-summary.md</id>
       <content type="html">
+        <![CDATA[
           <p>最近仍然是在玩 Minecraft，8月上旬玩了一个单方块空岛生存服务器，中下旬又去玩创造服务器。不知不觉中 Minecraft 已经成了我玩的时间最久的一个游戏了。</p>
 <p>我最早接触 Minecraft 是 2017 年左右，那时候我已经使用 Ubuntu 不短的时间了，逛贴吧的时候在 Linux 贴吧的一篇帖子里找到了一篇在 Linux 上安装 Minecraft 的教程，想着自己平时也没什么娱乐，不如在 Linux 上安装个游戏给自己娱乐一下，于是就在 Linux 上安装并入门了 Minecraft。</p>
 <p>我喜欢 Minecraft 是因为它很轻松。我到现在都没试过在单人生存打过末影龙，更别说什么红石啊大型的机械啊什么的，但是这都完全不影响我游戏嘛。我以前连附魔都不会的时候，去服务器里玩照样跟别人一起玩的很开心，反正又不 PVP ，即使什么也不会，反正只要打得过怪也不是不够用。</p>
@@ -1052,6 +1080,8 @@ source/1.14.4/2022-01-02-1.log
 </blockquote>
 <p>如果你的歌曲口味和我类似的话，或者是想要推荐歌曲，可以留言告诉我。</p>
 
+
+        ]]>
       </content>
       <summary type="html">夏天已经过去，秋天就要到了</summary>
       <updated>2022-09-06T00:00:00.000Z</updated>
@@ -1061,6 +1091,7 @@ source/1.14.4/2022-01-02-1.log
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=5QHi2BixsR3P.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=5QHi2BixsR3P.md</id>
       <content type="html">
+        <![CDATA[
           <p>七月初，我开始读《樱风堂书店》，花了两天时间看完了。这本书让我很感动。首先是书中描写的书店让我有一种向往之情。以前，我对书店没什么好印象，我对书店不多的印象是小时候小学老师让买教辅，我拖着疲惫的身躯，天都黑了，还要去买书。但是这本书中描写的书店不一样。</p>
 <p>首先是，在这本书中描写的书店里，书店店员排列书在书架上的位置不是随便摆放的，而是由店员自己对书店风格、读者的阅读习惯、店员对书的理解等多个因素的理解，而最终做出的排列，凝结了整个书店和店员对书的热爱。这点和电子书店是不同的。</p>
 <p>我用过一段时间的 Kindle，也用过一部分阅读 App。他们的书店首页一般由“编辑推荐”、“大家都在看”和“个性化推荐”组成。里面的编辑推荐是由 App 的运营团队挑选的，但是往往编辑推荐的质量都不高（事实上我不认为App运营团队有能力和意愿推荐好看的书籍，更何况所谓的推荐里有很多广告），而“大家都在看”往往是当时的热门书籍（比如《少年的你》电影放映的时候，“大家都在看”栏目里会有《少年的你，如此美丽》这本原作小说，反映了电影带动了原作书籍阅读量的增长），但是大家都在看不代表书的质量非常好，比如《天才在左》这本书，在许多阅读 App 的评分都非常的高，也一直名列排行榜的前几位，但是实际上它的内容非常有争议：这本书声称自己是一篇“心理障碍者”的访谈录，但是许多专业人士都指出，这篇访谈录显然是艺术加工获得的，而且这种加工美化了这些障碍人群的想法，让大众觉得心理障碍是一种很酷的东西，但是实际上根本不是。</p>
@@ -1084,6 +1115,8 @@ source/1.14.4/2022-01-02-1.log
 <p>从上周又开始练习双拼了。此前，我只了解过双拼的原理，但是没有学习过，这次，我选择了一个双拼方案（小鹤双拼）然后一直用到目前为止学习了大约一周。本来打算这篇文章全用双拼完成的，但是在打了几行字之后发现目前我的双拼效率还是不足以让我思路流畅地写完一篇文章，所以这篇文章的大部分内容还是用全拼完成的。</p>
 <p>最后，七夕节快乐。我回想了一下我对七夕的印象，想到的只有这首洛天依演唱的歌曲：<a href="https://www.bilibili.com/video/BV1Cs411m77G">《七夕》</a>，还是挺好听的。我刚刚打开重温了一下，发现同时观看人数达到了3人之多，作为一首七年前的曲子，而且直到现在这个曲子的播放量只有5.2万，现在还有3个人同时观看，说明跟我一样有很多人喜欢这首曲子。</p>
 
+
+        ]]>
       </content>
       <summary type="html">今天是 8 月 3 日，七夕就要到了</summary>
       <updated>2022-08-03T00:00:00.000Z</updated>
@@ -1093,6 +1126,7 @@ source/1.14.4/2022-01-02-1.log
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=hDa5T3wDjTRj.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=hDa5T3wDjTRj.md</id>
       <content type="html">
+        <![CDATA[
           <p><img src="https://s2.loli.net/2022/07/12/AqRbeBnWVETN7d5.png" alt="image"></p>
 <p>众所周知，Linux 桌面的 HiDPI 存在着种种问题。为了守护我的视力健康，我又回到了 Windows。</p>
 <p>然而，习惯了 Fish 的交互式体验，因此我想要在 Windows 下也默认使用 Fish.</p>
@@ -1141,6 +1175,8 @@ source/1.14.4/2022-01-02-1.log
 <p>效果图（VS Code）：</p>
 <p><img src="https://s2.loli.net/2022/07/12/zhx21BCtGSfkrwW.png" alt="image"></p>
 
+
+        ]]>
       </content>
       <summary type="html">在 Windows Terminal、VS Code 中配置 Fish Shell</summary>
       <updated>2022-07-12T00:00:00.000Z</updated>
@@ -1150,6 +1186,7 @@ source/1.14.4/2022-01-02-1.log
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=NSyJ4KZWmC5s.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=NSyJ4KZWmC5s.md</id>
       <content type="html">
+        <![CDATA[
           <blockquote>
 <p>很快就消失了 你那如初夏的微风一般的背影</p>
 <p>逐渐朦胧在被打湿的视野之中</p>
@@ -1179,6 +1216,8 @@ source/1.14.4/2022-01-02-1.log
 <hr>
 <p>关于 SPRB，我最喜欢的是野村美希和白羽。白羽不用说是人气角色，性格非常惹人喜欢。野村美希则是我自己比较喜欢的性格。</p>
 
+
+        ]]>
       </content>
       <summary type="html">今天是 6 月 30 号，夏天就要到了</summary>
       <updated>2022-06-30T00:00:00.000Z</updated>
@@ -1188,6 +1227,7 @@ source/1.14.4/2022-01-02-1.log
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=Hb2Y6syPnZfA.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=Hb2Y6syPnZfA.md</id>
       <content type="html">
+        <![CDATA[
           <p>俗话说：好马配好鞍。最近获得了一台新电脑 Thinbook 16 G4+，但是它原装的是 Windows 11。本来，我用 Windows 平台的一大理由就是腾讯会议的 Linux 版本有无数不支持的功能，这无疑会为我的网课带来许多尴尬，但是，因为下周就线下复课了，所以腾讯会议也可以暂时抛弃了，因此为什么不试一试 Linux 呢？</p>
 <p>对于我来说，在发行版上选择 Ubuntu 22.04 的原因如下：</p>
 <ul>
@@ -1216,6 +1256,8 @@ source/1.14.4/2022-01-02-1.log
 <h2>其它问题</h2>
 <p>目前对我影响最大的几个问题已经解决，目前 Thinkbook 16 G4+对桌面 Linux 的支持还不是很好，如果希望稳定的话还是可以等等下半年的 Ubuntu 22.10。</p>
 
+
+        ]]>
       </content>
       <summary type="html">编译安装 RTL8852BE 无线网卡驱动，安装 OEM 内核以增强对 Xe 显卡支持，修改内核启动参数来解决闪屏问题</summary>
       <updated>2022-06-02T00:00:00.000Z</updated>
@@ -1225,6 +1267,7 @@ source/1.14.4/2022-01-02-1.log
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=heKzxSJZcdeR.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=heKzxSJZcdeR.md</id>
       <content type="html">
+        <![CDATA[
           <h2>前言</h2>
 <p>WSL 是在 Windows 上配置 Linux 环境的简单方法，WSL 目前有两个版本，WSL 1 和 WSL 2。关于它们的区别和联系，可以参考 <a href="https://docs.microsoft.com/zh-cn/windows/wsl/compare-versions">这篇微软的官方文档</a>。简单来说：</p>
 <ul>
@@ -1285,6 +1328,8 @@ export GTK_IM_MODULE=fcitx
 <h2>开发环境配置</h2>
 <p>许多开发工具已有对 WSL 的支持，可以直接调用 WSL 环境来执行操作。如 Visual Studio Code 的 Remote - WSL 插件等等。这一方面可参考开发工具的官方文档；WSL 本身的开发环境配置与正常的 Linux 大同小异。</p>
 
+
+        ]]>
       </content>
       <summary type="html">WSL1 的安装、图形界面的安装、中文输入法和中文支持的安装</summary>
       <updated>2022-05-06T00:00:00.000Z</updated>
@@ -1294,6 +1339,7 @@ export GTK_IM_MODULE=fcitx
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=W8yNkPetJyib.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=W8yNkPetJyib.md</id>
       <content type="html">
+        <![CDATA[
           <p>换了个新域名：<code>nekomoe.xyz</code>。</p>
 <p>对于<code>neko</code>，这里指的是猫以及猫娘，我觉得猫的习性和外貌都很可爱（<a href="https://fiveyellowmice.com/zh/posts/2020/02/kitty-cats-why-are-they-so-cute.html">科学解释见此</a>）。我没有养过猫但是经常看猫的视频，所以我对猫的好印象主要还是来源于想象，可能也因为是自己脑补的因素在所以觉得Ta们格外的完美和可爱。</p>
 <p>在今年五一假期的前两天看完了《轻音少女》的第一季，我最喜欢的镜头就是OP开头平泽唯弹吉他的那一段，看起来特别帅。至于有人说真正学吉他需要的时间比平泽唯所需的时间长得多，我的评价是：<del>我不听，人家平泽唯天赋高不行吗</del>。学习吉他不容易，但是作为普通观众存留一点不切实际的幻想我觉得应该也OK。就像云吸猫，我只是觉得猫猫们真是好啊。</p>
@@ -1304,6 +1350,8 @@ export GTK_IM_MODULE=fcitx
 <p>说到轻音少女，其实我很少看番剧，这次一口气补完一季只是一时兴起。<del>可能坚持力不强的人干什么都坚持不下去，连看番剧都坚持不了。</del>果然有的时候东游西逛的生活感觉挺适合我的。</p>
 <p>从三月份又开始玩Minecraft了。说起来Minecraft是我玩的最久的非文字类游戏（虽然我总共也没玩过多少游戏）。对我来说决定性的原因大概是不需要钻研技能搭配、碎片合成、卷轴强化或者各种繁杂的数值这种既费脑细胞又费肝的东西，而且对注意力（反应速度）的要求也不是很高。上一个让我感觉到这么开心的游戏是《植物大战僵尸》。</p>
 
+
+        ]]>
       </content>
       <summary type="html">如题，一些流水账</summary>
       <updated>2022-05-03T00:00:00.000Z</updated>
@@ -1313,6 +1361,7 @@ export GTK_IM_MODULE=fcitx
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=2ZWC47D3rnRe.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=2ZWC47D3rnRe.md</id>
       <content type="html">
+        <![CDATA[
           <p>你听说过 NixOS 吗？</p>
 <p>一个 Linux 发行版，但它有两大特点：</p>
 <ul>
@@ -1363,6 +1412,8 @@ export GTK_IM_MODULE=fcitx
 <p>为什么我想尝试 NixOS 呢？就我个人而言是因为觉得相比其它发行版配置文件的复杂和零散，NixOS 从另一个角度看待配置文件的意义和作用，设计出了兼具<strong>可重复性</strong>，<strong>声明式</strong>，<strong>可靠性</strong>的发行版，这种理念和角度令我耳目一新。</p>
 <p>然而，这个发行版的使用人数不多，因此打包不多，不能很方便的使用许多软件，我暂且没有更深入地研究。</p>
 
+
+        ]]>
       </content>
       <summary type="html">关于 NixOS 的一个简单的教程和使用体验</summary>
       <updated>2022-03-18T00:00:00.000Z</updated>
@@ -1372,6 +1423,7 @@ export GTK_IM_MODULE=fcitx
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=QX52HKPXfNBp.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=QX52HKPXfNBp.md</id>
       <content type="html">
+        <![CDATA[
           <blockquote>
 <p>Just a little more time</p>
 <p>Let&amp;#39;s stay together, my friend</p>
@@ -1429,6 +1481,8 @@ export GTK_IM_MODULE=fcitx
 </blockquote>
 <p>今年年初有一则新闻：开源项目 Faker.js 的作者删除了其所有源代码，并将相关的 NPM 包替换为恶意的代码。其原因是，项目作者希望以此方式呼吁大家注意他因火灾而失去财产的悲惨境遇，并希望大家能给其提供帮助。不过他的目的并没有达到，社区迅速 Fork 了他的项目，然后他也因这个行为而遭到了社区的批评和不满。本应提倡互相分享的开源社区，却沦为了互相伤害的境地，“现实比小说更荒谬”，“头脑比天空更广阔”（《头脑，比天空广阔》），再比如chihuo2104所说的<a href="https://blog.chihuo2104.dev/newcdn-unpkg-ghraw/">“JSDelivr 坠落事件”</a>，美好的东西不会一直存在，我们既然生活在如此多的谎言和误解中，我就想到了一句话：“人不能生活在完全的真实中，那就像是在纯氧中呼吸一样。当真实和谎言恰如其分地混合之后，人才能正常地思考和生活。”（<a href="https://store.steampowered.com/app/1246020">《NOESIS-虚假的记忆之物语》</a>）</p>
 
+
+        ]]>
       </content>
       <summary type="html">写在初春的一些话，或者说，初春饰利的一些话</summary>
       <updated>2022-03-05T00:00:00.000Z</updated>
@@ -1438,6 +1492,7 @@ export GTK_IM_MODULE=fcitx
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=4dKFj8X5Nwd3.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=4dKFj8X5Nwd3.md</id>
       <content type="html">
+        <![CDATA[
           <p>最近一个游戏作品引起了许多人的注意：<a href="https://store.steampowered.com/app/1451940/_/?l=schinese">《Needy Girl Overdose》</a>。很多人第一眼就被其视觉风格所吸引：渐变的粉色配色、复古的UI界面让人仿佛穿越回2000年代。</p>
 <p>那么，这种风格是什么呢？其实这种风格早在2012年就已兴起，它被称为<a href="https://zh.wikipedia.org/wiki/%E8%92%B8%E6%B0%94%E6%B3%A2">“蒸汽波”</a>。</p>
 <p><img src="https://s2.loli.net/2022/02/06/RCGZ3Qivb25Mjms.jpg" alt="image"></p>
@@ -1478,6 +1533,8 @@ export GTK_IM_MODULE=fcitx
 <p>一方面，<strong>我们能否在大众文化的洪流中保持自我？流行文化和消费主义带给我们的，真的是我们自己想要的吗？</strong> 比如说，我们为什么喜欢看直播？我们为什么忍不住“买买买”？另一个例子是，反过来说，许多不健康的直播题材，正是来源于大众的一种猎奇心理所带来的恶果，比如本作品的Angel Fall Down路线和NoFuture路线。</p>
 <p>另一方面，不健康直播题材、精神问题、网络霸凌等等问题仍需解决。（本作品中反映这一点的是结局INTERNET OVERDOSE。）一项研究显示，当代年轻人中面临着精神方面的困扰的比例远比我们想象中的要多，所以我们需要关注当代人的心理健康问题。</p>
 
+
+        ]]>
       </content>
       <summary type="html">最近热度很高的游戏《Needy Girl Overdose》为什么吸引人？为什么它的画面风格如此有特色而极具冲击力？为什么它能带给观众情感的共鸣？</summary>
       <updated>2022-02-06T00:00:00.000Z</updated>
@@ -1487,6 +1544,7 @@ export GTK_IM_MODULE=fcitx
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=JMADXYNaCjJd.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=JMADXYNaCjJd.md</id>
       <content type="html">
+        <![CDATA[
           <h2>GTK 主题 / 图标主题 / Shell 主题 / 声音主题 / 光标主题</h2>
 <p>主题喜好纯粹是个人口味问题，这里提供一个搜索链接来帮助你找到各类主题。当然，保持默认也是一个好选择。</p>
 <ul>
@@ -1584,6 +1642,8 @@ export GTK_IM_MODULE=fcitx
 <p>5.执行 <code>sudo pacman -Syu --needed xorg-xwayland libxcb egl-wayland</code></p>
 <p>6.重启进入Wayland会话。</p>
 
+
+        ]]>
       </content>
       <summary type="html">此教程的环境是 Manjaro GNOME，在 Arch Linux 及其其它衍生版中应该同样可用。</summary>
       <updated>2022-01-25T00:00:00.000Z</updated>
@@ -1593,6 +1653,7 @@ export GTK_IM_MODULE=fcitx
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=RzJPxykTSpGH.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=RzJPxykTSpGH.md</id>
       <content type="html">
+        <![CDATA[
           <p>最近我看到很多人在网络上晒出了自己的年终总结，但是我回顾2021年，却发现自己今年什么也没干，所以自然写不了年终总结了。所以写一写今年发生的一些事情，和我想讨论的一些事情吧。</p>
 <hr>
 <h2>为什么这是一个伪命题</h2>
@@ -1612,6 +1673,8 @@ export GTK_IM_MODULE=fcitx
 </blockquote>
 <p>正如用户友好和“以用户为中心”是完全不等价的两个概念，后者更加强调对用户需求的满足，而前者只着重其是否提供了某些操作上的方便。我真正承认的“以用户为中心”是后者。</p>
 
+
+        ]]>
       </content>
       <summary type="html">最近我看到很多人在网络上晒出了自己的年终总结，但是我回顾2021年，却发现自己今年什么也没干，所以自然写不了年终总结了。所以写一写今年发生的一些事情，和我想讨论的一些事情吧。</summary>
       <updated>2022-01-02T00:00:00.000Z</updated>
@@ -1621,6 +1684,7 @@ export GTK_IM_MODULE=fcitx
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=Dsw72n7SXtQt.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=Dsw72n7SXtQt.md</id>
       <content type="html">
+        <![CDATA[
           <h2>什么是设备限制</h2>
 <p>根据微软官网的说法，即使电脑可以运行 Windows 10，如果不满足以下条件，也无法运行 Windows 11。</p>
 <ul>
@@ -1662,6 +1726,8 @@ export GTK_IM_MODULE=fcitx
 <li>操作完成后关闭安装程序，然后通过设置打开 Windows 更新会提示“安装更新时遇到问题”，这次再次“解决问题”让其尝试更新就没有问题了。</li>
 </ol>
 
+
+        ]]>
       </content>
       <summary type="html">对于不满足最低要求的设备，本指南概述了在 Windows 10 / 11 下全新安装 / 安装 / 更新 到 Windows 11 或者 Windows 11 预览版本的方法。</summary>
       <updated>2022-03-31T00:00:00.000Z</updated>
@@ -1671,6 +1737,7 @@ export GTK_IM_MODULE=fcitx
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=CKZdC6RAFF7d.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=CKZdC6RAFF7d.md</id>
       <content type="html">
+        <![CDATA[
           <p>最近，我在 IT 之家看到这样一则新闻：<a href="https://www.ithome.com/0/574/907.htm">微软官方回应 Win11“任务栏拖放”被取消：可先拖住文件，再按下 Alt+Tab 放入窗口</a>。毫无疑问，这又是微软的一次《傲慢与偏见》。</p>
 <hr>
 <p>关注科技新闻的应该都听闻了 Windows 11 的发布，应该也已经有很多人像我一样已经试用过几个预览版本了。</p>
@@ -1700,6 +1767,8 @@ export GTK_IM_MODULE=fcitx
 <p>那么，既然 Firefox 这么好，为什么它在普通用户中的份额却是逐年下降呢？</p>
 <p>因为设计理念的先进不代表万事顺遂。理念固然需要坚守，但也要考虑现实的实际的效果。如果为了所谓的理念，抛弃了实际的东西，就变成了傲慢。微软对 Windows 11 的这些破坏用户体验改动看似是因为设计理念上的更新，其实还是设计者的傲慢。</p>
 
+
+        ]]>
       </content>
       <summary type="html">最近，Windows 11 故意做出了许多破坏用户体验的“改进”，比如取消了任务栏右键打开任务管理器、将 TPM 2.0 作为最低系统要求等。</summary>
       <updated>2021-09-11T00:00:00.000Z</updated>
@@ -1709,6 +1778,7 @@ export GTK_IM_MODULE=fcitx
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=EMNZPHaMxWFE.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=EMNZPHaMxWFE.md</id>
       <content type="html">
+        <![CDATA[
           <p>相信看到这篇博文的人对 bilibili 都不会陌生，甚至有很多人可能像我一样每天都会打开它。</p>
 <p>但是，不知你是否注意到，最近（准确的说是2021年8月10日起），bilibili 悄悄取消了 720P 60帧 的画质选项。这意味着：</p>
 <ul>
@@ -1763,6 +1833,8 @@ export GTK_IM_MODULE=fcitx
 <p>我也不知道，但是，正如我在上面举的几个例子，细节虽然不是决定性的，但是，有的时候它也起很大作用。特别是当一个细节是为某个事物所独有，而其它事物没有的时候。</p>
 <p>就比如本文最开始提到的 720P 60 帧被取消的问题，说不定之后我就会更倾向于上那些可以免费观看 60 帧视频的网站了呢。</p>
 
+
+        ]]>
       </content>
       <summary type="html">bilibili 悄悄取消了 720P 60帧 的画质选项。其实 bilibili 舍弃的那部分用户体验并不会导致非常致命的问题。但是有的时候这些细节比想象中更加重要。</summary>
       <updated>2021-08-18T00:00:00.000Z</updated>

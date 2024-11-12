@@ -1,7 +1,7 @@
 {
   "博客标题": "柏园猫のBlog",
   "博客描述（副标题）": "「初めて守りたくて　寄り添いこの空のもとで」 ",
-  "博客程序版本（禁止修改此值，否则会导致跨版本升级异常）": 20240613,
+  "博客程序版本（禁止修改此值，否则会导致跨版本升级异常）": 20241112,
   "在菜单中添加归档和标签的入口": true,
   "在文章或页面的底部添加分享按钮，以便复制直链url": true,
   "菜单中的外部链接": [
@@ -51,8 +51,8 @@
   "全局评论设置": {
     "启用valine评论": true,
     "valine设置": {
-      "leancloud_appid": "SykuVs4qcWMkl4RUtKEUlmog-gzGzoHsz",
-      "leancloud_appkey": "0jowkR4ct0lJbWcvocymEkKw",
+      "leancloud_appid": "",
+      "leancloud_appkey": "",
       "记录评论者ip": true,
       "记录访问量": true,
       "评论区占位符（提示文字）": "",
@@ -434,9 +434,9 @@
   "友人帐页面允许评论": true,
   "CDN选择": 1,
   "CDN路径": "https://unpkg.com",
-  "启用自定义CSS": true,
+  "启用自定义CSS": false,
   "启用自定义JS": false,
-  "自定义CSS": "a{\ncolor:#ff368b\n}\n.vnick, .vcontent p a{\ncolor:#ff368b!important\n}\na:hover{\ncolor:#f75197c7\n}\na:active{\ncolor:#840e3fc7\n}",
+  "自定义CSS": "",
   "自定义JS": "",
   "文章列表中每页的文章数为": "10",
   "全站内容授权协议": "unlicensed",
@@ -461,5 +461,6 @@
   "自定义界面文本": {
     "启用": false,
     "列表": []
-  }
+  },
+  "站点主题": "Solarized_Pink"
 }

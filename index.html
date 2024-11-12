@@ -109,7 +109,7 @@
       border-left: #ae2105 solid 2px;
     }
 
-    .article-content {
+    .article-content, .page-content {
       word-break: break-all;
     }
 
@@ -233,6 +233,10 @@
       font-weight: bolder;
     }
 
+    .archive-nav-item {
+       background-color: white !important;
+    }
+
 
     @keyframes fade-in-right {
       from {
@@ -327,10 +331,21 @@
       width: 0.8em;
     }
   </style>
+  <style id="theme_css">
+
+  </style>
   <style id="dark_mode">
     body {
       background-color: #000000c7;
 
+    }
+
+    info-hint, warning-hint, success-hint, danger-hint {
+      background-color: #000000f4;
+    }
+
+    .hint-heading {
+      color: white!important;
     }
 
     .blog_title_jumbotron,
@@ -366,7 +381,7 @@
     }
 
     .card,
-    #tag-content {
+    .tag-content {
       background-color: black;
       color: white
     }
@@ -409,6 +424,10 @@
       background: rgba(0, 0, 0, 0.5) !important
     }
 
+    a {
+      color: rgb(148, 187, 255);
+    }
+
     pre,
     code,
     kbd,
@@ -420,6 +439,11 @@
       padding-left: 12px;
       padding-right: 12px;
       display: inline-block;
+      color: white!important
+    }
+
+    code * {
+      color: white!important
     }
 
     .bbg-comment-area {
@@ -430,6 +454,19 @@
     .modal-header, .modal-body {
       background-color: rgb(139, 132, 132)!important;
       color: white;
+    }
+
+    .archive-nav {
+       border-bottom: 1px solid var(--bs-dark);
+    }
+
+    .archive-nav-item {
+       background-color: black !important;
+    }
+
+    .archive-nav-link {
+       background-color: unset !important;
+       border-color: var(--bs-dark) var(--bs-dark) #000 !important;
     }
   </style>
   <style id="highlight_css">
@@ -902,7 +939,7 @@
 
       </ul>
       <div class="d-flex" role="search">
-	  <button class="btn btn-outline-${blog["搜索按钮边框颜色设置为暗色"] ? "dark" : "light"}" onclick="start_search_dialog()" style="color: ${blog["全局主题设置"]["标题栏文字颜色"]}"><i class="fa fa-search"></i> ${langdata["SEARCH_SOMETHING"][lang_name]}</button>
+         <button class="btn btn-outline-${blog["搜索按钮边框颜色设置为暗色"] ? "dark" : "light"}" onclick="start_search_dialog()" style="color: ${blog["全局主题设置"]["标题栏文字颜色"]}"><i class="fa fa-search"></i> ${langdata["SEARCH_SOMETHING"][lang_name]}</button>
       </div>
       <div class="d-flex">
          <div style="display:block;padding:2px"></div>
@@ -1013,32 +1050,32 @@
       let currentArticleListFromOrder = (currentArticleListPageOrder - 1) * blog["文章列表中每页的文章数为"] + 1;
       let currentArticleListToOrder = currentArticleListPageOrder * blog["文章列表中每页的文章数为"];
 
-      for (let i = currentArticleListFromOrder - 1; i < currentArticleListToOrder && i < blog["文章列表"].length; i++) {
+      for (let i = currentArticleListFromOrder - 1; i < currentArticleListToOrder && i < visible_articles.length; i++) {
         if (
-          blog["文章列表"][i]["是否隐藏"] ||
-          blog["文章列表"][i]["是否置顶"]
+          visible_articles[i]["是否隐藏"] ||
+          visible_articles[i]["是否置顶"]
         ) {
         } else {
 
-          document.querySelector("#container").insertAdjacentHTML("beforeend", `<div class="article-item" id="article-item-${i}"><h2><a class="underline-animation" href="./index.html?type=article&filename=${blog["文章列表"][i]["文件名"]}" onclick="enter_article(${i});return false;">${blog["文章列表"][i]["文章标题"]}</a></h2></div>`);
+          document.querySelector("#container").insertAdjacentHTML("beforeend", `<div class="article-item" id="article-item-${i}"><h2><a class="underline-animation" href="./index.html?type=article&filename=${visible_articles[i]["文件名"]}" onclick="enter_article(${i});return false;">${visible_articles[i]["文章标题"]}</a></h2></div>`);
 
 
           document.querySelector("#article-item-" + i).insertAdjacentHTML("beforeend", `<div class="article-item-sub" id="article-item-sub-${i}"></div>`);
 
-          document.querySelector("#article-item-sub-" + i).insertAdjacentHTML("beforeend", `<i class="fa fa-calendar"></i> ${langdata["ARTICLE_CREATEDAT"][lang_name]} <span class="article-item-sub-dotted" title="${new Date(blog["文章列表"][i]["创建时间（时间戳）"]).toISOString()}">${convertTimeStampToLocalTime(blog["文章列表"][i]["创建时间（时间戳）"])}</span> <div class="small_empty_inline"></div> | <div class="small_empty_inline"></div> <i class="fa fa-clock-o"></i> ${langdata["LASTMODIFIEDAT"][lang_name]} <span class="article-item-sub-dotted" title="${new Date(blog["文章列表"][i]["修改时间（时间戳）"]).toISOString()}">${convertTimeStampToLocalTime(blog["文章列表"][i]["修改时间（时间戳）"])}</span> <br /><div class="small_empty_between_lines"></div>`);
+          document.querySelector("#article-item-sub-" + i).insertAdjacentHTML("beforeend", `<i class="fa fa-calendar"></i> ${langdata["ARTICLE_CREATEDAT"][lang_name]} <span class="article-item-sub-dotted" title="${new Date(visible_articles[i]["创建时间（时间戳）"]).toISOString()}">${convertTimeStampToLocalTime(visible_articles[i]["创建时间（时间戳）"])}</span> <div class="small_empty_inline"></div> | <div class="small_empty_inline"></div> <i class="fa fa-clock-o"></i> ${langdata["LASTMODIFIEDAT"][lang_name]} <span class="article-item-sub-dotted" title="${new Date(visible_articles[i]["修改时间（时间戳）"]).toISOString()}">${convertTimeStampToLocalTime(visible_articles[i]["修改时间（时间戳）"])}</span> <br /><div class="small_empty_between_lines"></div>`);
 
 
-          if (blog["文章列表"][i]["标签"].length === 0) {
+          if (visible_articles[i]["标签"].length === 0) {
           } else {
             document.querySelector("#article-item-sub-" + i).insertAdjacentHTML("beforeend", `<i class="fa fa-tags"></i> ${langdata["TAGS"][lang_name]}`);
 
-            for (let k = 0; k < blog["文章列表"][i]["标签"].length; k++) {
-              document.querySelector("#article-item-sub-" + i).insertAdjacentHTML("beforeend", `<a class="article-tag-underlined" style="color: ${getTagColor(blog["文章列表"][i]["标签"][k])}" href="./index.html?type=internal&function=tag&argument=${blog["文章列表"][i]["标签"][k]}" onclick="enter_tag('${blog["文章列表"][i]["标签"][k]}');return false;">#${blog["文章列表"][i]["标签"][k]}</a>`);
+            for (let k = 0; k < visible_articles[i]["标签"].length; k++) {
+              document.querySelector("#article-item-sub-" + i).insertAdjacentHTML("beforeend", `<a class="article-tag-underlined" style="color: ${getTagColor(visible_articles[i]["标签"][k])}" href="./index.html?type=internal&function=tag&argument=${visible_articles[i]["标签"][k]}" onclick="enter_tag('${visible_articles[i]["标签"][k]}');return false;">#${visible_articles[i]["标签"][k]}</a>`);
             }
           }
 
 
-          document.querySelector("#article-item-" + i).insertAdjacentHTML("beforeend", `<br /><p>${blog["文章列表"][i]["摘要"]}</p>`);
+          document.querySelector("#article-item-" + i).insertAdjacentHTML("beforeend", `<br /><p>${visible_articles[i]["摘要"]}</p>`);
 
         }
       }
@@ -1367,15 +1404,15 @@
     function archive_and_tags_switch_to_archive() {
       document.querySelector("#tag-content").setAttribute("style", "display:none");
       document.querySelector("#archive-content").setAttribute("style", "display:block");
-      document.getElementById("archive_and_tags_nav_by_tags").setAttribute("class", "nav-link");
-      document.getElementById("archive_and_tags_nav_by_time").setAttribute("class", "nav-link active");
+      document.getElementById("archive_and_tags_nav_by_tags").setAttribute("class", "nav-link archive-nav-link");
+      document.getElementById("archive_and_tags_nav_by_time").setAttribute("class", "nav-link active archive-nav-link");
     }
 
     function archive_and_tags_switch_to_tags() {
       document.querySelector("#tag-content").setAttribute("style", "display:block");
       document.querySelector("#archive-content").setAttribute("style", "display:none");
-      document.getElementById("archive_and_tags_nav_by_tags").setAttribute("class", "nav-link active");
-      document.getElementById("archive_and_tags_nav_by_time").setAttribute("class", "nav-link");
+      document.getElementById("archive_and_tags_nav_by_tags").setAttribute("class", "nav-link active archive-nav-link");
+      document.getElementById("archive_and_tags_nav_by_time").setAttribute("class", "nav-link archive-nav-link");
     }
 
     function render_tag_tree() {
@@ -1385,12 +1422,12 @@
 
       let tagtree = getTagTree();
 
-      document.getElementById("container").insertAdjacentHTML("beforeend", `<br /><br /><ul class="nav nav-tabs">
-  <li class="nav-item" style="background-color: white!important;">
-    <a class="nav-link active" href="javascript:archive_and_tags_switch_to_tags()" id="archive_and_tags_nav_by_tags">按标签检索</a>
+      document.getElementById("container").insertAdjacentHTML("beforeend", `<br /><br /><ul class="nav nav-tabs archive-nav">
+  <li class="nav-item archive-nav-item">
+    <a class="nav-link active archive-nav-link" href="javascript:archive_and_tags_switch_to_tags()" id="archive_and_tags_nav_by_tags">按标签检索</a>
   </li>
-  <li class="nav-item" style="background-color: white!important;">
-    <a class="nav-link" href="javascript:archive_and_tags_switch_to_archive()" id="archive_and_tags_nav_by_time">按年份检索</a>
+  <li class="nav-item archive-nav-item">
+    <a class="nav-link archive-nav-link" href="javascript:archive_and_tags_switch_to_archive()" id="archive_and_tags_nav_by_time">按年份检索</a>
   </li>
 </ul><div class="tag-content" id="tag-content"></div><div class="tag-content" id="archive-content" style="display:none;"></div>`);
 
@@ -1790,6 +1827,35 @@
 
         reload_dark_mode_setting();
 
+        if (typeof(blog["站点主题"])!=="undefined"){
+          if(blog["站点主题"] === "Solarized_Pink"){
+            blog["全局主题设置"]["标题栏背景颜色"] = "#6699cc";
+            blog["全局主题设置"]["链接颜色"] = "#993366";
+            document.querySelector("#theme_css").innerHTML = `
+              .bg-light {
+                background-color: #fffff2!important;
+                border-bottom: 1px solid #6699cc;
+                margin-bottom: 35px
+              }
+
+              body {
+                background-color:#fffff2;
+              }
+
+              .article-item, .article-content, .page-content, .articlebottomnav, .tag-content {
+                border: 1px solid #874342;
+                background: transparent;
+                box-shadow: none;
+              }
+
+              #blog_index_title, #current_article_title, .blog_title_jumbotron h1 {
+                color: #206c89;
+              }
+            `;
+          }
+        }
+
+
         switch (blog["全站内容授权协议"]) {
           case "reserved":
             blogContentLicenseText = `${langdata.COPYRIGHT_RESERVED[lang_name]}`
@@ -1878,7 +1944,10 @@
 
 
 
-        articleListPageLength = Math.ceil(blog["文章列表"].length / blog["文章列表中每页的文章数为"]); // 从1开始数
+        // 总之先这么用着……之后有更好的写法再说吧
+        visible_articles = blog["文章列表"].filter(a => !a["是否隐藏"]);
+
+        articleListPageLength = Math.ceil(visible_articles.length / blog["文章列表中每页的文章数为"]); // 从1开始数
 
         if (blog["全局评论设置"]["valine设置"]["是否使用bbg公共评论服务"]) {
           if (window.location.href.indexOf("?") === -1) {
@@ -1971,7 +2040,7 @@
           }
         }
 
-        document.getElementById("blogcss").insertAdjacentHTML("beforeend", `.nav-item {background-color:${blog["全局主题设置"]["标题栏背景颜色"]}!important}.nav-item:hover{background-color:${processed_color_for_nav_item_hover_css(blog["全局主题设置"]["标题栏背景颜色"])}!important;transition: background-color 0.1s;}`);
+        document.getElementById("blogcss").insertAdjacentHTML("beforeend", `.nav-item {background-color:${blog["全局主题设置"]["标题栏背景颜色"]}}.nav-item:hover{background-color:${processed_color_for_nav_item_hover_css(blog["全局主题设置"]["标题栏背景颜色"])};transition: background-color 0.1s;}`);
 
         // load custom link color
 
