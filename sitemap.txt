@@ -1,3 +1,4 @@
+https://nekomoe.xyz/index.html?type=article&filename=2024-summary.md
 https://nekomoe.xyz/index.html?type=article&filename=surface-go-linux.md
 https://nekomoe.xyz/index.html?type=article&filename=deploy-flask-to-production.md
 https://nekomoe.xyz/index.html?type=article&filename=stable-diffusion-webui-intel-igpu.md
