@@ -1,7 +1,7 @@
 {
   "博客标题": "柏园猫のBlog",
   "博客描述（副标题）": "「初めて守りたくて　寄り添いこの空のもとで」 ",
-  "博客程序版本（禁止修改此值，否则会导致跨版本升级异常）": 20241113,
+  "博客程序版本（禁止修改此值，否则会导致跨版本升级异常）": 20250203,
   "在菜单中添加归档和标签的入口": true,
   "在文章或页面的底部添加分享按钮，以便复制直链url": true,
   "菜单中的外部链接": [
@@ -20,7 +20,7 @@
     "//": "颜色格式为十六进制颜色或HTML颜色名，如white、grey、#66ccff",
     "是否使用第三方主题": false,
     "标题栏背景颜色": "#e35a8e",
-    "标题栏文字颜色": "white",
+    "标题栏文字颜色": "#ffffff",
     "是否使用纯色背景（优先级高于背景图像）": false,
     "若使用纯色背景，颜色为": "",
     "是否使用背景图像": true,
@@ -37,16 +37,16 @@
     "第三方主题文件内容": [],
     "禁用导航栏的阴影效果": false,
     "链接颜色": "#ff368b",
-    "是否启用live2d-widget": false,
+    "是否启用live2d-widget": true,
     "live2d-widget设置": {
       "widget路径": "https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/",
-      "tips路径": "",
-      "api路径": "",
+      "tips路径": "https://fastly.jsdelivr.net/npm/live2d-widgets@0/waifu-tips.json",
+      "api路径": "https://live2d.fghrsh.net/api/",
       "功能设置": {
         "hitokoto": true,
         "asteroids": false,
         "switch-model": false,
-        "switch-texture": false,
+        "switch-texture": true,
         "photo": false,
         "info": true,
         "quit": true
@@ -91,7 +91,7 @@
       "范围包括抖机灵分类下的一言": true
     }
   },
-  "底部信息（格式为markdown）": "此博客上的所有文章均属于公有领域，这意味着你可以不受限制地使用和加工它们。\n\n<a href=\"https://icp.gov.moe/?keyword=20223514\" target=\"_blank\">萌ICP备20223514号</a>\n\n<a href=\"https://nekomoe.xyz/atom.xml\" target=\"_blank\">使用 RSS 订阅本站</a>",
+  "底部信息（格式为markdown）": "此博客上的所有文章均属于公有领域，这意味着你可以不受限制地使用和加工它们。\n\n<a href=\"https://icp.gov.moe/?keyword=20223514\" target=\"_blank\">萌ICP备20223514号</a>\n\n<a href=\"https://nekomoe.xyz/atom.xml\" target=\"_blank\">使用 RSS 订阅本站</a><br />",
   "全站内容授权说明": "",
   "页面列表": [],
   "文章列表": [
@@ -472,5 +472,5 @@
     "启用": false,
     "列表": []
   },
-  "站点主题": "Solarized_Pink"
+  "站点主题": "Miracle"
 }
