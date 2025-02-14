@@ -3,13 +3,66 @@
     <subtitle>「初めて守りたくて　寄り添いこの空のもとで」 </subtitle>
     <link href="https://nekomoe.xyz/atom.xml" rel="self"/>
     <link href="https://nekomoe.xyz"/>
-    <updated>2025-01-02T13:08:45.116Z</updated>
+    <updated>2025-02-14T05:08:06.355Z</updated>
     <id>https://nekomoe.xyz</id>
     <author>
         <name>柏园猫のBlog</name>
     </author>
     <generator uri="https://bbg.nekomoe.xyz">Baiyuanneko's Blog Generator</generator>
     <entry>
+      <title>Arch Linux 安装和配置 Open WebUI</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=arch-linux-open-webui.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=arch-linux-open-webui.md</id>
+      <content type="html">
+        <![CDATA[
+          <h2>关于 Docker</h2>
+<p>虽然很早之前就听说过 Docker，不过从来没有仔细使用过。上次使用还是在打 Geekgame 2024 的时候，为了配置 Ubuntu 22.04 调试环境而进行了使用。</p>
+<p>之前看过一种说法是说 Docker 最大的好处在于隔离了安装和配置某项服务的复杂度，我深以为然。尽管 Docker 本身并没有特别好学习，但是它的用法是大致固定的，很多服务可能手动配置还要比使用 Docker 简单得多，然而，对于一些难以配置和安装的服务，使用 Docker 安装复杂的服务并不会比安装简单的服务困难很多，而这，就是容器化的魅力啊（赞赏</p>
+<p>这次也算是我第一次使用 Docker 配置了某个服务，就在这里记录一下。</p>
+<h2>关于 Open WebUI</h2>
+<p>Open WebUI 是一个用来方便调用 LLM API 的工具，它支持 Ollama 和 OpenAI API。我主要是把它作为 OpenAI API 的前端来使用。</p>
+<p>相比 ChatBox 和 Page Assist 之类的前端，它有以下的优势：</p>
+<ul>
+<li>支持联网搜索。原理是询问 LLM 检索词，然后通过搜索引擎 API 查询搜索结果，并按照设定的值（N）抓取前 N 个网页内容，进行 RAG 后传输给 GPT API。</li>
+<li>支持代码执行器。利用了 Pyodide 这个沙盒 Python 环境。</li>
+<li>支持文档上传和知识库。原理是 RAG.</li>
+<li>社区资源丰富。它官方有一个类似于应用商店的地方，可以下载别的插件和工具之类的。</li>
+</ul>
+<h2>使用 Docker 安装 OpenWebUI</h2>
+<p>首先安装 Docker 的过程就略过了。<code>yay -S docker</code> 然后 <code>systemctl enable --now docker.socket</code>（注意是 docker.socket 不是 docker.service）然后 <code>sudo usermod -aG docker $USER</code>即可。因为教程随时可能过时，因此不建议你按照我这里说的步骤真的一步一步执行，而是到 ArchWiki 上查找最新信息才是最好的。值得一提的是如果 sudo docker info 一直没法正常返回信息的话试试重启一下可能会有帮助。</p>
+<p>接下来就是使用 Docker 安装 Open WebUI 本身了。</p>
+<p>这里先说一下我为什么不手动安装。官网确实提供了一种使用 Python PIP 安装的教程。<code>pip install open-webui</code> 即可。不过，它安装好之后需要下载 Pyodide 引擎，而且没有进度条。在我的环境下，尽管我已经配置好了透明代理，但是还是很慢，可能还是没走代理或者别的原因。AUR 里面的 open-webui 也是这种装法（指用 pip 安装），对于国内网络环境还是挺艰难的。当然也可能我个人环境原因，</p>
+<p>所以我选用了 Docker 安装。同时也是熟悉一下 Docker 的使用。首先 Pull 镜像：</p>
+<pre><code>docker pull ghcr.io/open-webui/open-webui:main
+</code></pre>
+<p>然后初始化容器（注意每个人环境不同，请不要直接复制粘贴如下的命令）：</p>
+<pre><code>docker run -e http_proxy=http://127.0.0.1:1081 -e https_proxy=http://127.0.0.1:1081 -e PORT=3000 -d --network host -v open-webui:/app/backend/data --name open-webui ghcr.io/open-webui/open-webui:main
+</code></pre>
+<p>相比官方的初始化命令，我这个修改了几处。首先是关于 Docker 的网络模式。官方的教程里是使用了桥接网络的端口映射来实现（<code>-p:3000:8080</code>）。不过如果只有本机使用的话，可以改用<code>-p:127.0.0.1:3000:8080</code>。这会阻止所有来自外部的连接，更加安全。（当然代价是没有办法从外部连入了）。但是在这种方案下（指桥接网络），如果我需要让 Open WebUI 使用主机上的代理地址。那么就需要配置代理服务器允许外部连入，并且将容器内的代理地址配置为 docker0 网关地址而不是 127.0.0.1 上。让代理服务器允许外部连入（且不进行鉴权）其实是比较危险的。因此如果这样做，需要进行额外的防火墙配置，对我来说比较麻烦。</p>
+<p>我改用了 Host 网络模式。在这个模式下，容器与主机共享同一个网络接口（interface），让 Open WebUI 直接监听在主机的网络上。在这种情况下仍然需要添加防火墙配置（如果你不希望服务被从外部连入），我使用的是 ufw:</p>
+<pre><code>sudo ufw deny 3000
+</code></pre>
+<p>实际上 OpenWebUI 自己有鉴权机制所以即使不进行防火墙配置也没有很大问题，不过那样的话密码就要设置的更强一点，并且开启禁止注册。</p>
+<p>这里值得一提的是，虽然众所周知的是 UFW 不能用于管理 Docker 的网络（因为 Docker 创建的 iptables 规则会比 ufw 更早生效），但是这仅限于桥接模式。若使用 Host 网络模式，Docker 不会创建任何 iptables 规则，从而 UFW 的规则可以正常生效。</p>
+<p>然后就是一些别的环境变量了，包括<code>http_proxy</code>和<code>https_proxy</code> 用于配置容器内的代理。还有默认的<code>8080</code>端口容易冲突，改用<code>3000</code>会更好。你可以根据自己的实际情况修改这些环境变量</p>
+<h2>使用 Open WebUI</h2>
+<p>可以使用<code>docker ps</code>命令查看容器内的状态，此外，<code>docker stop open-webui</code> 可以用来终止容器，<code>docker start open-webui</code> 可以用来启动容器。<code>docker rm open-webui</code> 可以用来删除容器。</p>
+<h2>配置 Open WebUI</h2>
+<p>我目前配置的项目也不多，不过可以列出目前配置的项目当中，踩到的一些坑。</p>
+<p>首先是网络搜索。网络搜索实际上也使用 RAG。在我的环境下，RAG 并没有自动被配置。如果你确信自己已经正确配置了网络搜索，而且代理什么的也都是正确处理的，但是一直报错 Error searching XXXXX，可能是因为 RAG 没有正确配置好。打开管理员设置→文档→语义向量模型那里点一下旁边的下载按钮，然后按一下最下面的保存按钮，再试一次，可能就能正常工作了。</p>
+<p>然后是一些容易混淆的概念，就是 Open WebUI 的工作空间包括那个类似应用商店的地方可以下载函数和工具，这两个概念其实是有区别的，函数（Functions）指的是 OpenWebUI 自己的插件，而工具（Tools）指的是 LLM 自己可以去调用的工具。如果搞混了就会出现达不到效果或者用不了的情况。</p>
+<p>还有就是管理员面板里设置 OpenAI API 的那个地方，有时候删除某个提供商之后它实际上没删，刷新一下又出来了，这时候先把整个 OpenAI API 那一块全禁用掉，然后重新启用，就能正常删掉了。</p>
+<p>还有就是它有一个叫 Direct Connections 的功能。这个实际上就是请求 LLM API 的时候浏览器自己去请求，而不是 Open WebUI 的后端服务去请求。这个可能部分情况下用得到。</p>
+<h2>总结</h2>
+<p>这次的配置总体上还是很有意义的，锻炼了使用 Docker 进行后端服务配置的能力。也是体会到了 Docker 的方便之处，在用于安装一些复杂服务的时候具有独特的优势。</p>
+
+
+        ]]>
+      </content>
+      <summary type="html">使用 Docker 在 Arch Linux 上配置 Open WebUI</summary>
+      <updated>2025-02-14T03:27:00.000Z</updated>
+      <published>2025-02-14T03:27:00.000Z</published>
+      </entry><entry>
       <title>2024 年终总结</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=2024-summary.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=2024-summary.md</id>
@@ -90,7 +143,7 @@
 <p>当我在寝室里打开了闲鱼收的二手 Surface Go 时，脑海中总会想起 10 年前第一次给电脑安装 Windows 8 的那个遥远的下午.</p>
 </blockquote>
 <h2>Overview</h2>
-<p><img src="./images/surface-go.jpg" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/surface-go.jpg" alt="image"></p>
 <h2>二合一合一合一虎视眈眈</h2>
 <p>非常幸运的是，我的这台 Surface Go 并不是 4GB 的低配版，而是配备了 8GB 内存和键盘的高性能版本。卖家甚至贴心地送了一个 SD 卡。有了键盘，意味着这是一个二合一设备。Surface Go 的键盘采用磁吸式设计，不用时可以取下键盘，使用的时候再安上。如果取下了键盘，或者把键盘放到了后盖上，则自动进入平板模式，默认可以调出屏幕键盘。尽管 Win11/Win10 的工作重点并不在平板适配上，但是仍然保留了这些方便的功能。值得一提的是，作为运行着 Windows 的设备，生态主要以 Win32 应用程序为主。为触屏优化过的程序并不是很多，大多数在触屏环境下只能将就使用甚至艰难使用，甚至包括微软自家的一些应用（例如在平板模式下 VS Code 会频繁触发屏幕键盘，难以正常使用）。当然，UWP 应用的触屏体验确实良好，但目前 UWP 应用很多也已不再更新，换句话说，由于 Windows 应用生态对触屏的支持并不良好，像 iPad 那样买前生产力、买后爱奇艺的现象并不一定会出现——买前爱奇艺、买后生产力还差不多。</p>
 <h2>熙熙攘攘我们的云游戏</h2>
@@ -126,14 +179,14 @@
 <p>然后就是用 Waydroid 几乎必备的 waydroid_script 了。它的地址在这里：<a href="https://github.com/casualsnek/waydroid_script">https://github.com/casualsnek/waydroid_script</a>. 它有非常多的功能，包括安装 Google Play 框架和商店啊，还有安装 ARM 兼容层之类的。</p>
 <p>Waydroid 不自带 ARM 兼容层。因此，在运行一些程序时，会遇到困难。这时候需要安装一个 ARM 兼容层。这个有两种选择，一是 libndk，二是 libhoudini. 我使用的是 libhoudini. 因为我玩 Blue Archive. BA 这个游戏的特点就是用 libndk 运行会报游戏资源错误，而使用 libhoudini 又会在启动页面闪退。幸运的是，libhoudini 会使游戏在启动页面闪退的问题是有 patch 可以解决的，但 libndk 不能。</p>
 <p>首先使用 waydroid_script 安装 libhoudini，然后下载这个 patch 并应用即可：<a href="https://github.com/waydroid/waydroid/issues/788#issuecomment-2162386712">https://github.com/waydroid/waydroid/issues/788#issuecomment-2162386712</a></p>
-<p><img src="./images/surface-go-ba.jpg" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/surface-go-ba.jpg" alt="image"></p>
 <h3>Hardware-accelerated video decode</h3>
 <p>视频硬解应该可以 work out of box. 可以安装 <code>intel-gpu-tools</code> 然后运行 <code>sudo intel_gpu_top</code> 观察这一点。</p>
-<p><img src="./images/surface-go-video-decode.jpg" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/surface-go-video-decode.jpg" alt="image"></p>
 <h2>再次喜欢上 Surface Go 吧！</h2>
 <p>Surface Go 上的 Linux 体验应该说是不错的，特别是响应速度和卡顿问题相对来说进行了比较好的解决。曾经我由于卡顿而吃灰的 Surface Go 又重新焕发了生机！</p>
 <p>标题 neta 自游戏《ISLAND》的章节小标题之一，没有什么特别的含义（</p>
-<p><img src="./images/surface-go-fastfetch.jpg" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/surface-go-fastfetch.jpg" alt="image"></p>
 
 
         ]]>
@@ -147,7 +200,7 @@
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=deploy-flask-to-production.md</id>
       <content type="html">
         <![CDATA[
-          <p><img src="./images/Azusa20240902.png" alt="图文无关，来源：Blue Archive"></p>
+          <p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/Azusa20240902.png" alt="图文无关，来源：Blue Archive"></p>
 <p>(↑ 图文无关，图片来源：Blue Archive / 白洲梓)</p>
 <h2>前言</h2>
 <p>Flask 应该还算是一个比较常用的 Web 框架，我此前也是用 Flask 开发过几个小项目，不过，怎么将 Flask 部署到生产环境中呢？</p>
@@ -404,39 +457,39 @@ pip install --pre openvino
 <p>还有一个想提的就是开始使用 YubiKey 了。YubiKey 是 <a href="https://blog.apeiria.net/">@Misaka13514</a> 三月份的时候送给我的，我目前使用 YubiKey 的用途有两个，一个是将其作为网站的两步验证因素之一，另一个是用它来存储自己的 OpenPGP 私钥。具体的我在<a href="https://nekomoe.xyz/index.html?type=article&amp;filename=2023-5.md">之前的文章</a>中有写过；以及学习了 DN42 并熟悉了 WireGuard、BIRD2 等软件的使用，还获得了一个不错的 DN42 域名 <code>neko.dn42</code>，也是 <a href="https://blog.apeiria.net/">@Misaka13514</a> 解答了许多我的问题。感谢 <a href="https://blog.apeiria.net/">@Misaka13514</a> 在各个方面给我的帮助！</p>
 <p>AI 方面的话，自己尝试部署了 Stable Diffusion 并学习了基本使用，<del>虽然我用的笔记本是核显本只能用 CPU 演算不过不是不能用</del>。用 Stable Diffusion 给我做过的两个开源项目（<a href="https://github.com/bbg-contributors/bbg">这个</a>和<a href="https://github.com/baiyuanneko/bocchi">这个</a>生成了图标）。以及因为我平时看的一部分动画是生肉，或者视频语言是日语而没有字幕，想到了使用 <a href="https://github.com/openai/whisper">Whisper</a> 去生成字幕并丢给 ChatGPT 翻译，效果还不错。</p>
 <p>以及，因为 B 站上有很多 AI 翻唱的，于是自己尝试训练了一个小之星海果的 so-vits-svc 模型（仅供我自己个人研究学习使用，不会公开），效果只能说差强人意不过考虑到我的时间和精力有限，自己剪出来的训练数据质量也不是很高所以也不是特别失望。</p>
-<p><img src="./2023Summary_SoVitsSvc_01.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_SoVitsSvc_01.png" alt="image"></p>
 <p>2023 年我开始接触更多游戏<del>以及开始给Steam爆金币了</del>。2023 年我开始玩的几个在线游戏包括Blue Archive（国服）、赛马娘台服、原神、雀魂麻将等等。赛马娘是因为有点占空间（占了我 10G 甚至 9G）于是没有坚持玩下去。原神我个人觉得还是挺好玩的，原因的话大概是制作精美的二次元风格自机角色 + 清新的渲染风格 + 开放世界 + RPG + 整洁不杂乱的界面 + 我觉得还不错的剧情 这些因素共同叠加产生的奇妙化学反应。不过因为 Linux 上的原神国服使用 Wine 运行经常是处于一个时好时不好的状态所以还是经常是需要使用云原神的。玩 Blue Archive 的主要原因之一是因为之前看到过才羽绿和才羽桃的插画，感觉真的<strong>好可爱好可爱</strong>耶，瞬间被治愈了。虽然也没有抽到全部我想抽的角色，不过剧情比我想象的要更好，比如主线第二章的游戏开发部部分剧情，还是有一种久违的感动感的（至少对我来说）。感谢我的一个同学带我玩 Blue Archive，没人教的话我甚至都不会清体力（）最后就是雀魂麻将了。打了一年麻将，也不能说技术提高了很多，还是很菜，不过抽到了一个有可爱语音的角色（当然别的地方也挺可爱的），好耶。</p>
-<p><img src="./2023Summary_GenshinImpact_01.png" alt="image"></p>
-<p><img src="./2023Summary_MahjongSoul_01.png" alt="image"></p>
-<p><img src="./2023Summary_MahjongSoul_02.png" alt="image"></p>
-<p><img src="./2023Summary_MahjongSoul_03.png" alt="image"></p>
-<p><img src="./2023Summary_MahjongSoul_04.png" alt="image"></p>
-<p><img src="./2023Summary_BlueArchive_01.jpg" alt="image"></p>
-<p><img src="./2023Summary_BlueArchive_02.jpg" alt="image"></p>
-<p><img src="./2023Summary_BlueArchive_03.jpg" alt="image"></p>
-<p><img src="./2023Summary_BlueArchive_04.jpg" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_GenshinImpact_01.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_MahjongSoul_01.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_MahjongSoul_02.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_MahjongSoul_03.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_MahjongSoul_04.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_BlueArchive_01.jpg" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_BlueArchive_02.jpg" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_BlueArchive_03.jpg" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_BlueArchive_04.jpg" alt="image"></p>
 <p>然后是 Steam 上，终于开始买一些游戏了，首先是补票了 NEKOPARA 的全系列，然后买了一直想玩的《主播女孩重度依赖》（不过目前只通关了14/24个结局），然后是买了一些 Galgame （《恋爱绮谭 不存在的夏天》、《恋爱绮谭 不存在的真相》以及对我来说有点贵的《常轨脱离 Creative》），以及《城市：天际线》（但是还没开始玩）这里面对我来说觉得最值回票价的反而是最贵的《常轨脱离 Creative》，几位女主都很可爱，<code>最享受的一集！.webp</code> 当然我这个 Steam 库存量也算少的，也不是说要攀比或者什么，只是随便分享一下（（</p>
-<p><img src="./2023Summary_SteamLibrary.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_SteamLibrary.png" alt="image"></p>
 <p>其它游戏方面，玩了《Undertale》、《Getting Over It》之类的一些独立游戏。以及在时断时续地玩着《osu!》（以及《osu!lazer》），我打这个水平不是很高但是消磨时间还是一个不错的选择（以及，很荣幸能把 <a href="https://blog.chihuo2104.dev/">@chihuo2104</a> 拉入 osu! 的坑（x</p>
 <p><info-hint>下面两张图中上面一张是 osu!stable 的个人资料，下面一张是 osu!lazer 的个人资料。</info-hint></p>
-<p><img src="./2023Summary_osu_01.png" alt="image"></p>
-<p><img src="./2023Summary_osuLazer_01.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_osu_01.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_osuLazer_01.png" alt="image"></p>
 <p>《Minecraft》方面，寒暑假的时候玩了群友开的服务器（</p>
 <p>第一次尝试了在 Minecraft 中搭建手办（参考了 <a href="https://www.bilibili.com/video/BV1yW411g7ji/">这个视频</a>），同时也第一次尝试用 <a href="https://www.scriptolab.com/minecraft-pixel-art-en.php">Minecraft Pixel Art Generator</a> 在 Minecraft 中绘了图，也感谢 <a href="https://blog.apeiria.net/">@Misaka13514</a> 在绘图过程中的大量帮助。</p>
 <p>感谢 <a href="https://blog.apeiria.net/">@Misaka13514</a>、<a href="https://koishi514.moe/">@scientificworld</a>、<a href="https://blog.chihuo2104.dev/">@chihuo2104</a>、<a href="https://littlesunnybear.com/">@littlebear</a>、<a href="https://mzwing.eu.org/">@mzwing</a>、<a href="https://github.com/zzjzxq33/">@zzjzxq33</a>、<a href="https://kolozea.top">@Kolozea</a>、<a href="https://space.bilibili.com/516252009/">@666999HC</a> 等群友（可能有漏的？）陪我玩 Minecraft！</p>
 <p>年底的时候通过 Microsoft Store 入了正。</p>
-<p><img src="./2023Summary_Minecraft_01.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_Minecraft_01.png" alt="image"></p>
 <p>在这一年里，还和 <a href="https://blog.apeiria.net/">@Misaka13514</a> 和 <a href="https://koishi514.moe/">@scientificworld</a> 使用 Syncplay 同步看了 MyGo!!!!! 以及其他许多番剧，我今年大约三分之二的番剧都是通过 Syncplay 和群友 <a href="https://blog.apeiria.net/">@Misaka13514</a> 和 <a href="https://koishi514.moe/">@scientificworld</a> 一起看的，感谢你们的陪伴！（</p>
-<p><img src="./2023Summary_Syncplay_01.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_Syncplay_01.png" alt="image"></p>
 <h3>音乐相关</h3>
 <p>感谢 <a href="https://blog.chihuo2104.dev/">@chihuo2104</a> 推荐给我的竹月雨 II 耳机，说是 <a href="https://mujitogawa.github.io/">@MujiTogawa</a> 推荐给他的，我用着感觉也很好用。</p>
-<p><img src="./2023Summary_Music.jpg" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_Music.jpg" alt="image"></p>
 <h3>小彩蛋 1</h3>
 <p>Hackergame 2023 临近结束的时候被 <a href="https://tqlwsl.moe/">@wlt233</a> 超力（悲）（雾</p>
-<p><img src="./2023Summary_Hackergame.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_Hackergame.png" alt="image"></p>
 <h3>小彩蛋 2</h3>
 <p>只玩了大概一个多小时的 Phigros（）好难（</p>
-<p><img src="./2023Summary_Phigros.jpg" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_Phigros.jpg" alt="image"></p>
 <h2>See also</h2>
 <p>也可以看看其它人的年终总结：</p>
 <ul>
@@ -693,8 +746,8 @@ registerServiceWorker();
 }
 </code></pre>
 <h2>使用效果</h2>
-<p><img src="./images/webocr.png" alt="image"></p>
-<p><img src="./images/webocr-result.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/webocr.png" alt="image"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/webocr-result.png" alt="image"></p>
 <h2>问题</h2>
 <p>使用之后不难发现一个问题：识别率比较低下。这个其实是 Tesseract 本身识别率比较低的原因。Tesseract 本身发布是一个比较早的框架，虽然也在不断进步，比如在 Tesseract 4 中使用了 LSTM 神经网络技术，但是相比现在更流行的 PaddleOCR 可能存在一定的落后吧。（我对 OCR 技术了解不多，这方面不是很懂）</p>
 <p>另外 Tesseract 本身设计是为了识别非常干净整洁的图像的，也要求使用者在使用之前先对图像进行某种程度上的处理。比如根据我查阅到的资料来看，需要进行去噪，二值化、旋转至 90 度等操作。并且在必要的时候应该先识别出带有文字的行，然后把每个行截取出来处理好后使用 Tesseract 的单行模式依次进行识别然后再合并，而不是直接进行识别。而这些操作都是我所没有进行的。由于精力原因也没有进行（考虑到，网络上的教程大多数是基于 Python 给出的示例，在浏览器端进行等效操作需要查阅另外的资料，虽然最后也能实现）。</p>
@@ -745,7 +798,7 @@ CFG scale: 5
 <p>具体到我的使用体验上，一方面我想说的是<strong>自己在 YubiKey 上设置的 PIN 一定要牢记</strong><del>（关于我忘记了自己两个月前为 YubiKey 的 OpenPGP 功能设置的 PIN 这件事（还好之前备份过私钥文件，重新导入回来了））</del>，另一方面就是要把 YubiKey 放在一个你认为合适的位置（要兼顾安全性和方便性），当然更不要随便乱放导致弄丢。</p>
 <h2>游戏</h2>
 <h3>原神</h3>
-<p><img src="./images/2023-5-genshin-impact.png" alt="2023-5-genshine-impact.png"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/2023-5-genshin-impact.png" alt="2023-5-genshine-impact.png"></p>
 <p>原神是我四月份刚刚开始玩的，玩到现在玩了差不多一个多月吧。感觉还是挺好玩的，在我玩过的游戏当中算是比较好玩的那一类。</p>
 <p>游戏的类型是 RPG，我玩过的 RPG 不多，但是感觉原神和我记忆里的 RPG 游戏从玩法上差不多（有主线剧情任务（魔神任务）和支线任务）。单从任务系统的设计上来说，我还挺喜欢它的角色支线任务的设置（好像叫传说任务），这种任务的玩法有点类似 Galgame 和 RPG 的结合体，有多结局和流程图以及结局的 CG，也可以重复进行从而达成所有结局，我目前玩了芭芭拉的角色支线任务，感觉和 Galgame 差不多。如果角色和剧情多一点就好了。其它支线任务有一个缺点就是接了之后不能取消，我最近才发现，结果就导致主线剧情有时会因为支线任务没做完而无法继续。我玩到现在主线和支线的剧情感觉还是不错的，有些剧情还是挺有趣的，也有的剧情挺感人的。</p>
 <p>每日委托实在有点太千篇一律了，我不是很喜欢，以至于有的时候我即使登录游戏也懒得做每日委托。</p>
@@ -758,7 +811,7 @@ CFG scale: 5
 <h2>DN42</h2>
 <p>在学习 DN42 的过程中学习了 WireGuard 和 BIRD2 等软件的使用，过程中踩了不少坑，感谢 <a href="https://i.apeiria.net/">Misaka13514</a> 孜孜不倦的指导。</p>
 <p>P.S. 我注册 DN42 域名的时候竟然发现 <a href="https://neko.dn42/">neko.dn42</a> 这个域名还没有被注册于是直接注册了，成功拿到，好耶！</p>
-<p><img src="./images/2023-5-dn42-domain-register.png" alt="2023-5-dn42-domain-register.png"></p>
+<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/2023-5-dn42-domain-register.png" alt="2023-5-dn42-domain-register.png"></p>
 <h2>CTF</h2>
 <p>今年三月份的时候参加了一场线下的 CTF。这次比赛组队是每个学校组几个队，而我很幸运地和两个大佬组在了一队，我就做了个签到题和一道最简单的 Misc 题。</p>
 <p>参加之前低估了这次比赛的难度，本来还是有机会多做出一道 Pwn 的题目的，可惜解法我是在最后的时间想到的，以至于没有时间进行验证和作答了。</p>

@@ -96,6 +96,22 @@
   "页面列表": [],
   "文章列表": [
     {
+      "文章标题": "Arch Linux 安装和配置 Open WebUI",
+      "文件名": "arch-linux-open-webui.md",
+      "标签": [
+        "ai",
+        "linux",
+        "docker"
+      ],
+      "摘要": "使用 Docker 在 Arch Linux 上配置 Open WebUI",
+      "创建时间（时间戳）": 1739503620000,
+      "修改时间（时间戳）": 1739503620000,
+      "是否置顶": false,
+      "是否隐藏": false,
+      "是否加密": false,
+      "启用评论": true
+    },
+    {
       "文章标题": "2024 年终总结",
       "文件名": "2024-summary.md",
       "标签": [
