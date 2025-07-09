@@ -1,15 +1,40 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <title>柏园猫のBlog</title>
-    <subtitle>「初めて守りたくて　寄り添いこの空のもとで」 </subtitle>
+    <subtitle>香子兰世界第一可爱!</subtitle>
     <link href="https://nekomoe.xyz/atom.xml" rel="self"/>
     <link href="https://nekomoe.xyz"/>
-    <updated>2025-02-14T05:08:06.355Z</updated>
+    <updated>2025-07-09T14:47:01.279Z</updated>
     <id>https://nekomoe.xyz</id>
     <author>
         <name>柏园猫のBlog</name>
     </author>
     <generator uri="https://bbg.nekomoe.xyz">Baiyuanneko's Blog Generator</generator>
     <entry>
+      <title>新的开始</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=new-start.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=new-start.md</id>
+      <content type="html">
+        <![CDATA[
+          <p>已经四个多月没写博客了，虽然一开始建立起博客的时候更新的还挺频繁的，不过一开始的兴奋劲过后，博客更新频率就越来越少了，但是我难道会甘心成为年更博主吗？苦呀西~~</p>
+<p>不过为什么今天我又复活了呢？因为最近 Cloudflare CDN 有可能分配给国内无法访问的 IP 地址，导致国内没法访问。今天看了下，我的blog也不幸中招了。虽然能看我blog的估计肯定不会被这种原因而阻断了访问，但是能让更多人访问到我的blog终归是个好事，因此目前暂时迁移到 Vercel，目前测试下来国内的访问情况还是挺乐观的。</p>
+<h2>简单翻新了博客</h2>
+<p>了解我的人都知道我用的是自己开发的 <a href="https://bbg.nekomoe.xyz/">BBG 博客系统</a>，这是一个零构建开销的静态博客生成器，简单来说就是省去了繁琐的构建步骤把src和dist合二为一了。这个项目也是老石山了，虽然一直以来我都有把它重构的尝试（比如你可以看到 <a href="https://github.com/bbg-contributors/bbg">bbg仓库</a> 的 pwa 分支里面就是我曾经做出的尝试之一），但是实际上一个东西做出来之后就很难把它重新重构重做了，就好像 X11 和 Wayland 一样，X11 尽管老旧但是 feature-rich，而 Wayland 虽然代表着新生力量，不过还有很多事情不够完善。顺带一提我是 wayland 党。尽管我最近叛逃到 Windows 了。</p>
+<p><img src alt></p>
+<p>这个博客系统一直以来都是特性比较鲜明的，因为没有构建过程确实挺奇怪的，不过确实方便 Git 管理，而且不容易出现不小心不知道把 src 丢哪的情况，毕竟 src 和 dist 在我的 bbg 中实际上是同一个东西。不过再让我重来设计一次我肯定不会这么设计，不过既来之则安之，何况这样确实也有一定的方便之处，而且这个项目开始开发的时候技术力不足只能采取这样的稍显奇怪的做法。目前一个个障碍也都在绝赞克服当中，比如 seo 搜索引擎优化之类的，而且也有一直支持着我的好群友：mzw、sci等等都在绝赞使用中，所以 BBG 肯定会长久的维护下去的，要维护一辈子！<del>（要素察觉</del></p>
+<p>说到 bbg，三年前我曾经用这个项目申请过 Jetbrains 的开源许可证，如果你不知道这个是什么的话，就是如果你维护一个开源仓库，那么你可以试着跟 Jetbrains 申请一个免费的正版许可证，不过只能用来开发开源软件或者用于学习用途。一直以来也都挺顺利的续期什么的，不过今年续期失败了，可能要求更严了吧，而且好像 reddit 上也有很多别人反馈这个情况。坏时代，来临力！（悲）</p>
+<p>目前说是翻新，其实也就是换回了默认的博客主题，原先的虽然很花哨，不过加载速度上存在问题，而且看起来总觉得不够简洁，而且有点山寨和粗糙的感觉，因此目前用回了默认的博客主题，只做一些颜色和字体上的定制调整。看起来简洁明了，但是不失优雅。</p>
+<h2>未来展望</h2>
+<p>其实还想写更多东西，不过时间有限就此作罢。</p>
+<p>了解我的人应该都知道我大三了，现在是大三的暑假，但我并非在愉快的玩耍，而是在一家小公司，做 Java 和 React 全栈开发的实习生。虽然刚刚踏入职场不太好适应，不过目前也在不断的学习和进步当中，争取为以后的发展埋下坚定的基础。</p>
+<p>最近在知乎上看到一个说法是要培养“输出性爱好”，也就是说如果一个人的爱好是内向发展，比如读书，看视频之类的，那么其实人会有负罪感，觉得缺乏意义，从而容易抑郁躁狂之类的。因此之后可能会重新拾起我的blog，再次更新一些有意义的事情，比如实习的一些感悟，或者spring/react框架下的一些技术视角和实践经验，又或者自己平时的一些生活分享。敬请期待喵~</p>
+
+
+        ]]>
+      </content>
+      <summary type="html">简单翻新了一下博客，以及对未来的一些展望</summary>
+      <updated>2025-07-09T14:13:00.000Z</updated>
+      <published>2025-07-09T14:13:00.000Z</published>
+      </entry><entry>
       <title>Arch Linux 安装和配置 Open WebUI</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=arch-linux-open-webui.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=arch-linux-open-webui.md</id>
@@ -143,7 +168,7 @@
 <p>当我在寝室里打开了闲鱼收的二手 Surface Go 时，脑海中总会想起 10 年前第一次给电脑安装 Windows 8 的那个遥远的下午.</p>
 </blockquote>
 <h2>Overview</h2>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/surface-go.jpg" alt="image"></p>
+<p><img src alt="image"></p>
 <h2>二合一合一合一虎视眈眈</h2>
 <p>非常幸运的是，我的这台 Surface Go 并不是 4GB 的低配版，而是配备了 8GB 内存和键盘的高性能版本。卖家甚至贴心地送了一个 SD 卡。有了键盘，意味着这是一个二合一设备。Surface Go 的键盘采用磁吸式设计，不用时可以取下键盘，使用的时候再安上。如果取下了键盘，或者把键盘放到了后盖上，则自动进入平板模式，默认可以调出屏幕键盘。尽管 Win11/Win10 的工作重点并不在平板适配上，但是仍然保留了这些方便的功能。值得一提的是，作为运行着 Windows 的设备，生态主要以 Win32 应用程序为主。为触屏优化过的程序并不是很多，大多数在触屏环境下只能将就使用甚至艰难使用，甚至包括微软自家的一些应用（例如在平板模式下 VS Code 会频繁触发屏幕键盘，难以正常使用）。当然，UWP 应用的触屏体验确实良好，但目前 UWP 应用很多也已不再更新，换句话说，由于 Windows 应用生态对触屏的支持并不良好，像 iPad 那样买前生产力、买后爱奇艺的现象并不一定会出现——买前爱奇艺、买后生产力还差不多。</p>
 <h2>熙熙攘攘我们的云游戏</h2>
@@ -179,14 +204,14 @@
 <p>然后就是用 Waydroid 几乎必备的 waydroid_script 了。它的地址在这里：<a href="https://github.com/casualsnek/waydroid_script">https://github.com/casualsnek/waydroid_script</a>. 它有非常多的功能，包括安装 Google Play 框架和商店啊，还有安装 ARM 兼容层之类的。</p>
 <p>Waydroid 不自带 ARM 兼容层。因此，在运行一些程序时，会遇到困难。这时候需要安装一个 ARM 兼容层。这个有两种选择，一是 libndk，二是 libhoudini. 我使用的是 libhoudini. 因为我玩 Blue Archive. BA 这个游戏的特点就是用 libndk 运行会报游戏资源错误，而使用 libhoudini 又会在启动页面闪退。幸运的是，libhoudini 会使游戏在启动页面闪退的问题是有 patch 可以解决的，但 libndk 不能。</p>
 <p>首先使用 waydroid_script 安装 libhoudini，然后下载这个 patch 并应用即可：<a href="https://github.com/waydroid/waydroid/issues/788#issuecomment-2162386712">https://github.com/waydroid/waydroid/issues/788#issuecomment-2162386712</a></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/surface-go-ba.jpg" alt="image"></p>
+<p><img src alt="image"></p>
 <h3>Hardware-accelerated video decode</h3>
 <p>视频硬解应该可以 work out of box. 可以安装 <code>intel-gpu-tools</code> 然后运行 <code>sudo intel_gpu_top</code> 观察这一点。</p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/surface-go-video-decode.jpg" alt="image"></p>
+<p><img src alt="image"></p>
 <h2>再次喜欢上 Surface Go 吧！</h2>
 <p>Surface Go 上的 Linux 体验应该说是不错的，特别是响应速度和卡顿问题相对来说进行了比较好的解决。曾经我由于卡顿而吃灰的 Surface Go 又重新焕发了生机！</p>
 <p>标题 neta 自游戏《ISLAND》的章节小标题之一，没有什么特别的含义（</p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/surface-go-fastfetch.jpg" alt="image"></p>
+<p><img src alt="image"></p>
 
 
         ]]>
@@ -200,7 +225,7 @@
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=deploy-flask-to-production.md</id>
       <content type="html">
         <![CDATA[
-          <p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/Azusa20240902.png" alt="图文无关，来源：Blue Archive"></p>
+          <p><img src alt="图文无关，来源：Blue Archive"></p>
 <p>(↑ 图文无关，图片来源：Blue Archive / 白洲梓)</p>
 <h2>前言</h2>
 <p>Flask 应该还算是一个比较常用的 Web 框架，我此前也是用 Flask 开发过几个小项目，不过，怎么将 Flask 部署到生产环境中呢？</p>
@@ -457,39 +482,39 @@ pip install --pre openvino
 <p>还有一个想提的就是开始使用 YubiKey 了。YubiKey 是 <a href="https://blog.apeiria.net/">@Misaka13514</a> 三月份的时候送给我的，我目前使用 YubiKey 的用途有两个，一个是将其作为网站的两步验证因素之一，另一个是用它来存储自己的 OpenPGP 私钥。具体的我在<a href="https://nekomoe.xyz/index.html?type=article&amp;filename=2023-5.md">之前的文章</a>中有写过；以及学习了 DN42 并熟悉了 WireGuard、BIRD2 等软件的使用，还获得了一个不错的 DN42 域名 <code>neko.dn42</code>，也是 <a href="https://blog.apeiria.net/">@Misaka13514</a> 解答了许多我的问题。感谢 <a href="https://blog.apeiria.net/">@Misaka13514</a> 在各个方面给我的帮助！</p>
 <p>AI 方面的话，自己尝试部署了 Stable Diffusion 并学习了基本使用，<del>虽然我用的笔记本是核显本只能用 CPU 演算不过不是不能用</del>。用 Stable Diffusion 给我做过的两个开源项目（<a href="https://github.com/bbg-contributors/bbg">这个</a>和<a href="https://github.com/baiyuanneko/bocchi">这个</a>生成了图标）。以及因为我平时看的一部分动画是生肉，或者视频语言是日语而没有字幕，想到了使用 <a href="https://github.com/openai/whisper">Whisper</a> 去生成字幕并丢给 ChatGPT 翻译，效果还不错。</p>
 <p>以及，因为 B 站上有很多 AI 翻唱的，于是自己尝试训练了一个小之星海果的 so-vits-svc 模型（仅供我自己个人研究学习使用，不会公开），效果只能说差强人意不过考虑到我的时间和精力有限，自己剪出来的训练数据质量也不是很高所以也不是特别失望。</p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_SoVitsSvc_01.png" alt="image"></p>
+<p><img src alt="image"></p>
 <p>2023 年我开始接触更多游戏<del>以及开始给Steam爆金币了</del>。2023 年我开始玩的几个在线游戏包括Blue Archive（国服）、赛马娘台服、原神、雀魂麻将等等。赛马娘是因为有点占空间（占了我 10G 甚至 9G）于是没有坚持玩下去。原神我个人觉得还是挺好玩的，原因的话大概是制作精美的二次元风格自机角色 + 清新的渲染风格 + 开放世界 + RPG + 整洁不杂乱的界面 + 我觉得还不错的剧情 这些因素共同叠加产生的奇妙化学反应。不过因为 Linux 上的原神国服使用 Wine 运行经常是处于一个时好时不好的状态所以还是经常是需要使用云原神的。玩 Blue Archive 的主要原因之一是因为之前看到过才羽绿和才羽桃的插画，感觉真的<strong>好可爱好可爱</strong>耶，瞬间被治愈了。虽然也没有抽到全部我想抽的角色，不过剧情比我想象的要更好，比如主线第二章的游戏开发部部分剧情，还是有一种久违的感动感的（至少对我来说）。感谢我的一个同学带我玩 Blue Archive，没人教的话我甚至都不会清体力（）最后就是雀魂麻将了。打了一年麻将，也不能说技术提高了很多，还是很菜，不过抽到了一个有可爱语音的角色（当然别的地方也挺可爱的），好耶。</p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_GenshinImpact_01.png" alt="image"></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_MahjongSoul_01.png" alt="image"></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_MahjongSoul_02.png" alt="image"></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_MahjongSoul_03.png" alt="image"></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_MahjongSoul_04.png" alt="image"></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_BlueArchive_01.jpg" alt="image"></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_BlueArchive_02.jpg" alt="image"></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_BlueArchive_03.jpg" alt="image"></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_BlueArchive_04.jpg" alt="image"></p>
+<p><img src alt="image"></p>
+<p><img src alt="image"></p>
+<p><img src alt="image"></p>
+<p><img src alt="image"></p>
+<p><img src alt="image"></p>
+<p><img src alt="image"></p>
+<p><img src alt="image"></p>
+<p><img src alt="image"></p>
+<p><img src alt="image"></p>
 <p>然后是 Steam 上，终于开始买一些游戏了，首先是补票了 NEKOPARA 的全系列，然后买了一直想玩的《主播女孩重度依赖》（不过目前只通关了14/24个结局），然后是买了一些 Galgame （《恋爱绮谭 不存在的夏天》、《恋爱绮谭 不存在的真相》以及对我来说有点贵的《常轨脱离 Creative》），以及《城市：天际线》（但是还没开始玩）这里面对我来说觉得最值回票价的反而是最贵的《常轨脱离 Creative》，几位女主都很可爱，<code>最享受的一集！.webp</code> 当然我这个 Steam 库存量也算少的，也不是说要攀比或者什么，只是随便分享一下（（</p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_SteamLibrary.png" alt="image"></p>
+<p><img src alt="image"></p>
 <p>其它游戏方面，玩了《Undertale》、《Getting Over It》之类的一些独立游戏。以及在时断时续地玩着《osu!》（以及《osu!lazer》），我打这个水平不是很高但是消磨时间还是一个不错的选择（以及，很荣幸能把 <a href="https://blog.chihuo2104.dev/">@chihuo2104</a> 拉入 osu! 的坑（x</p>
 <p><info-hint>下面两张图中上面一张是 osu!stable 的个人资料，下面一张是 osu!lazer 的个人资料。</info-hint></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_osu_01.png" alt="image"></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_osuLazer_01.png" alt="image"></p>
+<p><img src alt="image"></p>
+<p><img src alt="image"></p>
 <p>《Minecraft》方面，寒暑假的时候玩了群友开的服务器（</p>
 <p>第一次尝试了在 Minecraft 中搭建手办（参考了 <a href="https://www.bilibili.com/video/BV1yW411g7ji/">这个视频</a>），同时也第一次尝试用 <a href="https://www.scriptolab.com/minecraft-pixel-art-en.php">Minecraft Pixel Art Generator</a> 在 Minecraft 中绘了图，也感谢 <a href="https://blog.apeiria.net/">@Misaka13514</a> 在绘图过程中的大量帮助。</p>
 <p>感谢 <a href="https://blog.apeiria.net/">@Misaka13514</a>、<a href="https://koishi514.moe/">@scientificworld</a>、<a href="https://blog.chihuo2104.dev/">@chihuo2104</a>、<a href="https://littlesunnybear.com/">@littlebear</a>、<a href="https://mzwing.eu.org/">@mzwing</a>、<a href="https://github.com/zzjzxq33/">@zzjzxq33</a>、<a href="https://kolozea.top">@Kolozea</a>、<a href="https://space.bilibili.com/516252009/">@666999HC</a> 等群友（可能有漏的？）陪我玩 Minecraft！</p>
 <p>年底的时候通过 Microsoft Store 入了正。</p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_Minecraft_01.png" alt="image"></p>
+<p><img src alt="image"></p>
 <p>在这一年里，还和 <a href="https://blog.apeiria.net/">@Misaka13514</a> 和 <a href="https://koishi514.moe/">@scientificworld</a> 使用 Syncplay 同步看了 MyGo!!!!! 以及其他许多番剧，我今年大约三分之二的番剧都是通过 Syncplay 和群友 <a href="https://blog.apeiria.net/">@Misaka13514</a> 和 <a href="https://koishi514.moe/">@scientificworld</a> 一起看的，感谢你们的陪伴！（</p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_Syncplay_01.png" alt="image"></p>
+<p><img src alt="image"></p>
 <h3>音乐相关</h3>
 <p>感谢 <a href="https://blog.chihuo2104.dev/">@chihuo2104</a> 推荐给我的竹月雨 II 耳机，说是 <a href="https://mujitogawa.github.io/">@MujiTogawa</a> 推荐给他的，我用着感觉也很好用。</p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_Music.jpg" alt="image"></p>
+<p><img src alt="image"></p>
 <h3>小彩蛋 1</h3>
 <p>Hackergame 2023 临近结束的时候被 <a href="https://tqlwsl.moe/">@wlt233</a> 超力（悲）（雾</p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_Hackergame.png" alt="image"></p>
+<p><img src alt="image"></p>
 <h3>小彩蛋 2</h3>
 <p>只玩了大概一个多小时的 Phigros（）好难（</p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/2023Summary_Phigros.jpg" alt="image"></p>
+<p><img src alt="image"></p>
 <h2>See also</h2>
 <p>也可以看看其它人的年终总结：</p>
 <ul>
@@ -746,8 +771,8 @@ registerServiceWorker();
 }
 </code></pre>
 <h2>使用效果</h2>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/webocr.png" alt="image"></p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/webocr-result.png" alt="image"></p>
+<p><img src alt="image"></p>
+<p><img src alt="image"></p>
 <h2>问题</h2>
 <p>使用之后不难发现一个问题：识别率比较低下。这个其实是 Tesseract 本身识别率比较低的原因。Tesseract 本身发布是一个比较早的框架，虽然也在不断进步，比如在 Tesseract 4 中使用了 LSTM 神经网络技术，但是相比现在更流行的 PaddleOCR 可能存在一定的落后吧。（我对 OCR 技术了解不多，这方面不是很懂）</p>
 <p>另外 Tesseract 本身设计是为了识别非常干净整洁的图像的，也要求使用者在使用之前先对图像进行某种程度上的处理。比如根据我查阅到的资料来看，需要进行去噪，二值化、旋转至 90 度等操作。并且在必要的时候应该先识别出带有文字的行，然后把每个行截取出来处理好后使用 Tesseract 的单行模式依次进行识别然后再合并，而不是直接进行识别。而这些操作都是我所没有进行的。由于精力原因也没有进行（考虑到，网络上的教程大多数是基于 Python 给出的示例，在浏览器端进行等效操作需要查阅另外的资料，虽然最后也能实现）。</p>
@@ -798,7 +823,7 @@ CFG scale: 5
 <p>具体到我的使用体验上，一方面我想说的是<strong>自己在 YubiKey 上设置的 PIN 一定要牢记</strong><del>（关于我忘记了自己两个月前为 YubiKey 的 OpenPGP 功能设置的 PIN 这件事（还好之前备份过私钥文件，重新导入回来了））</del>，另一方面就是要把 YubiKey 放在一个你认为合适的位置（要兼顾安全性和方便性），当然更不要随便乱放导致弄丢。</p>
 <h2>游戏</h2>
 <h3>原神</h3>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/2023-5-genshin-impact.png" alt="2023-5-genshine-impact.png"></p>
+<p><img src alt="2023-5-genshine-impact.png"></p>
 <p>原神是我四月份刚刚开始玩的，玩到现在玩了差不多一个多月吧。感觉还是挺好玩的，在我玩过的游戏当中算是比较好玩的那一类。</p>
 <p>游戏的类型是 RPG，我玩过的 RPG 不多，但是感觉原神和我记忆里的 RPG 游戏从玩法上差不多（有主线剧情任务（魔神任务）和支线任务）。单从任务系统的设计上来说，我还挺喜欢它的角色支线任务的设置（好像叫传说任务），这种任务的玩法有点类似 Galgame 和 RPG 的结合体，有多结局和流程图以及结局的 CG，也可以重复进行从而达成所有结局，我目前玩了芭芭拉的角色支线任务，感觉和 Galgame 差不多。如果角色和剧情多一点就好了。其它支线任务有一个缺点就是接了之后不能取消，我最近才发现，结果就导致主线剧情有时会因为支线任务没做完而无法继续。我玩到现在主线和支线的剧情感觉还是不错的，有些剧情还是挺有趣的，也有的剧情挺感人的。</p>
 <p>每日委托实在有点太千篇一律了，我不是很喜欢，以至于有的时候我即使登录游戏也懒得做每日委托。</p>
@@ -811,7 +836,7 @@ CFG scale: 5
 <h2>DN42</h2>
 <p>在学习 DN42 的过程中学习了 WireGuard 和 BIRD2 等软件的使用，过程中踩了不少坑，感谢 <a href="https://i.apeiria.net/">Misaka13514</a> 孜孜不倦的指导。</p>
 <p>P.S. 我注册 DN42 域名的时候竟然发现 <a href="https://neko.dn42/">neko.dn42</a> 这个域名还没有被注册于是直接注册了，成功拿到，好耶！</p>
-<p><img src="/home/byn/%E4%BB%A3%E7%A0%81/blog-src/data/articles/images/2023-5-dn42-domain-register.png" alt="2023-5-dn42-domain-register.png"></p>
+<p><img src alt="2023-5-dn42-domain-register.png"></p>
 <h2>CTF</h2>
 <p>今年三月份的时候参加了一场线下的 CTF。这次比赛组队是每个学校组几个队，而我很幸运地和两个大佬组在了一队，我就做了个签到题和一道最简单的 Misc 题。</p>
 <p>参加之前低估了这次比赛的难度，本来还是有机会多做出一道 Pwn 的题目的，可惜解法我是在最后的时间想到的，以至于没有时间进行验证和作答了。</p>

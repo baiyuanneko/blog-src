@@ -1,7 +1,7 @@
 {
   "博客标题": "柏园猫のBlog",
-  "博客描述（副标题）": "「初めて守りたくて　寄り添いこの空のもとで」 ",
-  "博客程序版本（禁止修改此值，否则会导致跨版本升级异常）": 20250311,
+  "博客描述（副标题）": "香子兰世界第一可爱!",
+  "博客程序版本（禁止修改此值，否则会导致跨版本升级异常）": 20250611,
   "在菜单中添加归档和标签的入口": true,
   "在文章或页面的底部添加分享按钮，以便复制直链url": true,
   "菜单中的外部链接": [
@@ -19,7 +19,7 @@
   "全局主题设置": {
     "//": "颜色格式为十六进制颜色或HTML颜色名，如white、grey、#66ccff",
     "是否使用第三方主题": false,
-    "标题栏背景颜色": "#e35a8e",
+    "标题栏背景颜色": "#1976a4",
     "标题栏文字颜色": "#ffffff",
     "是否使用纯色背景（优先级高于背景图像）": false,
     "若使用纯色背景，颜色为": "",
@@ -27,7 +27,7 @@
     "若使用背景图像，设置为": {
       "//": "只能选用以下方案中的一种。",
       "将某个url作为背景图像": true,
-      "若将某个url作为背景图像，这个url是": "https://api.paugram.com/wallpaper/",
+      "若将某个url作为背景图像，这个url是": "./bg.jpg",
       "将网站根目录下的background.webp作为背景图像": false
     },
     "若使用第三方主题，是否来自本地文件": false,
@@ -36,7 +36,7 @@
     "第三方主题版本": "",
     "第三方主题文件内容": [],
     "禁用导航栏的阴影效果": false,
-    "链接颜色": "#ff368b",
+    "链接颜色": "#3473b7",
     "是否启用live2d-widget": true,
     "live2d-widget设置": {
       "widget路径": "https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/",
@@ -91,10 +91,23 @@
       "范围包括抖机灵分类下的一言": true
     }
   },
-  "底部信息（格式为markdown）": "此博客上的所有文章均属于公有领域，这意味着你可以不受限制地使用和加工它们。\n\n<a href=\"https://icp.gov.moe/?keyword=20223514\" target=\"_blank\">萌ICP备20223514号</a>\n\n<a href=\"https://nekomoe.xyz/atom.xml\" target=\"_blank\">使用 RSS 订阅本站</a><br />",
+  "底部信息（格式为markdown）": "除特别标注外，此博客上的所有文章属于公有领域。\n\n博客目前的背景图是《巧克力与香子兰》（NEKOPARA），版权归属 NEKOPARA 制作方（NEKO WORKS）。\n\n<a href=\"https://icp.gov.moe/?keyword=20223514\" target=\"_blank\">萌ICP备20223514号</a>\n\n<a href=\"https://nekomoe.xyz/atom.xml\" target=\"_blank\">使用 RSS 订阅本站</a><br />",
   "全站内容授权说明": "",
   "页面列表": [],
   "文章列表": [
+    {
+      "文章标题": "新的开始",
+      "摘要": "简单翻新了一下博客，以及对未来的一些展望",
+      "创建时间（时间戳）": 1752070380000,
+      "修改时间（时间戳）": 1752070380000,
+      "标签": [
+        "杂谈"
+      ],
+      "是否置顶": false,
+      "是否隐藏": false,
+      "启用评论": true,
+      "文件名": "new-start.md"
+    },
     {
       "文章标题": "Arch Linux 安装和配置 Open WebUI",
       "文件名": "arch-linux-open-webui.md",
@@ -460,9 +473,9 @@
   "友人帐页面允许评论": true,
   "CDN选择": 1,
   "CDN路径": "https://unpkg.com",
-  "启用自定义CSS": false,
+  "启用自定义CSS": true,
   "启用自定义JS": false,
-  "自定义CSS": "",
+  "自定义CSS": "* {\n  font-family: \"更纱黑体 UI SC\", \"思源黑体 CN\", \"Noto Sans CJK SC\", \"微软雅黑\", sans-serif\n}",
   "自定义JS": "",
   "文章列表中每页的文章数为": "10",
   "全站内容授权协议": "unlicensed",
@@ -488,5 +501,5 @@
     "启用": false,
     "列表": []
   },
-  "站点主题": "Miracle"
+  "站点主题": "default"
 }
