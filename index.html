@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://unpkg.com/katex@0.16.3/dist/katex.min.css" media="print" onload="this.media='all'">
   <link rel='stylesheet' href="https://unpkg.com/@waline/client@2.15.8/dist/waline.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://unpkg.com/highlight.js@9.12.0/styles/tomorrow.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" id="highlight_dark" href="https://unpkg.com/highlight.js@9.12.0/styles/vs2015.css" media="print" disabled>
   <link rel="stylesheet" href="https://unpkg.com/bootstrap@5.0.2/dist/css/bootstrap.min.css">
 </head>
 
@@ -446,11 +447,11 @@
     padding-left: 12px;
     padding-right: 12px;
     display: inline-block;
-    color: white!important
+    /* color: white!important */
   }
 
-  code * {
-    color: white!important
+  pre code {
+    color: white
   }
 
   .bbg-comment-area {
@@ -1961,9 +1962,11 @@
     switch (mode) {
       case "light":
         darkModeElement.disabled = true;
+        document.getElementById("highlight_dark").disabled = true;
         break;
       case "dark":
         darkModeElement.disabled = false;
+        document.getElementById("highlight_dark").disabled = false;
         break;
       default:
         darkModeElement.disabled = !darkModeElement.disabled;

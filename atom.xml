@@ -3,21 +3,83 @@
     <subtitle>香子兰世界第一可爱!</subtitle>
     <link href="https://nekomoe.xyz/atom.xml" rel="self"/>
     <link href="https://nekomoe.xyz"/>
-    <updated>2025-08-03T15:40:12.805Z</updated>
+    <updated>2025-08-30T10:37:47.707Z</updated>
     <id>https://nekomoe.xyz</id>
     <author>
         <name>柏园猫のBlog</name>
     </author>
     <generator uri="https://bbg.nekomoe.xyz">Baiyuanneko's Blog Generator</generator>
     <entry>
+      <title>IIS 配置 SSL 证书与反向代理</title>
+      <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=iis-ssl-rp.md"/>
+      <id>https://nekomoe.xyz/index.html?type=article&amp;filename=iis-ssl-rp.md</id>
+      <content type="html">
+        <![CDATA[
+          <h2>前言</h2>
+<p>最近买了一台腾讯云的服务器并且把它装成 Windows Server 了。既然都用了 Windows Server 那肯定要用最正宗的 IIS 作为 Web 服务器。这里介绍一下使用 IIS，如何进行 SSL 证书的配置与反向代理的配置。SSL 配置方面我使用的是 Certify The Web. 这是一个图形化的 SSL 证书配置程序；反向代理使用 Rewrite 和 Request Router 两个插件结合实现。</p>
+<h2>SSL 证书</h2>
+<p>首先下载 <a href="https://certifytheweb.com/">Certify The Web</a>. 这是一个针对 IIS 平台的图形化的 SSL 证书配置工具，他可以完成证书申请、证书应用等流程的自动化。</p>
+<p>前提：确保已经在 IIS 中创建好对应的站点，并记下站点名称。</p>
+<ol>
+<li>按照下图操作，配置证书对应的网站和域名。</li>
+</ol>
+<p><img src="./images/iis-1.png" alt></p>
+<ol>
+<li>按照下图操作，选择一个认证方式。我选择的是 DNS 验证。这里需要填写 DNS 的 API 的 API Key 和 Key ID 等信息。我的 DNS 服务器使用的是 DNSPod 国内版，这里需要注意的是 DNSPod 的 API 并不是腾讯云子账户的 API.</li>
+</ol>
+<p><img src="./images/iis-2.png" alt></p>
+<ol>
+<li>点击 Request Certificate 按钮开始获取证书。</li>
+</ol>
+<p><img src="./images/iis-3.png" alt></p>
+<ol>
+<li>回到 IIS 中，为 IIS 站点添加一个 :443(https) 的绑定，并选择刚刚申请好的证书。</li>
+</ol>
+<p><img src="./images/iis-4.png" alt></p>
+<h2>反向代理</h2>
+<p>IIS 中配置反向代理，需要用到 Rewrite 和 Request Router 这两个插件。</p>
+<p>这里我主要参考的是<a href="https://learn.microsoft.com/en-us/iis/extensions/url-rewrite-module/reverse-proxy-with-url-rewrite-v2-and-application-request-routing">微软官方的这篇文档</a>.</p>
+<ul>
+<li><p>URL Rewrite Module 的下载地址：<a href="https://www.iis.net/downloads/microsoft/url-rewrite">https://www.iis.net/downloads/microsoft/url-rewrite</a></p>
+</li>
+<li><p>Request Router 的下载地址： <a href="https://www.iis.net/downloads/microsoft/application-request-routing">https://www.iis.net/downloads/microsoft/application-request-routing</a></p>
+</li>
+</ul>
+<p>分别将两个插件安装完成后，刷新下 IIS 管理器，并点击本机的主页（注意不是网站的注意），进入 Application Request ... 的这个图标。按下图图示进入代理配置页面，并启用代理功能。</p>
+<p><img src="./images/iis-5.png" alt></p>
+<p><img src="./images/iis-6.png" alt></p>
+<p><img src="./images/iis-7.png" alt></p>
+<p>然后回到网站中，双击图标进入 URL 重写界面。</p>
+<p><img src="./images/iis-8.png" alt></p>
+<p>点击右侧的“添加规则”按钮并添加一个反向代理规则。</p>
+<p><img src="./images/iis-9.png" alt></p>
+<p>在此页面填写你要转发到的地址+端口</p>
+<p><img src="./images/iis-12.png" alt></p>
+<p>然后进入刚刚创建的规则，这样设置，从而为该规则指定一个合适的主机名（推荐指定，这样可以实现对于不同的主机名转发到不同地址和端口）：</p>
+<blockquote>
+<p>条件中输入为{HTTP_HOST} 与模式匹配时，具体模式只填写主机名即可，如<code>test.example.com</code></p>
+</blockquote>
+<p><img src="./images/iis-10.png" alt></p>
+<p>然后将操作这里按下图设置。 重写 URL 设置为 <code>http://localhost:11451/{R:1}</code></p>
+<p>11451 代表要转发的端口</p>
+<p><img src="./images/iis-11.png" alt></p>
+<p>至此，设置完成，可以打开浏览器访问一下看看反代的效果，是否成功之类的。</p>
+
+
+        ]]>
+      </content>
+      <summary type="html">如何使用 IIS 来配置 SSL 证书与反向代理，可以使用 Rewrite 和 Request Router 插件，与 Certify The Web 这个程序来实现。</summary>
+      <updated>2025-08-30T02:05:00.000Z</updated>
+      <published>2025-08-30T02:05:00.000Z</published>
+      </entry><entry>
       <title>魔法游记</title>
       <link href="https://nekomoe.xyz/index.html?type=article&amp;filename=magic-tour.md"/>
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=magic-tour.md</id>
       <content type="html">
         <![CDATA[
-          &amp;lt;warning-hint&amp;gt;
+          <warning-hint>
 本文中含有大量图片，共约 84 MB，若您在使用手机流量请慎重考虑！
-&amp;lt;/warning-hint&amp;gt;
+</warning-hint>
 
 <p>出游这种事情对我来说，与“洗澡”似乎有些共通之处，每个晚上，对洗澡总是抗拒的，只想躺在床上玩耍手机，什么都不做，而当自己开始了洗澡之后，却舍不得结束，只想让美好的时光不断延长。那么下面就是正题了！</p>
 <h2>7/5 - 黄豆粉老师的画展</h2>
@@ -335,7 +397,7 @@ Use a production WSGI server instead
 <pre><code>pip install waitress
 waitress-serve --host 127.0.0.1 --port 8000 server:app
 </code></pre>
-<p>这里你可以注意到，我所监听的是 127.0.0.1，而不是 0.0.0.0 或者某个网站域名，这并不是意味着我学艺不精，不知道应该使用 0.0.0.0 或者指定一个域名才能监听来自公网的流量，而是因为我们接下来还需要设置一个至关重要的东西：反向代理。我们打算，通过反向代理监听某个域名，然后把请求转发给本地 127.0.0.1 的 Waitress 服务器。这并不是我故意想多找点事做，而是因为我们需要区分清楚应用服务器和 Web 服务器之间的差异。包括在 Waitress 的官方文档&amp;lt;ref url="https://docs.pylonsproject.org/projects/waitress/en/latest/reverse-proxy.html"&amp;gt;Using Behind a Reverse Proxy - Waitress 官方文档&amp;lt;/ref&amp;gt;中也有说：</p>
+<p>这里你可以注意到，我所监听的是 127.0.0.1，而不是 0.0.0.0 或者某个网站域名，这并不是意味着我学艺不精，不知道应该使用 0.0.0.0 或者指定一个域名才能监听来自公网的流量，而是因为我们接下来还需要设置一个至关重要的东西：反向代理。我们打算，通过反向代理监听某个域名，然后把请求转发给本地 127.0.0.1 的 Waitress 服务器。这并不是我故意想多找点事做，而是因为我们需要区分清楚应用服务器和 Web 服务器之间的差异。包括在 Waitress 的官方文档<ref url="https://docs.pylonsproject.org/projects/waitress/en/latest/reverse-proxy.html">Using Behind a Reverse Proxy - Waitress 官方文档</ref>中也有说：</p>
 <blockquote>
 <p>Often people will set up &amp;quot;pure Python&amp;quot; web servers behind reverse proxies, especially if they need TLS support (Waitress does not natively support TLS). Even if you don&amp;#39;t need TLS support, it&amp;#39;s not uncommon to see Waitress and other pure-Python web servers set up to only handle requests behind a reverse proxy; these proxies often have lots of useful deployment knobs.</p>
 </blockquote>
@@ -551,7 +613,7 @@ pip install --pre openvino
       <id>https://nekomoe.xyz/index.html?type=article&amp;filename=my-2023.md</id>
       <content type="html">
         <![CDATA[
-          <p>&amp;lt;info-hint&amp;gt;本文章中含有大量图片（共约 28.8 MB），请注意流量消耗。&amp;lt;/info-hint&amp;gt;</p>
+          <p><info-hint>本文章中含有大量图片（共约 28.8 MB），请注意流量消耗。</info-hint></p>
 <p>坦白地说自大学以来咱就一直处在一个动力不是很足的状态下，不过还是顺利活过了 2023 年，也有很多事情让我开心 或者觉得有意义（</p>
 <p>首先是 2023 年咱终于体会到了什么是真正的大学生活，2022 年因为疫情所以几乎什么都干不了，现在看来对我来说影响最大的就是紧闭着的校门导致的不能点外卖或者出去吃，因为学校食堂真的会吃腻（对我来说）而且一些菜确实烧得不好吃。和室友出去吃饭还是很开心的，但是必须承认的一点是即便算是体会到了完全体的大学生活，也与我以前的想象差距不小。比如，大学虽然有很多自由时间和精力，但是不意味着自己就会进入自主学习或者更上进的状态，也就是说拖延症这种问题并不会因为上了大学自行解决（）自控力还在其次，性格或者成长上的进步也需要自己去努力，而不是光是靠更轻松的生活，就觉得这些问题都直接都被解决了。</p>
 <p>还有是今年参加了一些 CTF 比赛，作为一个自认为高中生活本身比较无趣（高中没有计算机社团，也没有参加过什么相关比赛）的人来说可以说是第一次的初体验了，不但拿了奖还获得了一笔对我来说数目不算小的奖金，开心（）这里也十分感谢几个队友在比赛过程中对我的帮助（我比较容易紧张）以及在分奖金时候对我的照顾；2023 年一共参加过两次 CTF 和一次 AWD 形式的比赛，还因为这几次比赛的缘故有幸得到了学校的注意，并体验了学校的护网工作。帮大忙了.webp（指参加比赛给我的前途帮大忙了，不要理解成给学校的护网工作帮大忙了，其实摸了很多鱼（</p>
@@ -577,7 +639,7 @@ pip install --pre openvino
 <p>然后是 Steam 上，终于开始买一些游戏了，首先是补票了 NEKOPARA 的全系列，然后买了一直想玩的《主播女孩重度依赖》（不过目前只通关了14/24个结局），然后是买了一些 Galgame （《恋爱绮谭 不存在的夏天》、《恋爱绮谭 不存在的真相》以及对我来说有点贵的《常轨脱离 Creative》），以及《城市：天际线》（但是还没开始玩）这里面对我来说觉得最值回票价的反而是最贵的《常轨脱离 Creative》，几位女主都很可爱，<code>最享受的一集！.webp</code> 当然我这个 Steam 库存量也算少的，也不是说要攀比或者什么，只是随便分享一下（（</p>
 <p><img src="./2023Summary_SteamLibrary.png" alt="image"></p>
 <p>其它游戏方面，玩了《Undertale》、《Getting Over It》之类的一些独立游戏。以及在时断时续地玩着《osu!》（以及《osu!lazer》），我打这个水平不是很高但是消磨时间还是一个不错的选择（以及，很荣幸能把 <a href="https://blog.chihuo2104.dev/">@chihuo2104</a> 拉入 osu! 的坑（x</p>
-<p>&amp;lt;info-hint&amp;gt;下面两张图中上面一张是 osu!stable 的个人资料，下面一张是 osu!lazer 的个人资料。&amp;lt;/info-hint&amp;gt;</p>
+<p><info-hint>下面两张图中上面一张是 osu!stable 的个人资料，下面一张是 osu!lazer 的个人资料。</info-hint></p>
 <p><img src="./2023Summary_osu_01.png" alt="image"></p>
 <p><img src="./2023Summary_osuLazer_01.png" alt="image"></p>
 <p>《Minecraft》方面，寒暑假的时候玩了群友开的服务器（</p>
@@ -893,14 +955,14 @@ CFG scale: 5
 <p>三月份的时候 <a href="https://i.apeiria.net/">Misaka13514</a> 送了我一个 YubiKey 5C NFC，从此就开始了我使用 YubiKey 的经历。那么什么是 YubiKey 呢？请看下面的介绍。</p>
 <blockquote>
 <p>YubiKey是由Yubico生产的身份认证设备，支持一次性密码（OTP）、公钥加密和身份认证，以及由FIDO联盟（FIDO U2F）开发的通用第二因素（U2F）协议。它让用户可以透过提交一次性密码或是使用设备产生的公开/私密金钥来安全地登录自己的帐户。针对不支持一次性密码的网站，YubiKey也可以存储静态密码。Facebook使用YubiKey作为员工凭证；Google同时为雇员和用户提供支持。还有一些密码管理器也支持YubiKey。
---- 维基百科&amp;lt;ref url="https://zh.wikipedia.org/wiki/YubiKey"&amp;gt;YubiKey - 维基百科&amp;lt;/ref&amp;gt;</p>
+--- 维基百科<ref url="https://zh.wikipedia.org/wiki/YubiKey">YubiKey - 维基百科</ref></p>
 </blockquote>
 <p>我入门 YubiKey 的时候除了官方的教程，主要参考的文章是这一篇：</p>
 <ul>
 <li><a href="https://blog.gimo.me/posts/getting-started-with-yubikey/">开始使用 YubiKey | Yuanji&amp;#39;s Blog</a></li>
 </ul>
 <p>我目前使用 YubiKey 的用途有两个，一个是将其作为网站的两步验证因素之一，另一个是用它来存储自己的 OpenPGP 私钥。对于两步验证和 OpenPGP 这两个概念不在这里过多介绍，简单来说前者指的是在登录网站账户的时候除了账户密码还同时要求另一个方式来验证，后者比较复杂，如果你完全不知道的话可以看<a href="https://zh.wikipedia.org/wiki/PGP">这个来自维基百科的链接</a>做进一步了解。</p>
-<p>&amp;lt;info-hint&amp;gt;虽然不用 YubiKey 这样的硬件安全密钥也可以设置两步验证或者比较安全的存储 OpenPGP 私钥，但是实际上在做这些事的时候 YubiKey 比传统方式安全得多。因为不管是 TOTP 还是 FIDO U2F 还是使用 GPG 加密/解密/签名文件，传统方式都必须要将 TOTP 私钥 / OpenPGP 私钥 / 其它各种类型的私钥存储在设备本地，如果相关应用没有妥善地存储私钥（比如不加密/加密方式极其简单/加密所用的密钥泄露）就有可能被恶意软件窃取。而对于 YubiKey 来说私钥一旦被导入 YubiKey 中就无法再次读出，确保了私钥不会泄露。&amp;lt;ref url="https://developers.yubico.com/U2F/Protocol_details/Key_generation.html"&amp;gt;Key generation&amp;lt;/ref&amp;gt;&amp;lt;ref url="https://support.yubico.com/hc/en-us/articles/360013790259-Using-Your-YubiKey-with-OpenPGP"&amp;gt;Using Your YubiKey with OpenPGP - Yubico&amp;lt;/ref&amp;gt;&amp;lt;ref url="https://developers.yubico.com/OATH/"&amp;gt;OATH&amp;lt;/ref&amp;gt;&amp;lt;/info-hint&amp;gt;</p>
+<p><info-hint>虽然不用 YubiKey 这样的硬件安全密钥也可以设置两步验证或者比较安全的存储 OpenPGP 私钥，但是实际上在做这些事的时候 YubiKey 比传统方式安全得多。因为不管是 TOTP 还是 FIDO U2F 还是使用 GPG 加密/解密/签名文件，传统方式都必须要将 TOTP 私钥 / OpenPGP 私钥 / 其它各种类型的私钥存储在设备本地，如果相关应用没有妥善地存储私钥（比如不加密/加密方式极其简单/加密所用的密钥泄露）就有可能被恶意软件窃取。而对于 YubiKey 来说私钥一旦被导入 YubiKey 中就无法再次读出，确保了私钥不会泄露。<ref url="https://developers.yubico.com/U2F/Protocol_details/Key_generation.html">Key generation</ref><ref url="https://support.yubico.com/hc/en-us/articles/360013790259-Using-Your-YubiKey-with-OpenPGP">Using Your YubiKey with OpenPGP - Yubico</ref><ref url="https://developers.yubico.com/OATH/">OATH</ref></info-hint></p>
 <p>具体到我的使用体验上，一方面我想说的是<strong>自己在 YubiKey 上设置的 PIN 一定要牢记</strong><del>（关于我忘记了自己两个月前为 YubiKey 的 OpenPGP 功能设置的 PIN 这件事（还好之前备份过私钥文件，重新导入回来了））</del>，另一方面就是要把 YubiKey 放在一个你认为合适的位置（要兼顾安全性和方便性），当然更不要随便乱放导致弄丢。</p>
 <h2>游戏</h2>
 <h3>原神</h3>
@@ -949,7 +1011,7 @@ CFG scale: 5
 <li><a href="https://music.163.com/song?id=399367367">瞬間を閉じ込めた永遠</a></li>
 <li><a href="https://music.163.com/song?id=399366411">螺旋に伸びる色彩</a></li>
 </ul>
-<p>&amp;lt;warning-hint&amp;gt;这里提示一下在 Linux 下想要用 Wine 来运行《樱之诗》的人：这个游戏用原版 Wine 运行的话在某一段剧情会卡死崩溃。如果遇到了可以换用 Proton 运行时来运行。&amp;lt;/warning-hint&amp;gt;</p>
+<p><warning-hint>这里提示一下在 Linux 下想要用 Wine 来运行《樱之诗》的人：这个游戏用原版 Wine 运行的话在某一段剧情会卡死崩溃。如果遇到了可以换用 Proton 运行时来运行。</warning-hint></p>
 <p>喜欢《青空下的加缪》一方面是因为气氛很美，作画也很精美，另一方面剧情至少我觉得很感人。结局有点遗憾，不过从整个故事的角度来看也是一种必然。</p>
 <p>动画方面就挑几部我这几个月看的又很喜欢的动画来评价吧。</p>
 <p>首先是《虚构推理》。Bangumi 上这部的评分好像不是很高，但是我自己还是很喜欢的：我觉得这部番的女主（<a href="https://bgm.tv/character/66614">岩永琴子</a>）很好看，在性格上又很有特点；这部番的整体画风还不错；故事背景、具体情节和故事主题从整体来讲都比较对我的胃口。这部番和《冰菓》给我的感觉不太相同，但我觉得它比《冰菓》还要更有意思一些（也许一个原因是我对千反田爱榴完全无感，但是这部番的女主还挺有趣的）。</p>
@@ -999,7 +1061,7 @@ CFG scale: 5
       <content type="html">
         <![CDATA[
           <p>参加了中国科学技术大学第九届信息安全大赛（即 Hackergame 2022），最终总分 4600，排名 64，排名有点遗憾地没有达到前 50，不过本来我的 CTF 经验也很少，而且，比赛的过程还是很开心的，也学到了很多很有意思的知识。</p>
-<p>&amp;lt;info-hint&amp;gt;Hackergame 2022 比赛已于 2022 年 10 月 29 日中午 12:00 正式结束，本文发布于当天晚上，不存在提前公布题解的情况。&amp;lt;/info-hint&amp;gt;</p>
+<p><info-hint>Hackergame 2022 比赛已于 2022 年 10 月 29 日中午 12:00 正式结束，本文发布于当天晚上，不存在提前公布题解的情况。</info-hint></p>
 <h1>一些感想</h1>
 <p>这次给我印象很深的是「杯窗鹅影」和「传达不到的文件」这两题，一个是因为自己平时用 Wine 也挺多的，但是却很少思考 Wine 存在的安全问题。包括我在网上搜集「Wine 如何访问 Linux 根目录」相关资料的时候，也发现很多人其实都是认为删除了 Wine 默认的 <code>Z:</code> 磁盘映射之后，Wine 运行的程序就无法访问 Linux 根目录了（我自己在做这道题之前也是这样想的）；再比如「传达不到的文件」这一题，即使设置了文件权限，也不代表文件完全处于保护之中，所以这两道题给我的启示就是说计算机安全是没有也不能「想当然」的。可惜的是「传达不到的文件」这题我在比赛时未能想到解题方法。</p>
 <p>另外一个给我印象很深的是「evilCallback」这题，V8 是 Chromium 所使用的 JavaScript 引擎，使用的是非常广泛的，并且它的开发者的水平都是非常顶尖的，但是这样的程序也并不是完美的，而计算机安全中任何一个小小的漏洞和疏忽（即使漏洞想要被利用非常困难，但也是有可能的）都有可能导致不良的后果。所以说计算机安全真的是一个很深奥的学问。当然，以我的水平是无法利用「evilCallback」的漏洞的（（</p>
@@ -1102,7 +1164,7 @@ with open(&amp;quot;./checkpoint/model.pt&amp;quot;, &amp;quot;wb&amp;quot;) as 
         <![CDATA[
           <p>在 Minecraft 中聊天是一件趣事，然而过往的聊天记录，却无法简单地回顾。</p>
 <p>我们怎样才能找回过往在 Minecraft 中留下的点点滴滴的回忆呢？</p>
-<p>&amp;lt;info-hint&amp;gt;本文中，导出的聊天记录是<strong>临时所用的中间格式</strong>。只有在通过本文第二部分的检索程序实现才能够从导出的聊天记录中检索消息。&amp;lt;/info-hint&amp;gt;</p>
+<p><info-hint>本文中，导出的聊天记录是<strong>临时所用的中间格式</strong>。只有在通过本文第二部分的检索程序实现才能够从导出的聊天记录中检索消息。</info-hint></p>
 <h2>特别感谢</h2>
 <p>本文中的数据检索相关功能主要是由 <strong><a href="https://github.com/Misaka13514/">欠陥電気 𝑹𝒂𝒅𝒊𝒐𝑵𝒐𝒊𝒔𝒆</a></strong> 开发和完善。</p>
 <h2>准备工作</h2>
