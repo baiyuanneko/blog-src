@@ -1,7 +1,7 @@
 {
   "博客标题": "柏园猫のBlog",
   "博客描述（副标题）": "香子兰世界第一可爱!",
-  "博客程序版本（禁止修改此值，否则会导致跨版本升级异常）": 20250929,
+  "博客程序版本（禁止修改此值，否则会导致跨版本升级异常）": 20261001,
   "在菜单中添加归档和标签的入口": true,
   "在文章或页面的底部添加分享按钮，以便复制直链url": true,
   "菜单中的外部链接": [
@@ -54,10 +54,10 @@
     }
   },
   "全局评论设置": {
-    "启用valine评论": true,
+    "启用valine评论": false,
     "valine设置": {
-      "leancloud_appid": "SykuVs4qcWMkl4RUtKEUlmog-gzGzoHsz",
-      "leancloud_appkey": "0jowkR4ct0lJbWcvocymEkKw",
+      "leancloud_appid": "",
+      "leancloud_appkey": "",
       "记录评论者ip": true,
       "记录访问量": true,
       "评论区占位符（提示文字）": "",
@@ -71,6 +71,10 @@
     "启用disqus评论": false,
     "disqus设置": {
       "shortname": ""
+    },
+    "启用rustaline评论": true,
+    "rustaline设置": {
+      "serverurl": "https://cs.byn.moe"
     }
   },
   "一言设置": {
